@@ -1,0 +1,77 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{中国人民大学2024年数学分析真题}
+\section*{19．中国人民大学2024年数学分析试卷}
+
+\subsection{题目1}
+一、（15 分）已知 \(n\) 为正整数，计算极限 \(\lim _{n \rightarrow \infty} \sum_{i=1}^{n} \frac{\sin \frac{i \pi}{n}}{n+\frac{i}{n}}\) ．
+
+\subsection{题目2}
+二．（15 分）设 \(n\) 为正整数，函数 \(f(x)\) 在 \([0,+\infty)\) 上一致连续，满足对任意 \(x>0\) ，都有 \(\lim _{n \rightarrow \infty} f(x+n)=\) 0 ，证明： \(\lim _{x \rightarrow+\infty} f(x)=0\) ．
+
+\subsection{题目3}
+三．（15 分）设函数 \(f(x)\) 在［0，2］上存在二阶导数，且 \(|f(x)| \leq 1,\left|f^{\prime \prime}(x)\right| \leq 1, \forall x \in[0,2]\) ．证明：
+
+\[
+\left|f^{\prime}(x)\right| \leq 2, \forall x \in[0,2]
+\]
+
+\subsection{题目4}
+四．（15 分）设函数 \(f(x)=\int_{1}^{x} \mathrm{e}^{t^{2}} \mathrm{~d} t\) ，证明：存在 \(\xi \in(1,2), \eta \in(1,2)\) ，满足
+
+\[
+f(\xi)=(2-\xi) \mathrm{e}^{\xi^{2}}, f(2)=\eta \mathrm{e}^{\eta^{2}} \ln 2 .
+\]
+
+\subsection{题目5}
+五．（15 分）求函数 \(f(x, y, z)=x y z\) 在条件 \(x^{2}+y^{2}+z^{2}=1, x+y+z=0\) 下的极值．
+
+\subsection{题目6}
+六．（15 分）设函数 \(f(x), g(x)\) 在区间 \([a, b]\) 连续，且 \(f(x)\) 严格递增， \(0 \leq g(x) \leq 1\) ．证明：
+
+\[
+\int_{a}^{a+\int_{a}^{b} g(t) \mathrm{d} \dot{t}} f(x) \mathrm{d} x \leq \int_{a}^{b} f(x) g(x) \mathrm{d} x
+\]
+
+\subsection{题目7}
+七．（15 分）设函数 \(f(x, y)\) 有连续偏导数，对任意光滑曲线 \(L\) ，曲线积分 \(\int_{L} 2 x y \mathrm{~d} x+f(x, y) \mathrm{d} y\) 与路径无关．求 \(f(x, y)\) 满足对任意实数 \(t\) 都有
+
+\[
+\int_{(0,0)}^{(t, 1)} 2 x y \mathrm{~d} x+f(x, y) \mathrm{d} y=\int_{(0,0)}^{(1, t)} 2 x y \mathrm{~d} x+f(x, y) \mathrm{d} y .
+\]
+
+\subsection{题目8}
+八．（15 分）已知 \(V\) 是由曲面 \(y=x^{2}(x \geq 0)\) 和平面 \(y=x, x+y+z=2\) 及 \(z=0\) 围成的区域．计算积分
+
+\[
+\iiint_{V} x \mathrm{e}^{y+z} \mathrm{~d} x \mathrm{~d} y \mathrm{~d} z
+\]
+
+\subsection{题目9}
+九．（15 分）证明函数项级数 \(\sum_{n=1}^{\infty} \frac{x^{n}}{1-x^{2 n}}(1-x) \sin n x\) 在 \(\left(\frac{1}{2}, 1\right)\) 上一致收敛．
+
+\subsection{题目10}
+十．（15 分）给定 \(n\) 为正整数，设函数
+
+\[
+T_{n}(x)=\frac{\alpha_{0}}{2}+\sum_{k=1}^{n}\left(\alpha_{k} \cos k x+\beta_{k} \sin k x\right) .
+\]
+
+其中 \(\alpha_{0}, \alpha_{k}, \beta_{k}\) 为常数， \(1 \leq k \leq n\) 。证明：
+
+\[
+\max _{-\pi \leq x \leq \pi}\left|T_{n}^{\prime}(x)\right| \leq n^{2} \max _{-\pi \leq x \leq \pi}\left|T_{n}(x)\right|
+\]
+\end{document}

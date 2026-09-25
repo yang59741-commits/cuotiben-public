@@ -1,0 +1,82 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{湖南大学2024年数学分析真题}
+\section*{141．湖南大学2024年数学分析试卷}
+
+\subsection{题目1}
+1．解答如下问题：
+
+\begin{itemize}
+  \item[（1）] 已知 \(0<x_{1}<1, x_{n+1}=x_{n}\left(1-x_{n}\right), n=1,2, \cdots\) ，证明： \(\lim _{n \rightarrow \infty} n x_{n}=1\) ．
+  \item[（2）] 设 \(0<p<1,0<x_{1}<\frac{1}{p}, x_{n+1}=x_{n}\left(1-p x_{n}\right)\) ，证明： \(\lim _{n \rightarrow \infty} n x_{n}=\frac{1}{p}\) ．
+\end{itemize}
+
+\subsection{题目2}
+2．设函数 \(f(x)\) 在点 \(x=x_{0}\) 处可导．
+
+\begin{itemize}
+  \item[（1）] 记 \(x_{n}=f\left(x_{0}+\frac{1}{n^{2}}\right)+f\left(x_{0}+\frac{2}{n^{2}}\right)+\cdots+f\left(x_{0}+\frac{n}{n^{2}}\right)-n f\left(x_{0}\right)\) ，证明： \(\lim _{n \rightarrow \infty} x_{n}=\frac{1}{2} f^{\prime}\left(x_{0}\right)\) ．
+  \item[（2）] 求极限 \(\lim _{n \rightarrow \infty}\left(\sin \frac{1}{n^{2}}+\sin \frac{2}{n^{2}}+\cdots+\sin \frac{n}{n^{2}}\right)\) ．
+  \item[（3）] 求极限 \(\lim _{n \rightarrow \infty}\left(1+\frac{1}{n^{2}}\right)\left(1+\frac{2}{n^{2}}\right) \cdots\left(1+\frac{n}{n^{2}}\right)\) ．
+\end{itemize}
+
+\subsection{题目3}
+3．解答如下问题：
+
+\begin{itemize}
+  \item[（1）] 设 \(f(x)\) 为三次多项式，\(x \in[-1,1]\) ．证明：
+\[
+\int_{-1}^{1} f(x) \mathrm{d} x=\frac{1}{3}[f(1)+4 f(0)+f(-1)] .
+\]
+  \item[（2）] 设 \(f(x)\) 为 \([a, b]\) 上的三次多项式，证明：
+\[
+\int_{a}^{b} f(x) \mathrm{d} x=\frac{b-a}{6}\left[f(a)+4 f\left(\frac{a+b}{2}\right)+f(b)\right] .
+\]
+\end{itemize}
+
+\subsection{题目4}
+4．设 \(f(x)\) 在 \([0,+\infty)\) 上一致连续，对任意的 \(h>0\) ，序列 \(\{f(n h)\}\) 极限存在．证明： \(\lim _{x \rightarrow+\infty} f(x)\) 存在．
+
+\subsection{题目5}
+5．设函数列 \(\left\{f_{n}(x)\right\}\) 在 \([a, b]\) 上连续，且 \(\left\{f_{n}(x)\right\}\) 在 \([a, b]\) 上一致收敛于 \(f(x)\) ．证明：
+
+\begin{itemize}
+  \item[（1）] 存在 \(M>0\) ，对任意的正整数 \(n\) 及 \(x \in[a, b]\) ，有 \(\left|f_{n}(x)\right| \leq M\) ，且 \(|f(x)| \leq M\) ．
+  \item[（2）] 若 \(g(x)\) 在 \((-\infty,+\infty)\) 上连续，那么 \(\left\{g\left(f_{n}(x)\right)\right\}\) 在 \([a, b]\) 上一致收敛于 \(g(f(x))\) ．
+\end{itemize}
+
+\subsection{题目6}
+6．设 \(f(x)=\frac{1}{4} x(2 \pi-x), x \in[0,2 \pi]\) ．
+
+\begin{itemize}
+  \item[（1）] 将 \(f(x)\) 展开为 \([0,2 \pi]\) 上的 Fourier 级数，并计算 \(\sum_{n=1}^{\infty} \frac{1}{n^{2}}\) ．
+  \item[（2）] 通过将 \(f(x)\) 的 Fourier 级数逐项积分，计算 \(\sum_{n=1}^{\infty} \frac{1}{n^{4}}\) ．
+\end{itemize}
+
+\subsection{题目7}
+7．设 \(f(x), g(x)\) 在 \((a, b)\) 上连续，什么情况下方程 \(f(x) y=g(x)\) 在 \((a, b)\) 上确定了唯一的连续解？
+
+\subsection{题目8}
+8．设 \(f(x)\) 在 \([0,+\infty)\) 上连续，证明：含参量积分 \(\int_{0}^{+\infty} e^{-\alpha x} f(x) \mathrm{d} x\) 在 \(\alpha \in[0,+\infty)\) 上一致收敛的充要条件为 \(\int_{0}^{+\infty} f(x) \mathrm{d} x\) 收敛。
+
+\subsection{题目9}
+9．计算曲面积分
+
+\[
+\iint_{S} x y z\left(x^{2} y^{2}+y^{2} z^{2}+z^{2} x^{2}\right) \mathrm{d} S
+\]
+
+其中 \(S\) 为 \(x^{2}+y^{2}+z^{2}=a^{2}(a>0)\) 在第一卦限的部分。
+\end{document}

@@ -1,0 +1,87 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{中国科学院大学2024年数学分析真题}
+\section*{16．中国科学院大学2024年数学分析试卷（回忆版）}
+
+\subsection{题目1}
+一．（15 分）解答题．
+
+\begin{itemize}
+  \item[（1）] 证明：\(\left|e-\left(1+\frac{1}{n}\right)^{n}\right|<\frac{3}{n}, n \in \mathbb{N}^{+}\)．
+  \item[（2）] 设非负数列 \(\left\{a_{n}\right\}\) 满足 \(a_{n+m} \leq a_{n}+a_{m}\) ，证明： \(\lim _{n \rightarrow \infty} \frac{a_{n}}{n}=\inf \left\{\frac{a_{n}}{n}\right\}\) ．
+  \item[（3）] 求极限 \(\lim _{x \rightarrow+\infty} \frac{\left(\int_{0}^{x} e^{t^{2}} \mathrm{~d} t\right)^{2}}{\int_{0}^{x} e^{2 t^{2}} \mathrm{~d} t}\) ．
+\end{itemize}
+
+\subsection{题目2}
+二．（15 分）设 \(f(x)\) 在 \((a, b)\) 上连续，证明以下条件等价：
+
+\begin{itemize}
+  \item[（1）] \(f(x)\) 在 \((a, b)\) 上一致连续．
+  \item[（2）] \(f(x)\) 在端点 \(a\) 和 \(b\) 处极限存在．
+  \item[（3）] \(f(x)\) 可延拓成 \([a, b]\) 上的连续函数．
+\end{itemize}
+
+\subsection{题目3}
+三．（15 分）设 \(f(x)\) 在 \([a, b]\) 上二阶可导，且 \(f^{\prime}(a)=f^{\prime}(b)=0\) ，证明：存在 \(\xi \in(a, b)\) ，使得
+
+\[
+\left|f^{\prime \prime}(\xi)\right| \geq \frac{4}{(b-a)^{2}}|f(b)-f(a)|
+\]
+
+\subsection{题目4}
+四．（15 分）设 \(f(x)\) 在 \([0,1]\) 上连续，求极限 \(\lim _{n \rightarrow \infty} \int_{0}^{1} f(\sqrt[n]{x}) \mathrm{d} x\) ．
+
+\subsection{题目5}
+五．（15 分）设 \(f(x, y)\) 为二阶连续可微函数，且 \(\frac{\partial^{2} f}{\partial x^{2}}+\frac{\partial^{2} f}{\partial y^{2}}=x^{2} y^{2}\) ，求重积分
+
+\[
+\iint_{x^{2}+y^{2} \leq 1}\left(\frac{x}{\sqrt{x^{2}+y^{2}}} \frac{\partial f}{\partial x}+\frac{y}{\sqrt{x^{2}+y^{2}}} \frac{\partial f}{\partial y}\right) \mathrm{d} x \mathrm{~d} y .
+\]
+
+\subsection{题目6}
+六．（15 分）估计 \(\ln 2\) 的近似值，精确到 0． 0001.
+
+\subsection{题目7}
+七．（15 分）设 \(f\) 为 \(\mathbb{R}\) 上的凸函数，\(\varphi\) 为闭区间 \(E\) 上的连续函数，证明：
+
+\[
+f\left(\frac{1}{\mu(E)} \int_{E} \varphi(x) \mathrm{d} x\right) \leq \frac{1}{\mu(E)} \int_{E} f \circ \varphi(x) \mathrm{d} x
+\]
+
+其中 \(\mu(E)\) 为 \(E\) 的长度．
+
+\subsection{题目8}
+八．（15 分）设 \(I=\iiint_{V}(x+y-z+10) \mathrm{d} V\) ，其中 \(V: x^{2}+y^{2}+z^{2} \leq 3\) ，证明：
+
+\[
+28 \sqrt{3} \pi \leq I \leq 52 \sqrt{3} \pi
+\]
+
+\subsection{题目9}
+九．（15 分）计算曲线积分
+
+\[
+I=\oint_{L}\left(y^{2}-z^{2}\right) \mathrm{d} x+\left(z^{2}-x^{2}\right) \mathrm{d} y+\left(x^{2}-y^{2}\right) \mathrm{d} z .
+\]
+
+其中 \(L\) 是 \([0, a] \times[0, a] \times[0, a]\) 的表面与平面 \(x+y+z=\frac{3}{2} a\) 的交线，从上往下看取逆时针方向．
+
+\subsection{题目10}
+十．（15 分）证明：光滑曲线 \(y=f(x)(f(x)>0)\) 绕 \(x\) 轴旋转一周所得旋转曲面面积为
+
+\[
+S=2 \pi \int_{a}^{b} f(x) \sqrt{1+\left(f^{\prime}(x)\right)^{2}} \mathrm{~d} x
+\]
+\end{document}

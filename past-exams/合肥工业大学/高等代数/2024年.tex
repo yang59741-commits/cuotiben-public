@@ -1,0 +1,116 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{合肥工业大学2024年高等代数真题}
+\section*{100．合肥工业大学2024年高等代数试卷}
+
+\subsection{题目1}
+1．计算 \(n\) 阶行列式
+
+\[
+D_{n}=\left|\begin{array}{cccccc}
+\cos \alpha & 1 & 0 & \cdots & 0 & 0 \\
+1 & 2 \cos \alpha & 1 & \cdots & 0 & 0 \\
+0 & 1 & 2 \cos \alpha & \cdots & 0 & 0 \\
+\vdots & \vdots & \vdots & & \vdots & \vdots \\
+0 & 0 & 0 & \cdots & 2 \cos \alpha & 1 \\
+0 & 0 & 0 & \cdots & 1 & 2 \cos \alpha
+\end{array}\right|
+\]
+
+\subsection{题目2}
+2．讨论方程组
+
+\[
+\left\{\begin{array}{l}
+a x_{1}+(a+3) x_{2}+x_{3}=-2 \\
+x_{1}+a x_{2}+x_{3}=a \\
+x_{1}+x_{2}+a x_{3}=a^{2}
+\end{array}\right.
+\]
+
+何时有无穷多解，唯一解，无解？并在有无穷多解时求通解。
+
+\subsection{题目3}
+3．已知 \(n\) 阶矩阵 \(A, B\) 满足 \(A B=B A\) ，证明：\(r(A)+r(B) \geq r(A+B)+r(A B)\) ．
+
+\subsection{题目4}
+4．设 \(A=E-\xi \xi^{\mathrm{T}}\) ，其中 \(\xi\) 为 \(n\) 维实列向量。
+
+\begin{itemize}
+  \item[（1）] 证明：\(A^{2}=A\) 等价于 \(\xi^{\mathrm{T}} \xi=1\) 。
+  \item[（2）] 当 \(\xi^{\mathrm{T}} \xi=1\) 时，求 \(r(A)\) 。
+\end{itemize}
+
+\subsection{题目5}
+5．已知复矩阵 \(A=\left(\begin{array}{ccc}1 & 5 & 5 \\ 0 & 4 & 3 \\ 0 & a & 2\end{array}\right)\) 有一个二重特征值。
+
+\begin{itemize}
+  \item[（1）] 求 \(A\) 的最小多项式和若尔当标准形．
+  \item[（2）] 求 \(A\) 可对角化的充要条件．
+\end{itemize}
+
+\subsection{题目6}
+6．解答如下问题：
+
+\begin{itemize}
+  \item[（1）] 设 \(A\) 为上三角矩阵也为正交矩阵。证明：\(A\) 为对角矩阵，且对角线元素为 \(\pm 1\) 。
+  \item[（2）] 设 \(B\) 为 \(n\) 阶实可逆矩阵，证明：存在正交矩阵 \(Q\) 和主对角线元素大于零的上三角矩阵 \(R\) ，使得\(B=Q R\) ，并且这种分解是唯一的。
+\end{itemize}
+
+\subsection{题目7}
+7．设数域 \(P\) 上 \(n\) 维线性空间 \(V\) 的一组基为 \(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{n}\) ，令 \(\beta=\alpha_{1}+\alpha_{2}+\cdots+\alpha_{n}\) ，已知 \(V_{1}\) 为 \(\beta\)生成的子空间，\(V_{2}=\left\{k_{1} \alpha_{1}+k_{2} \alpha_{2}+\cdots+k_{n} \alpha_{n} \mid \sum_{i=1}^{n} k_{i}=0, k_{i} \in P, i=1,2, \cdots, n\right\}\) 。
+
+\begin{itemize}
+  \item[（1）] 求 \(V_{2}\) 的一组基和维数。
+  \item[（2）] 证明：\(V=V_{1} \oplus V_{2}\) ．
+\end{itemize}
+
+\subsection{题目8}
+8．给定 \(\mathbb{R}^{2 \times 2}\) 中的矩阵 \(B=\left(\begin{array}{ll}1 & 1 \\ 1 & 1\end{array}\right)\) ，定义 \(\mathbb{R}^{2 \times 2}\) 上的线性变换 \(\mathcal{A}\) 为 \(\mathcal{A}(X)=X B-B X, X \in \mathbb{R}^{2 \times 2}\)，另外取子空间 \(W=\left\{\left(\begin{array}{ll}x_{1} & x_{2} \\ x_{3} & x_{4}\end{array}\right)\left|\in \mathbb{R}^{2 \times 2}\right| x_{2}+x_{3}=0\right\}\) 。
+
+\begin{itemize}
+  \item[（1）] 求 \(W\) 的一组基。
+  \item[（2）] 证明：\(W\) 是 \(\mathcal{A}\) 的不变子空间．
+  \item[（3）] 记 \(\mathcal{A}\) 在 \(W\) 上的限制 \(\mathcal{A} \mid W\) 为 \(\mathcal{A}_{1}\) ，求 \(\mathcal{A}_{1}\) 的特征值和特征向量。
+  \item[（4）] 求 \(W\) 的一组基，使得 \(\mathcal{A}_{1}\) 在此基下的矩阵为对角矩阵。
+\end{itemize}
+
+\subsection{题目9}
+9．设 \(f_{1}(x), f_{2}(x), \cdots, f_{n-1}(x)\) 为复数域上的多项式 \((n \geq 2)\) ，且
+
+\[
+1+x+x^{2}+\cdots+x^{n-1} \mid f_{1}\left(x^{n}\right)+x f_{2}\left(x^{n}\right)+\cdots+x^{n-2} f_{n-1}\left(x^{n}\right)
+\]
+
+证明：\(f_{i}(x)(i=1,2, \cdots, n-1)\) 的系数之和为 0 。
+
+\subsection{题目10}
+10．已知 \(A\) 为三阶实对称矩阵，且 \(r(A)=2, \lambda_{1}=\lambda_{2}=3\) 为其特征值，\(\alpha_{1}=(1,1,0)^{\mathrm{T}}, \alpha_{2}=(2,1,1)^{\mathrm{T}}\)为属于特征值3的特征向量，求矩阵 \(A\) 。
+
+\subsection{题目11}
+11．设 \(\eta\) 是 \(n\) 维欧氏空间 \(V\) 的一个单位向量，定义线性变换 \(\sigma\) 如下：
+
+\[
+\sigma(\alpha)=\alpha-2(\eta, \alpha) \eta, \forall \alpha \in V .
+\]
+
+称这样的线性变换为一个镜面反射。
+
+\begin{itemize}
+  \item[（1）] 证明：镜面反射是一个正交变换．
+  \item[（2）] 证明：镜面反射在任意一组标准正交基下的矩阵行列式为－1。
+  \item[（3）] 设 \(\rho\) 是 \(V\) 的一个正交变换，有特征值 \(\lambda_{0}=1\) ，且 \(\operatorname{dim} V_{\lambda_{0}}=n-1\) ，证明：\(\rho\) 是一个镜面反射．
+\end{itemize}
+\end{document}

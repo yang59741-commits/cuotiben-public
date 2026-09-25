@@ -1,0 +1,161 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{武汉理工大学2026年高等代数真题}
+\section*{128．武汉理工大学2026年高等代数试卷}
+
+\subsection{题目1}
+1．计算 \(n\) 阶行列式
+
+\[
+D_{n}=\left|\begin{array}{ccccc}
+1+b_{1} & 1 & 1 & \cdots & 1 \\
+1 & 1+b_{2} & 1 & \cdots & 1 \\
+1 & 1 & 1+b_{3} & \cdots & 1 \\
+\vdots & \vdots & \vdots & & \vdots \\
+1 & 1 & 1 & \cdots & 1+b_{n}
+\end{array}\right|\left(b_{i} \neq 0, i=1,2, \cdots, n\right) .
+\]
+
+\subsection{题目2}
+2．已知矩阵
+
+\[
+A=\left(\begin{array}{cccc}
+2 & 4 & 0 & 0 \\
+2 & 6 & 0 & 0 \\
+0 & 0 & 0 & 4 \\
+0 & 0 & -2 & 0
+\end{array}\right) .
+\]
+
+若 \(\left[\left(\frac{1}{4} A\right)^{\bullet}\right]^{-1} B A^{-1}=\frac{1}{2} A B+6 E\) ，求 \(B\) 。
+
+\subsection{题目3}
+3．设向量
+
+\[
+\alpha_{1}=\left(\begin{array}{c}
+a \\
+a \\
+a
+\end{array}\right), \alpha_{2}=\left(\begin{array}{c}
+b+1 \\
+2 b+1 \\
+b+1
+\end{array}\right), \alpha_{2}=\left(\begin{array}{c}
+2 \\
+3 \\
+b+4
+\end{array}\right), \beta=\left(\begin{array}{c}
+1 \\
+1 \\
+2 b+1
+\end{array}\right) .
+\]
+
+\begin{itemize}
+  \item[（1）] \(a, b\) 为何值时，\(\beta\) 不可以表示成 \(\alpha_{1}, \alpha_{2}, \alpha_{3}\) 的线性组合？
+  \item[（2）] \(a, b\) 为何值时，\(\beta\) 可由 \(\alpha_{1}, \alpha_{2}, \alpha_{3}\) 线性表出？并写出线性表达式。
+\end{itemize}
+
+\subsection{题目4}
+4．设 \(P\) 为数域，在 \(P^{2 \times 2}\) 中，令
+
+\[
+V_{1}=\left\{\left.\left(\begin{array}{cc}
+x & -x \\
+y & z
+\end{array}\right) \right\rvert\, x, y, z \in P\right\}, V_{2}=\left\{\left.\left(\begin{array}{cc}
+a & b \\
+-a & c
+\end{array}\right) \right\rvert\, a, b, c \in P\right\} .
+\]
+
+\begin{itemize}
+  \item[（1）] 判断 \(V_{1}, V_{2}\) 是否为 \(P^{2 \times 2}\) 的子空间，并说明理由．
+  \item[（2）] 分别求 \(V_{1}+V_{2}, V_{1} \cap V_{2}\) 的维数和一组基。
+\end{itemize}
+
+\subsection{题目5}
+5．已知 \(\mathbb{R}^{3}\) 的线性变换 \(\sigma\) 对基
+
+\[
+\varepsilon_{1}=\left(\begin{array}{c}
+-1 \\
+0 \\
+2
+\end{array}\right), \varepsilon_{2}=\left(\begin{array}{l}
+0 \\
+1 \\
+1
+\end{array}\right), \varepsilon_{3}=\left(\begin{array}{c}
+3 \\
+-1 \\
+-6
+\end{array}\right)
+\]
+
+的像为
+
+\[
+\sigma\left(\varepsilon_{1}\right)=\left(\begin{array}{c}
+-1 \\
+0 \\
+1
+\end{array}\right), \sigma\left(\varepsilon_{2}\right)=\left(\begin{array}{c}
+0 \\
+-1 \\
+-2
+\end{array}\right), \sigma\left(\varepsilon_{3}\right)=\left(\begin{array}{c}
+-1 \\
+-1 \\
+3
+\end{array}\right) .
+\]
+
+\begin{itemize}
+  \item[（1）] 求 \(\sigma\) 在基 \(\varepsilon_{1}, \varepsilon_{2}, \varepsilon_{3}\) 下的矩阵。
+  \item[（2）] 设 \(X=\left(\begin{array}{l}1 \\ 1 \\ 1\end{array}\right)\) ，求 \(\sigma(X)\) ．
+  \item[（3）] 已知 \(\sigma(Y)\) 在基 \(\varepsilon_{1}, \varepsilon_{2}, \varepsilon_{3}\) 下的坐标向量为 \(\left(\begin{array}{c}2 \\ -4 \\ -2\end{array}\right)\) ，求 \(Y\) ．
+\end{itemize}
+
+\subsection{题目6}
+6．已知实二次型 \(f\left(x_{1}, x_{2}, x_{3}\right)=t\left(x_{1}^{2}+x_{2}^{2}+x_{3}^{2}\right)+4 x_{1} x_{2}+4 x_{1} x_{3}-4 x_{2} x_{3}\) ．
+
+\begin{itemize}
+  \item[（1）] 若 \(f\) 正定，求 \(t\) 的取值范围．
+  \item[（2）] \(t=2\) 时，求 \(f\) 的规范形，并写出所作的非退化线性替换。
+\end{itemize}
+
+\subsection{题目7}
+7．用 \(J\) 表示元素全为 1 的 \(n\) 阶方阵 \((n \geq 2)\) ，设 \(f(x)=a+b x \in \mathbb{Q}[x]\) ，令 \(A=f(J)\) 。
+
+\begin{itemize}
+  \item[（1）] 求 \(J\) 的全部特征值及特征向量。
+  \item[（2）] 求 \(A\) 的所有特征子空间。
+  \item[（3）] 问 \(A\) 是否可对角化？若可以，求可逆矩阵 \(P \in \mathbb{Q}^{n \times n}\) ，使得 \(P^{-1} A P\) 为对角阵．
+\end{itemize}
+
+\subsection{题目8}
+8．设 \(\sigma, \tau\) 为 \(n\) 维线性空间 \(V\) 上的线性变换，满足 \(\sigma^{2}=\sigma\) 。证明：
+
+\begin{itemize}
+  \item[（1）] \(V=\operatorname{Im} \sigma \oplus \operatorname{Ker} \sigma\) ．
+  \item[（2）] \(\operatorname{Im} \sigma, \operatorname{Ker} \sigma\) 均为 \(\tau\) 的不变子空间当且仅当 \(\sigma \tau=\tau \sigma\) ．
+\end{itemize}
+
+\subsection{题目9}
+9．设 \(A, B\) 为 \(n\) 阶实对称正定矩阵，证明：\(|A+B|>|A|+|B|\) 。
+\end{document}

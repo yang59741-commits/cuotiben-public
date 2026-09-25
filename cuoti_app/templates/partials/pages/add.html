@@ -1,0 +1,69 @@
+    <div class="panel on" id="p-add">
+      <div class="card compact">
+        <div class="card-header" style="padding-bottom:2px"><h3 style="border:none;margin:0;padding:0;font-size:15px"><span data-icon="plus"></span>标记错题</h3></div>
+        <div class="card-body" style="padding-top:4px">
+        <div class="fld-row">
+          <div class="fld-inline"><label for="s-subject">科目</label><select id="s-subject"></select></div>
+          <div class="fld-inline"><label for="s-chapter">章节</label><select id="s-chapter" disabled><option value="">请先选择科目</option></select></div>
+          <div class="fld-inline" style="flex:.5"><label for="s-date">日期</label><input type="date" id="s-date"></div>
+        </div>
+        <div class="fld-row"><div class="fld-inline"><label for="s-qnum">题号</label><input id="s-qnum" placeholder="例：模拟卷一 / 7"></div></div>
+        <div class="fld-row" style="align-items:flex-start">
+          <span class="field-label" id="reason-label" style="padding-top:6px">错因</span>
+          <div class="tag-row" id="reason-tags" role="group" aria-labelledby="reason-label" style="margin:0;flex:1">
+            <button type="button" class="tag" data-r="计算错误" aria-pressed="false">计算错误</button><button type="button" class="tag" data-r="概念不清" aria-pressed="false">概念不清</button><button type="button" class="tag" data-r="方法不会" aria-pressed="false">方法不会</button><button type="button" class="tag" data-r="卡在技巧" aria-pressed="false">卡在技巧</button><button type="button" class="tag" data-r="审题失误" aria-pressed="false">审题失误</button><button type="button" class="tag" data-r="时间不够" aria-pressed="false">时间不够</button>
+          </div>
+        </div>
+        <div class="fld-row">
+          <label for="s-problem" style="padding-top:6px">题目</label>
+          <div class="input-wrap" style="flex:1">
+            <textarea id="s-problem" placeholder="粘贴题目（建议不超过10题），带题号可辅助拆分..." rows="4" maxlength="100000" aria-describedby="s-problem-count"></textarea>
+            <span class="field-count" id="s-problem-count">0 / 100000</span>
+          </div>
+        </div>
+        <div class="fld-row fld-note-row">
+          <label for="s-note">备注</label>
+          <div class="input-wrap">
+            <textarea id="s-note" class="mistake-note-input" placeholder="可选备注" rows="3" wrap="soft" maxlength="20000" aria-describedby="s-note-count"></textarea>
+            <span class="field-count" id="s-note-count">0 / 20000</span>
+          </div>
+        </div>
+        </div>
+        <div class="card-footer" style="padding-top:0"><button type="button" class="btn btn-p" style="width:100%" data-action="add-mistake" aria-label="标记错题"><span data-icon="check"></span>标记错题</button></div>
+      </div>
+      <section class="card latex-guide" aria-labelledby="latex-guide-title">
+        <div class="card-header latex-guide-heading">
+          <h3 id="latex-guide-title"><span data-icon="bookOpen"></span>常用 LaTeX 代码</h3>
+          <p>在题目或备注中使用定界符包住公式。</p>
+        </div>
+        <div class="card-body latex-guide-body">
+          <div class="latex-guide-tools latex-guide-target-tools">
+            <div class="latex-targets" id="latex-guide-targets" role="group" aria-label="插入目标"><span id="latex-guide-target">插入到：题目</span><button type="button" class="latex-target-choice on" data-target="s-problem" aria-pressed="true">题目</button><button type="button" class="latex-target-choice" data-target="s-note" aria-pressed="false">备注</button></div>
+          </div>
+          <div class="latex-pinned-example" aria-label="LaTeX 独立示例">
+            <div class="latex-pinned-heading"><strong>快速示例</strong></div>
+            <div class="latex-pinned-grid">
+              <article class="latex-example-pane latex-pinned-snippet" data-pinned-id="inline">
+                <div class="latex-example-toolbar"><span class="latex-example-label">行内公式</span><button type="button" class="btn btn-p btn-xs js-latex-pinned-insert" data-pinned-id="inline"><span data-icon="plus"></span>插入</button></div>
+                <code class="latex-source no-math">\(f'(x)=2x\)</code>
+                <p class="latex-result math">\(f'(x)=2x\)</p>
+              </article>
+              <article class="latex-example-pane latex-pinned-snippet" data-pinned-id="limit">
+                <div class="latex-example-toolbar"><span class="latex-example-label">独立公式</span><button type="button" class="btn btn-p btn-xs js-latex-pinned-insert" data-pinned-id="limit"><span data-icon="plus"></span>插入</button></div>
+                <code class="latex-source no-math">\[\lim_{x\to0}\frac{\sin x}{x}=1\]</code>
+                <p class="latex-result math">\[\lim_{x\to0}\frac{\sin x}{x}=1\]</p>
+              </article>
+            </div>
+          </div>
+          <details class="latex-cheatsheet" id="latex-cheatsheet">
+          <summary><span>详细 LaTeX 速查</span><small>公式 · 矩阵 · 特殊符号</small></summary>
+          <div class="latex-guide-tools">
+            <label class="sr-only" for="latex-guide-search">检索 LaTeX 写法</label>
+            <div class="search-wrap"><span class="search-icon" data-icon="search"></span><input id="latex-guide-search" class="search-input" type="search" placeholder="搜索公式或符号"></div>
+          </div>
+          <div class="latex-guide-categories" id="latex-guide-categories" aria-label="LaTeX 分类"></div>
+          <div class="latex-cheatsheet-grid" id="latex-guide-results"></div>
+          </details>
+        </div>
+      </section>
+    </div>

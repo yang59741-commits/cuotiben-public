@@ -1,0 +1,123 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{中南大学2024年高等代数真题}
+\section*{135．中南大学2024年高等代数试卷}
+
+\subsection{题目1}
+一．（16 分）证明：任意给定 \(k(k \geq 1)\) 个两两不等的素数 \(a_{1}, a_{2}, \cdots, a_{k}\) ，对任意的正整数 \(n(n>1)\) ，都有 \(\sqrt[n]{a_{1} a_{2} \cdots a_{k}}\) 是无理数。
+
+\subsection{题目2}
+二．（20 分）解答如下问题：
+1．（10 分）设 \(n\) 阶行列式
+\[
+D=\left|\begin{array}{ccccc}
+1 & -1 & -1 & \cdots & -1 \\
+1 & 1 & -1 & \cdots & -1 \\
+1 & 1 & 1 & \cdots & -1 \\
+\vdots & \vdots & \vdots & & \vdots \\
+1 & 1 & 1 & \cdots & 1
+\end{array}\right|
+\]
+求 \(D\) 展开式的正项总数。
+2．（10 分）计算 \(n\) 阶行列式
+\[
+D_{n}=\left|\begin{array}{cccc}
+\frac{1-a_{1}^{n} b_{1}^{n}}{1-a_{1} b_{1}} & \frac{1-a_{1}^{n} b_{2}^{n}}{1-a_{1} b_{2}} & \cdots & \frac{1-a_{1}^{n} b_{n}^{n}}{1-a_{1} b_{n}} \\
+\frac{1-a_{2}^{n} b_{1}^{n}}{1-a_{2} b_{1}} & \frac{1-a_{2}^{n} b_{2}^{n}}{1-a_{2} b_{2}} & \cdots & \frac{1-a_{2}^{n} b_{n}^{n}}{1-a_{2} b_{n}} \\
+\vdots & \vdots & & \vdots \\
+\frac{1-a_{n}^{n} b_{1}^{n}}{1-a_{n} b_{1}} & \frac{1-a_{n}^{n} b_{2}^{n}}{1-a_{n} b_{2}} & \cdots & \frac{1-a_{n}^{n} b_{n}^{n}}{1-a_{n} b_{n}}
+\end{array}\right|
+\]
+
+\subsection{题目3}
+三。（16 分）设 \(A\) 为 \(m \times n\) 实矩阵，\(b\) 是 \(m \times 1\) 实列向量。
+
+（1） 证明： \(\operatorname{rank}\left(A^{\mathrm{T}} A\right)=\operatorname{rank}(A)\) ．
+（2） 设 \(X=\left(x_{1}, x_{2}, \cdots, x_{n}\right)^{\mathrm{T}}\) ，证明：线性方程组 \(A^{\mathrm{T}} A X=A^{\mathrm{T}} b\) 有解。
+（3） 试举反例说明对复矩阵 \(A\) ，结论 \(\operatorname{rank}\left(A^{\mathrm{T}} A\right)=\operatorname{rank}(A)\) 不一定成立，（2）中线性方程组不一定有解。
+
+\subsection{题目4}
+四．（16 分）设 \(W_{1}, W_{2}\) 是线性空间 \(P^{2 \times 2}\) 的子空间，\(W_{1}=L\left(A_{1}, A_{2}\right), W_{2}=L\left(B_{1}, B_{2}\right)\) ，其中
+\[
+A_{1}=\left(\begin{array}{ll}
+1 & 1 \\
+0 & 0
+\end{array}\right), A_{2}=\left(\begin{array}{ll}
+1 & 0 \\
+1 & 1
+\end{array}\right), B_{1}=\left(\begin{array}{ll}
+0 & 0 \\
+1 & 1
+\end{array}\right), B_{2}=\left(\begin{array}{ll}
+0 & 1 \\
+1 & 0
+\end{array}\right) .
+\]
+
+（1） 求 \(W_{1}+W_{2}\) 的一组基与维数。
+（2） 求 \(W_{1} \cap W_{2}\) 的一组基与维数。
+（3） 问 \(P^{2 \times 2}=W_{1} \oplus W_{2}\) 是否成立，为什么？
+
+\subsection{题目5}
+五。（18 分）给定前 \(n\) 个自然数 \(1,2, \cdots, n\) 的一个全排列 \(j_{1} j_{2} \cdots j_{n}\) ，定义复数域上线性空间 \(\mathbb{C}^{n \times n}\) 的一个线性变换 \(\varphi\) 如下：
+\[
+\varphi\left(\begin{array}{cccc}
+a_{11} & a_{12} & \cdots & a_{1 n} \\
+a_{21} & a_{22} & \cdots & a_{2 n} \\
+\vdots & \vdots & & \vdots \\
+a_{n 1} & a_{n 2} & \cdots & a_{n n}
+\end{array}\right)=\left(\begin{array}{cccc}
+a_{1 j_{1}} & a_{1 j_{2}} & \cdots & a_{1 j_{n}} \\
+a_{2 j_{1}} & a_{2 j_{2}} & \cdots & a_{2 j_{n}} \\
+\vdots & \vdots & & \vdots \\
+a_{n j_{1}} & a_{n j_{2}} & \cdots & a_{n j_{n}}
+\end{array}\right) .
+\]
+
+（1） 试确定 \(\varphi\) 的 \(n\) 个线性无关的特征向量。
+（2） 证明：存在正整数 \(k\) ，使得对 \(\varphi\) 的任意特征值 \(\lambda\) ，都有 \(\lambda^{k}=1\) 。
+（3） 证明：如果全排列 \(j_{1} j_{2} \cdots j_{n}=23 \cdots n 1\) ，那么相应的线性变换 \(\varphi\) 是可对角化的．
+
+\subsection{题目6}
+六。（16 分）设 \(A\) 为 \(n\) 阶半正定矩阵，\(E\) 为 \(n\) 阶单位矩阵。证明：
+\[
+|A+2024 E| \geq 2024^{n} .
+\]
+并且等号成立当且仅当 \(A=O\) ．
+
+\subsection{题目7}
+七．（16 分）设 \(\sigma, \tau\) 是 \(n\) 维线性空间 \(V\) 上的线性变换，\(\sigma^{2}=\sigma\) ．证明：
+
+（1） \(V=\operatorname{Im} \sigma \oplus \operatorname{Ker} \sigma\) ．
+（2） \(\sigma\) 的像 \(\operatorname{Im} \sigma\) 与核 \(\operatorname{Ker} \sigma\) 都是 \(\tau\) 的不变子空间当且仅当 \(\sigma \tau=\tau \sigma\) ．
+
+\subsection{题目8}
+八．（16 分）设数域 \(P\) 上的矩阵 \(A=\left(\begin{array}{ccc}1 & -3 & 3 \\ -2 & -6 & 13 \\ -1 & -4 & 8\end{array}\right)\) ．
+
+（1） 求矩阵 \(A\) 的 Jordan标准形 \(J\) 。
+（2） 求可逆矩阵 \(P\) ，使得 \(P^{-1} A P=J\) 。
+（3） 求 \(A\) 的最小多项式．
+
+\subsection{题目9}
+九．（16 分）设 \(V\) 是实数域上所有 \(n\) 阶对称矩阵构成的线性空间，对任意的 \(A, B \in V\) ，定义
+\[
+(A, B)=\operatorname{tr}(A B) .
+\]
+其中 \(\operatorname{tr}(A B)\) 表示 \(A B\) 的迹．
+
+（1） 证明：\(V\) 构成一欧氏空间。
+（2） 求使 \(\operatorname{tr}(A)=0\) 的子空间 \(S\) 的维数．
+（3） 求 \(S\) 的正交补空间 \(S^{\perp}\) 的维数。
+\end{document}

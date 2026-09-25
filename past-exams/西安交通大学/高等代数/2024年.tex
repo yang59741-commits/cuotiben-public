@@ -1,0 +1,109 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{西安交通大学2024年高等代数真题}
+\section*{169．西安交通大学2024年高等代数试卷}
+
+\subsection{题目1}
+一．解答如下问题．
+
+（1） 计算行列式
+\[
+D_{n}=\left|\begin{array}{cccccc}
+1 & 2 & 2 & \cdots & 2 & 2 \\
+2 & 2 & 2 & \cdots & 2 & 2 \\
+2 & 2 & 3 & \cdots & 2 & 2 \\
+\vdots & \vdots & \vdots & & \vdots & \vdots \\
+2 & 2 & 2 & \cdots & n-1 & 2 \\
+2 & 2 & 2 & \cdots & 2 & n
+\end{array}\right|
+\]
+
+\subsection{题目1}
+原题第（2）问：求 \(A^{-1}\) ，其中
+\[
+A=\left(\begin{array}{cccccc}
+0 & 1 & 1 & \cdots & 1 & 1 \\
+1 & 0 & 1 & \cdots & 1 & 1 \\
+1 & 1 & 0 & \cdots & 1 & 1 \\
+\vdots & \vdots & \vdots & & \vdots & \vdots \\
+1 & 1 & 1 & \cdots & 0 & 1 \\
+1 & 1 & 1 & \cdots & 1 & 0
+\end{array}\right) .
+\]
+
+\subsection{题目2}
+\section*{二．解答如下问题。}
+
+1．设 \(n\) 阶矩阵 \(A=\left(a_{i j}\right)_{n \times n}\) 的 \(a_{i j}\) 元素的代数余子式为 \(A_{i j}\) 。设 \(B\) 为把矩阵 \(A\) 的第 \(j\) 列元素全加1 得到的矩阵，证明： \(\operatorname{det}(B)=\operatorname{det}(A)+\sum_{i=1}^{n} A_{i j}\) ．
+
+2．设 \(V\) 为 \(n(n>2)\) 维欧氏空间，\(\sigma\) 为 \(V\) 上的一个非零线性变换，任给非零向量 \(\alpha, \beta \in V\) ，若内积\((\alpha, \beta)=0\) ，则有内积 \((\sigma(\alpha), \sigma(\beta))=0\) 成立。证明：存在正交变换 \(\tau\) 及 \(\lambda_{0} \in \mathbb{R}\) ，使得 \(\sigma=\lambda_{0} \tau\) 。
+
+\subsection{题目3}
+三．设 \(A\) 为实数域上的 \(n\) 阶矩阵。
+
+1． 若 \(A\) 为对角阵，证明：\(A\) 是正交阵当且仅当 \(A\) 的主对角线元素为1或－1。
+2． 若 \(A\) 可逆，问：\(A\) 是否一定可对角化？是的话给出证明，不是的话给出反例。
+
+\subsection{题目4}
+四．设 \(V\) 是数域 \(F\) 上的 \(m\) 维线性空间，\(\sigma\) 是 \(V\) 上的一个线性变换，\(W\) 是 \(\sigma\) 的一个不变子空间．
+
+1． 若 \(U_{1}, U_{2}\) 是 \(V\) 的子空间，\(U_{1} \subseteq U_{2}\) ，且 \(\operatorname{dim}\left(U_{1}\right)=\operatorname{dim}\left(U_{2}\right)\) ，证明：\(U_{1}=U_{2}\) ．
+2． 若 \(V=\operatorname{Im} \sigma \oplus W\) ，证明：\(W=\operatorname{Ker} \sigma\) ．
+
+\subsection{题目5}
+五． 设 \(\alpha\) 为 \(n(n \geq 2)\) 维实列向量，且 \(0<\alpha^{\mathrm{T}} \alpha<1\) ，令 \(A=\left(\begin{array}{cc}I_{n} & \alpha \alpha^{\mathrm{T}} \\ \alpha \alpha^{\mathrm{T}} & I_{n}\end{array}\right)\) ．
+1． 计算 \(\operatorname{det} A\) 。
+2． 证明：\(A\) 为正定矩阵。
+3． 证明：存在 \(2 n\) 阶可逆矩阵 \(B\) ，使得 \(A=B^{2}\) 。
+
+\subsection{题目6}
+六．设 \(A=\left(\begin{array}{llll}0 & 0 & 0 & 1 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 1 & 0 & 0 & 0\end{array}\right), B=\left(\begin{array}{cccc}1 & 0 & -1 & 1 \\ 3 & 0 & -3 & 3 \\ 2 & 0 & -2 & 2 \\ 1 & 0 & 1 & 1\end{array}\right)\)
+
+（1） 证明：\(A^{2}=I_{4}, B^{2}=O, A B=B A=B\) ．
+（2） 求 \(\mathbb{R}^{4}\) 子空间 \(V=\left\{X \in \mathbb{R}^{4} \mid B A X=0\right\}\) 的一组标准正交基．
+（3） 设 \(\sigma\) 为 \(\mathbb{R}^{4}\) 的一个线性变换，且 \(\sigma(X)=B X, X \in \mathbb{R}^{4}\) ，求 \(\sigma\) 像空间 \(\operatorname{Im} \sigma\) 的一组基．
+
+\subsection{题目7}
+七．设 \(A\) 为 \(n\) 阶实对称矩阵，定义
+\[
+\exp (A)=\sum_{k=0}^{\infty} \frac{A^{k}}{k!}
+\]
+其中 \(A^{0}=I_{n}\) 。证明： \(\operatorname{det}(\exp (A))=e^{\operatorname{tr}(A)}\) ，其中 \(\operatorname{tr}(A)\) 表示 \(A\) 的迹。
+
+\subsection{题目8}
+八．设 \(n \geq 2, A, B \in \mathbb{R}^{n \times n}\) ，已知 \(A, B, A+B\) 均可逆，且满足
+\[
+A^{-1}+B^{-1}=(A+B)^{-1}
+\]
+证明： \(\operatorname{det}(A) \neq \operatorname{det}(B)\) ．
+
+\subsection{题目9}
+九．设2023阶矩阵
+\[
+A=\left(\begin{array}{ccccccc}
+1 & -2 & 0 & \cdots & 0 & 0 & -2 \\
+2 & 1 & -2 & \cdots & 0 & 0 & 0 \\
+0 & 2 & 1 & \cdots & 0 & 0 & 0 \\
+\vdots & \vdots & \vdots & & \vdots & \vdots & \vdots \\
+0 & 0 & 0 & \cdots & 1 & -2 & 0 \\
+0 & 0 & 0 & \cdots & 2 & 1 & -2 \\
+2 & 0 & 0 & \cdots & 0 & 2 & 1
+\end{array}\right)
+\]
+证明：\(A\) 可逆．
+
+\subsection{题目10}
+十．设 \(V=\mathbb{R}^{n \times n}\) 为全体 \(n\) 阶实矩阵构成的线性空间，设 \(W\) 为 \(U\) 的一个子空间，且满足：若 \(A, B \in W\)， \(\operatorname{tr}(A B)=0\) ，求满足上述 \(W\) 的维数 \(\operatorname{dim}(W)\) 的最大值．
+\end{document}

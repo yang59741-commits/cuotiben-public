@@ -1,0 +1,126 @@
+    <div class="panel" id="p-review">
+      <div class="tabs review-mode-tabs" role="tablist" aria-label="复习方式">
+        <button type="button" class="tab on" id="review-tab-spaced" role="tab" aria-label="间隔复习" aria-selected="true" aria-controls="review-spaced-panel" data-review-mode="spaced"><span class="tb-icon" data-icon="calendar"></span>间隔复习</button>
+        <button type="button" class="tab" id="review-tab-daily" role="tab" aria-label="每日自主复习" aria-selected="false" aria-controls="review-daily-panel" data-review-mode="daily" tabindex="-1"><span class="tb-icon" data-icon="sparkles"></span>每日自主复习</button>
+      </div>
+      <section id="review-spaced-panel" class="review-mode-panel" role="tabpanel" aria-labelledby="review-tab-spaced">
+        <div class="review-toolbar card compact">
+          <label for="spaced-review-subject">科目</label>
+          <select id="spaced-review-subject" class="sel-sm"><option value="">全部科目</option></select>
+          <label for="spaced-review-chapter">章节</label>
+          <select id="spaced-review-chapter" class="sel-sm" disabled><option value="">请先选择科目</option></select>
+          <span class="review-toolbar-spacer"></span>
+          <label for="spaced-pdf-purpose">用途</label><select id="spaced-pdf-purpose" class="sel-sm"><option value="self_test">自测</option><option value="guided">带提示练习</option></select>
+          <span id="spaced-review-export-status" role="status" aria-live="polite"></span>
+          <button type="button" class="btn btn-p btn-sm" id="spaced-review-export-pdf" aria-label="导出待复习 PDF"><span data-icon="download"></span>导出待复习 PDF</button>
+        </div>
+        <div class="stats-row" id="spaced-review-stats"></div>
+        <div class="card"><div id="spaced-review-list"></div><div class="load-more-row"><button type="button" class="btn btn-out btn-sm" id="spaced-review-load-more" hidden>加载更多</button><span id="spaced-review-total" class="list-total"></span><span id="spaced-review-status" class="sr-only" role="status" aria-live="polite"></span></div></div>
+      </section>
+      <section id="review-daily-panel" class="review-mode-panel" role="tabpanel" aria-labelledby="review-tab-daily" hidden>
+        <div class="card daily-batch" id="daily-batch-card">
+          <div class="daily-batch-top">
+            <div class="daily-batch-heading">
+              <div class="daily-batch-kicker">当前批次</div>
+              <h2 id="daily-batch-title">当前批次</h2>
+              <div class="daily-batch-meta" id="daily-batch-meta"></div>
+            </div>
+            <div class="daily-batch-actions">
+              <div class="daily-more">
+                <button type="button" class="btn btn-out btn-sm" id="daily-more-toggle" aria-haspopup="menu" aria-expanded="false" aria-controls="daily-more-menu"><span data-icon="more"></span><span>更多</span></button>
+                <div class="daily-more-menu" id="daily-more-menu" role="menu" aria-labelledby="daily-more-toggle" hidden>
+                  <button type="button" role="menuitem" id="daily-review-history"><span data-icon="history"></span><span>批次历史</span></button>
+                  <button type="button" role="menuitem" id="daily-open-summary"><span data-icon="chart"></span><span>题型表现</span></button>
+                  <button type="button" role="menuitem" id="daily-classification-manage"><span data-icon="listChecks"></span><span>分类管理</span></button>
+                </div>
+              </div>
+              <button type="button" class="btn btn-p btn-sm" id="daily-open-generate" aria-controls="daily-drawer"><span data-icon="plus"></span><span>新批次</span></button>
+            </div>
+          </div>
+          <div class="daily-progress" id="daily-review-stats"></div>
+          <div class="daily-batch-status" id="daily-review-export-status" role="status" aria-live="polite"></div>
+        </div>
+        <div class="daily-remediation-banner" id="daily-remediation" hidden>
+          <span class="daily-remediation-icon" data-icon="target"></span>
+          <div class="daily-remediation-text"><strong>待巩固 <span id="daily-remediation-count"></span></strong><span>多次答错的题会进入这里，按间隔安排再练</span></div>
+          <button type="button" class="btn btn-out btn-sm" id="daily-open-remediation" aria-controls="daily-drawer">挑选再练</button>
+        </div>
+        <div class="daily-list-bar">
+          <div class="daily-result-chips" id="daily-result-chips" role="group" aria-label="按结果筛选"></div>
+          <div class="daily-list-tools">
+            <div class="review-generation-mode daily-arrange" role="radiogroup" aria-label="排列方式">
+              <label><input type="radio" name="daily-arrange" value="order" checked><span>按顺序</span></label>
+              <label><input type="radio" name="daily-arrange" value="type"><span>按题型</span></label>
+            </div>
+            <button type="button" class="btn btn-txt btn-sm" id="daily-filter-toggle" aria-expanded="false" aria-controls="daily-filter-panel"><span data-icon="listChecks"></span><span>更多筛选</span><span class="daily-filter-count" id="daily-filter-count" hidden></span></button>
+          </div>
+        </div>
+        <div id="daily-filter-panel" class="review-view-filters daily-more-filters" hidden>
+          <div class="review-field"><label for="daily-review-subject">科目</label><select id="daily-review-subject" class="sel-sm"><option value="">全部科目</option></select></div>
+          <div class="review-field"><label for="daily-view-chapter">章节</label><select id="daily-view-chapter" class="sel-sm" data-review-filter="chapter_id"><option value="">全部章节</option></select></div>
+          <div class="review-field"><label for="daily-view-type">题型</label><select id="daily-view-type" class="sel-sm" data-review-filter="primary_type_code"><option value="">全部题型</option></select></div>
+          <div class="review-field"><label for="daily-view-classification">分类状态</label><select id="daily-view-classification" class="sel-sm" data-review-filter="classification_status"><option value="">全部状态</option><option value="unclassified">未分类</option><option value="needs_review">待确认</option><option value="stale">待复核</option><option value="auto">自动分类</option><option value="manual">人工确认</option><option value="historical_unknown">未记录分类</option></select></div>
+          <button type="button" class="btn btn-out btn-sm" id="daily-clear-filters"><span data-icon="x"></span><span>清除筛选</span></button>
+        </div>
+        <div class="review-question-list"><div id="daily-review-list"></div><span id="daily-review-status" class="sr-only" role="status" aria-live="polite"></span></div>
+        <div id="daily-finish"></div>
+        <p class="daily-shortcuts" id="daily-shortcuts"><span><kbd>1</kbd>–<kbd>4</kbd> 记录当前题</span><span><kbd>H</kbd> 提示与分类</span><span><kbd>J</kbd> / <kbd>K</kbd> 下一题 / 上一题</span><span><kbd>Z</kbd> 撤销</span></p>
+        <div class="daily-undo" id="daily-undo" role="status" aria-live="polite" hidden>
+          <div class="daily-undo-text"><span id="daily-undo-message"></span><small>5 秒后提交，期间可撤销</small></div>
+          <button type="button" id="daily-undo-button"><span data-icon="undo"></span><span>撤销</span></button>
+          <div class="daily-undo-bar"><i id="daily-undo-progress"></i></div>
+        </div>
+        <aside class="task-panel daily-drawer" id="daily-drawer" role="dialog" aria-modal="true" aria-labelledby="daily-drawer-title" tabindex="-1" hidden>
+          <div class="task-panel-header daily-drawer-header"><div><h2 id="daily-drawer-title">生成新批次</h2><p id="daily-drawer-subtitle"></p></div><button type="button" class="icon-btn" id="daily-drawer-close" aria-label="关闭" title="关闭"><span data-icon="x"></span></button></div>
+          <div class="daily-drawer-body">
+            <section data-drawer-view="generate" hidden>
+              <div class="daily-drawer-warning" id="daily-generate-warning" hidden></div>
+              <div class="daily-drawer-field">
+                <span class="daily-drawer-label" id="daily-mode-label">选题方式</span>
+                <div class="review-generation-mode daily-drawer-segment" role="radiogroup" aria-labelledby="daily-mode-label">
+                  <label><input type="radio" name="daily-practice-mode" value="mixed" checked><span>混合复习</span></label>
+                  <label><input type="radio" name="daily-practice-mode" value="focused"><span>题型专项</span></label>
+                </div>
+                <p class="daily-drawer-help" id="daily-mode-help">从全库按轮次均衡抽题，覆盖所有未掌握题目。</p>
+              </div>
+              <div id="daily-focused-options" class="review-focus-fields daily-focus-grid" hidden>
+                <div class="review-field"><label for="daily-focus-subject">科目</label><select id="daily-focus-subject" class="sel-sm"></select></div>
+                <div class="review-field"><label for="daily-focus-chapter">限定章节</label><select id="daily-focus-chapter" class="sel-sm"><option value="">全部章节</option></select></div>
+                <div class="review-field review-field-wide"><label for="daily-focus-type">专项题型</label><select id="daily-focus-type" class="sel-sm"></select></div>
+                <div class="review-field review-field-count"><label for="daily-focus-count">题量</label><div class="daily-stepper"><button type="button" data-step="-1" aria-label="减少题量">−</button><input type="number" min="5" max="10" value="5" id="daily-focus-count"><button type="button" data-step="1" aria-label="增加题量">+</button></div></div>
+                <label class="classification-check daily-focus-mastered"><input type="checkbox" id="daily-focus-mastered">包含已掌握</label>
+              </div>
+              <fieldset class="daily-drawer-field">
+                <legend class="daily-drawer-label">用途</legend>
+                <div class="daily-option-grid">
+                  <label class="daily-option"><input type="radio" name="daily-pdf-purpose" value="self_test" checked><span><strong>自测</strong><small>题目不附提示，记录独立作答</small></span></label>
+                  <label class="daily-option"><input type="radio" name="daily-pdf-purpose" value="guided"><span><strong>带提示练习</strong><small>附提示，答对默认记为提示后答对</small></span></label>
+                </div>
+              </fieldset>
+              <fieldset class="daily-drawer-field">
+                <legend class="daily-drawer-label">版式</legend>
+                <div class="daily-option-grid three">
+                  <label class="daily-option"><input type="radio" name="daily-pdf-layout" value="compact" checked><span><i class="daily-layout-thumb compact" aria-hidden="true"></i><strong>紧凑</strong></span></label>
+                  <label class="daily-option"><input type="radio" name="daily-pdf-layout" value="notes"><span><i class="daily-layout-thumb notes" aria-hidden="true"></i><strong>笔记留白</strong></span></label>
+                  <label class="daily-option"><input type="radio" name="daily-pdf-layout" value="two_column"><span><i class="daily-layout-thumb two-column" aria-hidden="true"></i><strong>双栏</strong></span></label>
+                </div>
+              </fieldset>
+            </section>
+            <section data-drawer-view="remediation" hidden><div id="daily-remediation-content"></div></section>
+            <section data-drawer-view="summary" hidden>
+              <div class="review-generation-mode daily-drawer-segment compact" role="radiogroup" aria-label="统计范围">
+                <label><input type="radio" name="daily-summary-scope" value="batch" checked><span>本批</span></label>
+                <label><input type="radio" name="daily-summary-scope" value="30days"><span>近 30 天</span></label>
+              </div>
+              <div id="daily-type-summary-content"></div>
+            </section>
+          </div>
+          <div class="daily-drawer-footer" data-drawer-footer="generate" hidden><span class="daily-drawer-note">上次的选择会被记住</span><button type="button" class="btn btn-out btn-sm" data-drawer-close>取消</button><button type="button" class="btn btn-p btn-sm" id="daily-review-generate-pdf" aria-label="生成每日自主复习 PDF"><span data-icon="download"></span><span>生成并下载 PDF</span></button></div>
+          <div class="daily-drawer-footer" data-drawer-footer="remediation" hidden><span class="daily-drawer-note" id="daily-remediation-selected" aria-live="polite"></span><button type="button" class="btn btn-out btn-sm" data-drawer-close>取消</button><button type="button" class="btn btn-p btn-sm" id="daily-remediation-generate"><span data-icon="download"></span><span>生成再练 PDF</span></button></div>
+          <div class="daily-drawer-footer" data-drawer-footer="summary" hidden><span class="daily-drawer-note">独立答对率只统计未借助提示的作答</span><button type="button" class="btn btn-out btn-sm" data-drawer-close>关闭</button></div>
+        </aside>
+        <button type="button" class="task-panel-scrim" id="daily-drawer-scrim" aria-label="关闭面板" tabindex="-1" hidden></button>
+      </section>
+      <div class="daily" id="daily-box2"></div>
+    </div>
+

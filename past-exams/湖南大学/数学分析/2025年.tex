@@ -1,0 +1,63 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{湖南大学2025年数学分析真题}
+\section*{142．湖南大学2025年数学分析试卷}
+
+\subsection{题目1}
+1．已知 \(x_{1}=1, x_{n+1}=\sqrt{5 x_{n}}\) ，证明：\(\left\{x_{n}\right\}\) 收敛并求其极限．
+
+\subsection{题目2}
+2．已知 \(\left\{a_{n}\right\}\) 是无界数列，但不是无穷大量．证明：\(\left\{a_{n}\right\}\) 存在两个子列，一个是收敛数列，另一个是无穷大量．
+
+\subsection{题目3}
+3．设 \(f(x)\) 是 \(\mathbb{R}\) 上的连续函数，若 \(\lim _{|x| \rightarrow+\infty} f(x)=+\infty\) ，则存在 \(x_{0} \in \mathbb{R}\) ，使得 \(f(x)\) 可以取到 \(\inf _{x \in \mathbb{R}} f(x)\) ．
+
+\subsection{题目4}
+4．解答如下问题：
+
+\begin{itemize}
+  \item[（1）] 若 \(0<\eta<1\) ，证明：\(f(x)=\sin \frac{1}{x^{2}}\) 在 \((\eta, 1)\) 上一致连续．
+  \item[（2）] 证明 \(f(x)=\sin \frac{1}{x^{2}}\) 在 \((0,1)\) 上不一致连续．
+\end{itemize}
+
+\subsection{题目5}
+5．讨论 \(\sum_{n=1}^{\infty} \frac{\sin n x}{n^{p}}(p \in \mathbb{R})\) 的敛散性。
+
+\subsection{题目6}
+6．设 \(f(x)\) 在 \((a, b)\) 上可导，任取 \(x_{1}, x_{2} \in(a, b)\) ，满足 \(f^{\prime}\left(x_{1}\right) f^{\prime}\left(x_{2}\right)<0\) ．证明：至少存在一点 \(\xi\) 介于\(x_{1}, x_{2}\) 之间，使得 \(f^{\prime}(\xi)=0\) ．
+
+\subsection{题目7}
+7．解答如下问题：
+
+\begin{itemize}
+  \item[（1）] 证明： \(\int_{a}^{b}\left|x-\frac{a+b}{2}\right|^{n} \mathrm{~d} x=\frac{b^{n+1}-a^{n+1}}{2^{n}(n+1)}\) ．
+  \item[（2）] 已知 \(\int_{0}^{1} x^{n} f(x) \mathrm{d} x=1, \int_{0}^{1} x^{k} f(x) \mathrm{d} x=0(k=0,1,2, \cdots, n-1)\) ．证明：
+\[
+\max _{x \in[0,1]}|f(x)| \geq 2^{n}(n+1)
+\]
+\end{itemize}
+
+\subsection{题目8}
+8．证明：\(x \rightarrow a\) 时 \(f(x, y)\) 一致收敛于 \(\varphi(y)\) 的充要条件是对任意趋近于 \(a\) 的数列 \(\left\{x_{n}\right\}, f\left(x_{n}, y\right)\) 一致收敛于 \(\varphi(y)\) 。
+
+\subsection{题目9}
+9．计算
+
+\[
+I=\iint_{\sum} 4 x z \mathrm{~d} y \mathrm{~d} z-2 y z \mathrm{~d} z \mathrm{~d} x+\left(1-z^{2}\right) \mathrm{d} x \mathrm{~d} y
+\]
+
+其中 \(\sum\) 是由 \(z=e^{y}(0 \leq y \leq a)\) 绕 \(z\) 轴旋转一周生成的曲面，取下侧。
+\end{document}

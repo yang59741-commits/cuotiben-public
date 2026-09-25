@@ -1,0 +1,117 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{郑州大学2026年高等代数真题}
+\section*{120．郑州大学2026年高等代数试卷}
+
+一．填空题．每题5分，共30分．
+
+\subsection{题目1}
+1．设矩阵 \(A\) 的伴随矩阵 \(A^{*}=\left(\begin{array}{lll}2 & 0 & 0 \\ 0 & 8 & 0 \\ 0 & 0 & 1\end{array}\right)\) ，若 \(|A|>0\) ，且 \(A B A^{-1}=B A^{-1}+2 E\) ，其中 \(E\) 为单位矩阵，则 \(B=\) \(\_\_\_\_\)．
+
+\subsection{题目2}
+2．若 \(A\) 为3阶方阵，满足 \(|A-E|=|A-2 E|=|A+E|=0\) ，其中 \(E\) 为单位矩阵，则 \(|A+3 E|=\)
+\(\_\_\_\_\)。
+
+\subsection{题目3}
+3．多项式 \(\left(x^{3}-1\right) \mid\left(x^{n}-1\right)\)（ \(n\) 为正整数）的充要条件是 \(\_\_\_\_\)．
+
+\subsection{题目4}
+4．与矩阵 \(A=\left(\begin{array}{ccc}1 & 0 & 0 \\ 10 & 1 & 0 \\ 0 & 10 & 1\end{array}\right)\) 乘法可交换的所有实矩阵在实数域上对于矩阵加法和数乘构成一个线性空间 \(V\) ，则 \(V\) 的维数为 \(\_\_\_\_\)．
+
+\subsection{题目5}
+5．设 \(\sigma\) 是线性空间 \(V\) 到 \(W\) 的线性映射，\(\varepsilon_{1}, \varepsilon_{2}, \varepsilon_{3}\) 是 \(V\) 的一个基，\(\eta_{1}\) ，\(\eta_{2}\) 是 \(W\) 的一个基，且\(\sigma\) 在 \(\varepsilon_{1}, \varepsilon_{2}, \varepsilon_{3}\) 与 \(\eta_{1}, \eta_{2}\) 下的表示矩阵为 \(\left(\begin{array}{ccc}1 & 1 & 3 \\ -1 & 2 & 0\end{array}\right)\) ，则 \(\sigma\) 的核空间 \(\operatorname{Ker} \sigma=\) \(\_\_\_\_\)。
+
+\section*{二．计算与证明．每题15分，共120分．}
+
+\subsection{题目6}
+1．已知齐次线性方程组
+\[
+\left\{\begin{array}{c}
+(a+b) x_{1}+a x_{2}+\cdots+a x_{n}=0, \\
+a x_{1}+(a+b) x_{2}+\cdots+a x_{n}=0, \\
+\cdots \cdots \\
+a x_{1}+a x_{2}+\cdots+(a+b) x_{n}=0 .
+\end{array}\right.
+\]
+其中 \(a \neq 0, n \geq 2\) 。试讨论 \(a\) 和 \(b\) 满足什么条件时：
+
+（1） 方程组仅有零解。
+（2） 方程组有非零解，并求出其通解。
+
+\subsection{题目7}
+2．设 \(\mathbb{R}^{4}\) 中，向量组
+\[
+\alpha_{1}=(1,0,-1,0), \alpha_{2}=(0,0,1,-1), \alpha_{3}=(1,-1,0,0)
+\]
+生成的子空间为 \(V_{1}\) 。向量组
+\[
+\beta_{1}=(1,2,-1,2), \beta_{2}=(0,1,-1,0), \beta_{3}=(0,2,1,-1)
+\]
+生成的子空间为 \(V_{2}\) ，求 \(V_{1}+V_{2}\) 和 \(V_{1} \cap V_{2}\) 的一个基和维数。
+
+\subsection{题目8}
+3．已知 \(\mathbb{R}^{3}\) 的线性变换 \(\varphi\) 对于基 \(\xi_{1}=(-1,0,2)^{\mathrm{T}}, \xi_{2}=(0,1,1)^{\mathrm{T}}, \xi_{3}=(3,-1,-6)^{\mathrm{T}}\) 的像为
+\[
+\varphi\left(\xi_{1}\right)=(-1,0,1)^{\mathrm{T}}, \varphi\left(\xi_{2}\right)=(0,-1,2)^{\mathrm{T}}, \varphi\left(\xi_{3}\right)=(-1,-1,3)^{\mathrm{T}} .
+\]
+
+（1） 求 \(\varphi\) 在基 \(\xi_{1}, \xi_{2}, \xi_{3}\) 下的矩阵。
+（2） 设 \(x=(1,2,1)^{\mathrm{T}}\) ，求 \(\varphi(x)\) ．
+（3） 证明：\(\xi_{1}-\xi_{3}, \xi_{2}, \xi_{1}+\xi_{2}+\xi_{3}\) 是 \(\mathbb{R}^{3}\) 的基，并求 \(\varphi\) 在该基下的矩阵。
+
+\subsection{题目9}
+4．设 \(V\) 是数域 \(P\) 上的 4 维线性空间，\(\sigma\) 是 \(V\) 上的线性变换，\(\sigma\) 在 \(V\) 的基 \(\varepsilon_{1}, \varepsilon_{2}, \varepsilon_{3}, \varepsilon_{4}\) 下的矩阵为 \(A\)，其中
+\[
+A=\left(\begin{array}{cccc}
+4 & 2 & 5 & -2 \\
+0 & 1 & 0 & 0 \\
+-2 & 3 & -2 & 1 \\
+-1 & 4 & -1 & 1
+\end{array}\right)
+\]
+
+（1） 求包含 \(\varepsilon_{1}\) 的最小的 \(\sigma-\) 不变子空间 \(W\) 。
+（2） 记 \(\sigma_{1}\) 为 \(\sigma\) 在 \(W\) 上的限制，求 \(\sigma_{1}\) 在 \(W\) 的基下的矩阵 \(A_{1}\) 的 Jordan 标准形。
+
+\subsection{题目10}
+5．设数域 \(P\) 上 \(n\) 阶方阵 \(A, B, C, D\) 关于乘法两两可交换。且满足 \(A C+B D=E\)（ \(E\) 为单位矩阵），设
+\[
+V=\left\{X \in P^{n} \mid A B X=0\right\}, V_{1}=\left\{X \in P^{n} \mid A X=0\right\}, V_{2}=\left\{X \in P^{n} \mid B X=0\right\} .
+\]
+证明：\(V=V_{1} \oplus V_{2}\) ．
+
+\subsection{题目11}
+6．设 \(A\) 为 \(n\) 阶实反对称矩阵，\(\lambda\) 是 \(A\) 的特征值．证明：
+
+（1） \(\lambda\) 的实部为 0 。
+（2） 存在正交矩阵 \(P\) ，使得 \(P^{-1} A^{2} P\) 是对角矩阵。
+
+\subsection{题目12}
+7．设
+\[
+A=\left(\begin{array}{ccc}
+a & 1 & 1 \\
+1 & a & -1 \\
+1 & -1 & a
+\end{array}\right)
+\]
+是 3 阶实矩阵，证明：当 \(a>2\) 时，对于任意一个 3 阶的正定矩阵 \(B\) ，都有 \(\operatorname{tr}(A B)>0\)（其中 \(\operatorname{tr}(A B)\)为矩阵 \(A B\) 的迹）．
+
+\subsection{题目13}
+8． 设 \(A\) 是 \(n\) 阶实方阵，满足 \(A^{3}=E\)（ \(E\) 为单位矩阵），证明：
+\[
+\operatorname{rank}(A-E)+\operatorname{rank}\left(A^{2}+A+E\right)=n
+\]
+\end{document}

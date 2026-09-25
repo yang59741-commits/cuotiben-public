@@ -1,0 +1,144 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{西北工业大学2026年高等代数真题}
+\section*{173．西北工业大学2026年高等代数试卷}
+
+\subsection{题目1}
+一．（15 分）设 \(n\) 阶矩阵
+
+\[
+A=\left(\begin{array}{cccc}
+a_{11} & a_{12} & \cdots & a_{1 n} \\
+a_{21} & a_{22} & \cdots & a_{2 n} \\
+\vdots & \vdots & & \vdots \\
+a_{n 1} & a_{n 2} & \cdots & a_{n n}
+\end{array}\right), T=\left(\begin{array}{cccc}
+t & t & \cdots & t \\
+t & t & \cdots & t \\
+\vdots & \vdots & & \vdots \\
+t & t & \cdots & t
+\end{array}\right)
+\]
+
+（1）证明：\(|A+T|=|A|+t u\) ，其中 \(u=\sum_{i, j=1}^{n} A_{i j}\) 为 \(|A|\) 的所有元素的代数余子式之和。\\
+（2）利用（1）的结论计算 \(n\) 阶行列式 \(\left|\begin{array}{ccccc}a & b & b & \cdots & b \\ c & a & b & \cdots & b \\ c & c & a & \cdots & b \\ \vdots & \vdots & \vdots & & \vdots \\ c & c & c & \cdots & a\end{array}\right|\)
+
+\subsection{题目2}
+二．（20 分）设数域 \(F\) 上 \(n\) 阶上三角矩阵集合为 \(S=\left\{A=\left(a_{i j}\right)_{n \times n} \in M_{n}(F) \mid a_{i j}=0\right.\) 当 \(\left.i>j\right\}\) 。其中 \(M_{n}(F)\) 是数域 \(F\) 上的 \(n\) 阶方阵全体构成的线性空间。求证：\\
+（1）\(S\) 对矩阵加法和数乘封闭，因此是 \(M_{n}(F)\) 的一个线性子空间．\\
+（2）\(S\) 对矩阵乘法封闭，即若 \(A, B \in S\) ，则 \(A B \in S\) 。\\
+（3）若 \(A \in S\) 可逆，则 \(A^{-1} \in S\) 。\\
+（4）若 \(A \in S\) 为严格上三角阵（即主对角线全为 0 ），则 \(A^{n}=O\) 。
+
+\subsection{题目3}
+三．（15 分）设 \(A \in \mathbb{R}^{m \times n}, B \in \mathbb{R}^{n \times m}\) ．
+
+\begin{itemize}
+  \item[（1）] 证明：\(r\left(E_{m}+A B\right)-r\left(E_{n}+B A\right)=m-n\) ．
+  \item[（2）] 证明：当 \(E_{m}+A B\) 可逆时，\(E_{n}+B A\) 也可逆，并写出其逆矩阵．
+\end{itemize}
+
+四（15 分）设 \(V\) 是复数域上以 \(\alpha_{1}, \alpha_{2}, \alpha_{3}, \alpha_{4}\) 为基底的线性空间，\(A\) 为 \(V\) 上的线性变换，且
+
+\[
+\left\{\begin{array}{l}
+\mathcal{A}\left(\alpha_{i}\right)=\alpha_{1}(i=1,2,3) \\
+\mathcal{A}\left(\alpha_{4}\right)=\alpha_{2}
+\end{array}\right.
+\]
+
+求 \(R(\mathcal{A}), N(\mathcal{A}), R(\mathcal{A}) \cap N(\mathcal{A})\) ，其中 \(R(\mathcal{A})\) 表示 \(\mathcal{A}\) 的值域，\(N(\mathcal{A})\) 表示 \(\mathcal{A}\) 的核．
+
+\subsection{题目4}
+五．（15 分）设 \(n\) 阶矩阵
+
+\[
+A=\left(\begin{array}{ccccc}
+0 & 1 & & & \\
+& 0 & 1 & & \\
+& & \ddots & \ddots & \\
+& & & 0 & 1 \\
+1 & & & & 0
+\end{array}\right), C=\left(\begin{array}{ccccc}
+c_{0} & c_{1} & c_{2} & \cdots & c_{n-1} \\
+c_{n-1} & c_{0} & c_{1} & \ddots & \vdots \\
+\vdots & c_{n-1} & c_{0} & \ddots & c_{2} \\
+c_{2} & \ddots & \ddots & \ddots & c_{1} \\
+c_{1} & c_{2} & \cdots & c_{n-1} & c_{0}
+\end{array}\right)
+\]
+
+\begin{itemize}
+  \item[（1）] 用 \(E\) 及 \(A\) 的幂表示循环矩阵 \(C\) 。
+  \item[（2）] 求 \(A, C\) 的特征值及 \(C\) 的行列式．
+  \item[（3）] 证明：\(C\) 相似于对角阵．
+\end{itemize}
+
+\subsection{题目5}
+六。（15 分）设线性变换 \(\mathcal{A}: \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}\) 在标准基下的矩阵为
+
+\[
+A=\left(\begin{array}{ccc}
+1 & 0 & -1 \\
+0 & 1 & 0 \\
+-1 & 0 & 1
+\end{array}\right)
+\]
+
+\begin{itemize}
+  \item[（1）] 将二次型 \(f(X)=X^{\mathrm{T}} A X\) 化为标准形。
+  \item[（2）] 设 \(S: \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}\) 定义为 \(S(X)=\mathcal{A}^{2} X-2 \mathcal{A} X+2 X\) ，求 \(S\) 的特征值．像空间维数与零空间维数．
+\end{itemize}
+
+\subsection{题目6}
+七．（15 分）设 \(P^{m}\) 是次数不超过 \(m\) 的一元多项式空间，定义 \(P^{m}\) 上的线性变换 \(\mathcal{A}\) 为
+
+\[
+\mathcal{A}(f(x))=f(x+1)-f(x) .
+\]
+
+（1）写出 \(\mathcal{A}\) 关于基底 \(1, x, \cdots, x^{m}\) 的矩阵 \(A\) 。\\
+（2）求 \(A\) 的 Jordan 标准形与最小多项式。\\
+（3）求 \(\mathcal{A}^{k}\) 的核空间 \(N\left(\mathcal{A}^{k}\right)\) 的维数和一组基。
+
+\subsection{题目7}
+八．（15 分）设 \(A, B\) 为 \(n\) 阶正定矩阵，且 \(A\) 的特征值全属于 \((a, b), B\) 的特征值全属于 \((c, d), a, b, c, d>\) 0 ．证明：\\
+（1）\(A+B\) 的特征值全属于 \((a+c, b+d)\) 。\\
+（2）\(A B\) 的特征值全属于 \((a c, b d)\) ．
+
+\subsection{题目8}
+九．（15 分）设 \(x_{1}, x_{2}, \cdots, x_{k}\) 和 \(y_{1}, y_{2}, \cdots, y_{k}\) 是 \(n\) 维欧氏空间 \(V\) 的两个线性无关的向量组．证明：存在正交变换 \(\varphi\) 使得 \(\varphi\left(x_{i}\right)=y_{i}(i=1,2, \cdots, k)\) 的充要条件是 \(\left(x_{i}, x_{j}\right)=\left(y_{i}, y_{j}\right)(i, j=1,2, \cdots, k)\) ．
+
+\subsection{题目9}
+十．（10 分）设 \(f\) 是 \(n\) 阶方阵全体构成的集合到数集上的映射，满足对任意的 \(n\) 阶方阵 \(A\) ，对任意的\(1 \leq j \leq n\) ，对任意的常数 \(c\) ，有\\
+（1）若 \(A\) 的第 \(j\) 列等于 \(B\) 和 \(C\) 的第 \(j\) 列之和，且 \(A\) 的其余列与 \(B, C\) 的对应列完全相同，则
+
+\[
+f(A)=f(B)+f(C)
+\]
+
+（2）将 \(A\) 的第 \(j\) 列乘以 \(c\) 得到 \(B\) ，则 \(f(B)=c f(A)\) ．\\
+（3）对换 \(A\) 的任意两列得到 \(B\) ，则 \(f(B)=-f(A)\) ．\\
+（4）\(f\left(E_{n}\right)=1\) ．\\
+证明：\\
+（1）若 \(A=\left(a_{i j}\right)_{n \times n}\) ，则
+
+\[
+f(A)=\sum_{\left(i_{1} i_{2} \cdots i_{n}\right) \in S_{n}} a_{i_{1} 1} a_{i_{2} 2} \cdots a_{i_{n} n} f\left(e_{i_{1}}, e_{i_{2}}, \cdots, e_{i_{n}}\right) .
+\]
+
+其中 \(S_{n}\) 是 \(1,2, \cdots, n\) 的全排列，\(e_{i 1}, e_{i_{2}}, \cdots, e_{i_{n}}\) 分别表示第 \(i_{1}, i_{2}, \cdots, i_{n}\) 个元素为 1 其余元素为 0 的单位列向量．\\
+（2）\(f(A)=|A|\) ，即 \(f(A)\) 表示 \(A\) 的行列式．
+\end{document}

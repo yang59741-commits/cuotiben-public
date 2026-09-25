@@ -1,0 +1,18 @@
+:root{
+  --bg:#f9f4ef;--card:#fffdf9;--surface:#f4ede6;
+  --accent:#6b4e34;--accent-light:#8a6a4c;--accent-soft:#ede4db;--accent-strong:#49372a;
+  --accent-rgb:107,78,52;
+  --green:#3f7352;--red:#a4473e;--blue:#52697a;--orange:#8c5737;--purple:#705776;
+  --border:#e3d8cd;--text:#49372a;--muted:#756355;
+  --gray-100:#f7f4f0;--gray-200:#e9e2d9;--gray-300:#d9cfc3;
+  --gray-400:#b7ab9c;--gray-500:#8a8075;--gray-600:#6b6258;--placeholder:#a39888;
+  --fs-xs:10px;--fs-sm:12px;--fs-md:13px;--fs-lg:15px;--fs-xl:18px;
+  --radius-control:10px;--radius-card:12px;--radius-container:14px;
+  --chart-pass:var(--green);--chart-again:var(--orange);--chart-manual:var(--purple);
+  --heat-0:var(--gray-100);--heat-1:#eef4ee;--heat-2:#d3e5d6;--heat-3:#a8c9ae;--heat-4:#5e9b72;
+  --focus-ring:rgba(107,78,52,.28);--dur-fast:150ms;--dur-med:200ms;
+  --duration-fast:var(--dur-fast);--duration-base:var(--dur-med);
+  --shadow-sm:0 1px 3px rgba(73,55,42,.08);--shadow:0 5px 18px rgba(73,55,42,.07);--shadow-lg:0 10px 30px rgba(73,55,42,.11);
+  --icon-sm:16px;--icon-md:18px;--icon-lg:20px;
+  --font-code:"Cascadia Code","JetBrains Mono","Consolas","Microsoft YaHei UI",monospace;
+}

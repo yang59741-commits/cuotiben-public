@@ -1,0 +1,87 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{北京工业大学2026年高等代数真题}
+\section*{8．北京工业大学2026年高等代数试卷}
+
+\subsection{题目1}
+1．计算 \(n\) 阶行列式
+
+\[
+D_{n}=\left|\begin{array}{ccccc}
+a & a+b & \cdots & a+b & a+b \\
+a-b & a & \cdots & a+b & a+b \\
+\vdots & \vdots & & \vdots & \vdots \\
+a-b & a-b & \cdots & a & a+b \\
+a-b & a-b & \cdots & a-b & a
+\end{array}\right| .
+\]
+
+\subsection{题目2}
+2．设 4 阶方阵 \(A\) 的秩是 \(3, \eta_{1}, \eta_{2}, \eta_{3}\) 是方程组 \(A X=\beta\) 的三个不同的解，且满足
+
+\[
+\eta_{1}+\eta_{2}+\eta_{3}=(3,3,0,3)^{\mathrm{T}}, 2 \eta_{2}+3 \eta_{3}=(6,2,3,0)^{\mathrm{T}} .
+\]
+
+\begin{itemize}
+  \item[（1）] 证明：\(\beta \neq 0\) ，即 \(\beta\) 不是零向量．
+  \item[（2）] 求方程组 \(A X=\beta\) 的通解。
+\end{itemize}
+
+\subsection{题目3}
+3．设 \(A\) 是 \(n \times n\) 阶矩阵 \((n \geq 2)\) ，满足 \(A^{2}=A, B, C\) 是 \(m \times n\) 阶矩阵。
+
+\begin{itemize}
+  \item[（1）] 证明：\(r(A)+r\left(A-E_{n}\right)=n\) ．
+  \item[（2）] 若 \(E_{n}+C^{\mathrm{T}} B\) 可逆，则 \(E_{m}+B C^{\mathrm{T}}\) 可逆，并求 \(E_{m}+B C^{\mathrm{T}}\) 的逆．
+\end{itemize}
+
+\subsection{题目4}
+4．解答如下问题：
+
+\begin{itemize}
+  \item[（1）] 设 \(A, B\) 是 \(n \times n\) 阶实对称矩阵，且 \(A\) 是正定矩阵，证明：存在 \(n \times n\) 阶可逆矩阵 \(P\) ，使得\(P^{\mathrm{T}} A P, P^{\mathrm{T}} B P\) 同时为对角矩阵。
+  \item[（2）] 设二次型 \(f\left(x_{1}, x_{2}, x_{3}\right)=\left(x_{1}-x_{2}\right)^{2}+\left(x_{2}-x_{3}\right)^{2}+\left(x_{3}-x_{1}\right)^{2}\) ，写出该二次型的矩阵，并用正交线性替换把该二次型化为标准型，判断该二次型是否正定．
+\end{itemize}
+
+\subsection{题目5}
+5．设 \(P\) 是一个数域，记 \(V_{1}\) 是由向量
+
+\[
+\alpha_{1}=(1,2,1,0)^{\mathrm{T}}, \alpha_{2}=(-1,1,1,1)^{\mathrm{T}}, \alpha_{3}=(0,3,2,1)^{\mathrm{T}}
+\]
+
+生成的 \(P^{4}\) 的子空间，即 \(V_{1}=L\left(\alpha_{1}, \alpha_{2}, \alpha_{3}\right)\) ，记 \(V_{2}\) 是由向量
+
+\[
+\beta_{1}=(2,-1,0,1)^{\mathrm{T}}, \beta_{2}=(1,-1,3,7)^{\mathrm{T}}
+\]
+
+生成的 \(P^{4}\) 的子空间，即 \(V_{2}=L\left(\beta_{1}, \beta_{2}\right)\) ，分别求 \(V_{1} \cap V_{2}, V_{1}+V_{2}\) 的维数和一组基。
+
+\subsection{题目6}
+6．记 \(\mathbb{C}^{2 \times 2}\) 是复数域 \(\mathbb{C}\) 上的全体 \(2 \times 2\) 阶矩阵构成的线性空间，定义 \(\mathbb{C}^{2 \times 2}\) 上的线性变换 \(\sigma(X)=A X\) ，对任意的 \(X \in \mathbb{C}^{2 \times 2}, A=\left(\begin{array}{ll}1 & 2 \\ 2 & 4\end{array}\right)\) ．\\
+（1）求 \(\sigma\) 在基 \(E_{11}=\left(\begin{array}{ll}1 & 0 \\ 0 & 0\end{array}\right), E_{12}=\left(\begin{array}{ll}0 & 1 \\ 0 & 0\end{array}\right), E_{21}=\left(\begin{array}{ll}0 & 0 \\ 1 & 0\end{array}\right), E_{22}=\left(\begin{array}{ll}0 & 0 \\ 0 & 1\end{array}\right)\) 下的矩阵。\\
+（2）求 \(\sigma\) 的值域的维数和一组基以及 \(\sigma\) 的核的维数和一组基。
+
+\subsection{题目7}
+7．设 \(V\) 是实数域 \(\mathbb{R}\) 上全体 \(n \times n(n \geq 2)\) 阶实对称矩阵构成的线性空间，对任意 \(A, B \in V\) ，定义\((A, B)=\operatorname{tr}(A B)\) ，其中 \(\operatorname{tr}(A B)\) 表示 \(A B\) 的迹．
+
+\begin{itemize}
+  \item[（1）] 证明：\(V\) 是欧氏空间．
+  \item[（2）] \(W=\{A \in V \mid \operatorname{tr}(A)=0\}\) 。证明：\(W\) 是 \(V\) 的子空间，并求 \(W\) 的维数。
+  \item[（3）] 求 \(W\) 的正交补空间 \(W^{\perp}\) 的维数．
+\end{itemize}
+\end{document}

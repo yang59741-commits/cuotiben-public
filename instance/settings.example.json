@@ -1,0 +1,29 @@
+{
+  "settings_revision": 0,
+  "ai": {
+    "active_profile": "deepseek",
+    "profiles": {
+      "deepseek": {
+        "provider": "openai_compatible",
+        "credential_ref": "deepseek",
+        "base_url": "https://api.deepseek.com/v1/chat/completions",
+        "quality_model": "deepseek-flash",
+        "fast_model": "deepseek-flash"
+      }
+    },
+    "assignments": {
+      "classification": "fast",
+      "problem_analysis": "quality",
+      "daily_analysis": "quality",
+      "exam_generation": "quality"
+    }
+  },
+  "tex_base": "",
+  "past_exam_dir": "",
+  "pdf_dir": "",
+  "xelatex_command": "xelatex",
+  "xelatex_timeout": 60,
+  "job_fast_workers": 1,
+  "job_heavy_workers": 1,
+  "job_aging_seconds": 300
+}

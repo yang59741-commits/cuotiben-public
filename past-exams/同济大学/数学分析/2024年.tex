@@ -1,0 +1,77 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{同济大学2024年数学分析真题}
+\section*{39．同济大学2024年数学分析试卷（回忆版）}
+\begin{itemize}
+
+\subsection{题目1}
+  \item[1．] （10 分）证明：存在可微函数 \(f(x)\) ，满足 \(\lim _{x \rightarrow+\infty} f^{\prime}(x)=+\infty\) ，且 \(\lim _{n \rightarrow \infty} \sum_{k \in F_{n}} \frac{1}{\sqrt{k}}\) 存在，其中
+\[
+F_{n}=[f(n), f(n+1)] \cap \mathbb{Z}^{+} .
+\]
+
+\subsection{题目2}
+  \item[2．] （15 分）证明：去 \(x_{0}\) 空心邻域内 \(\lim _{x \rightarrow x_{0}^{-}} f(x)\) 存在的充要条件为对任意严格单调递增的数列 \(\left\{x_{n}\right\}\) 且\(\lim _{n \rightarrow \infty} x_{n}=x_{0}\) ，都有 \(\lim _{n \rightarrow \infty} f\left(x_{n}\right)\) 存在．
+\end{itemize}
+
+\subsection{题目3}
+3．（20 分）设 \(f(x)\) 在 \([a, b]\) 上上半连续，证明：
+
+\begin{itemize}
+  \item[（1）] \(f(x)\) 在 \([a, b]\) 上有上界．
+  \item[（2）] \(f(x)\) 在 \([a, b]\) 上可取到上确界．
+\end{itemize}
+
+\subsection{题目4}
+4．（15 分）函数 \(f(x)\) 在 \([0,+\infty)\) 上二阶可微，证明：若 \(f, f^{\prime \prime}\) 在 \([0,+\infty)\) 上有界，则 \(f^{\prime}\) 在 \([0,+\infty)\) 上有界。
+
+\subsection{题目5}
+5．（10 分）写出 \(\tan x\) 在 \(x=0\) 处泰勒展开的前三个非零项，并写出收敛半径。
+
+\subsection{题目6}
+6．（10 分）判断 \(\iint_{\mathbb{R}^{2}} \frac{\mathrm{~d} x \mathrm{~d} y}{\left(1+|x|^{\frac{1}{2}}\right)\left(1+|y|^{2}\right)}\) 的敛散性。
+
+\subsection{题目7}
+7．（10 分）若 \(f(x)\) 有界，且对任意的 \(\varepsilon \in(0,1)\) ，有 \(f(x)\) 在 \([\varepsilon, 1]\) 上黎曼可积，证明：\(f(x)\) 在 \([0,1]\) 上黎曼可积。
+
+\subsection{题目8}
+8．（15 分）若 \(f\) 为 \(\mathbb{R}^{2} \rightarrow \mathbb{R}^{2}\) 的映射，其雅克比行列式恒不为零，证明：\(f\) 为开映射。
+
+\subsection{题目9}
+9．（25 分）设函数列 \(f_{n}(x)=n^{\alpha} x e^{-n x}\) ，求当 \(\alpha\) 取何值时，有：
+
+\begin{itemize}
+  \item[（1）] \(\left\{f_{n}(x)\right\}\) 在 \([0,1]\) 上一致收敛．
+  \item[（2）] \(\left\{\frac{\mathrm{d}}{\mathrm{d} x} f_{n}(x)\right\}\) 在 \([0,1]\) 上一致收敛．
+  \item[（3）] \(\int_{0}^{1} \lim _{n \rightarrow \infty} f_{n}(x) \mathrm{d} x=\lim _{n \rightarrow \infty} \int_{0}^{1} f_{n}(x) \mathrm{d} x\) ．
+  \item[（4）] \(\frac{\mathrm{d}}{\mathrm{d} x} \lim _{n \rightarrow \infty} f_{n}(x)=\lim _{n \rightarrow \infty} \frac{\mathrm{~d}}{\mathrm{~d} x} f_{n}(x)\) ．
+\end{itemize}
+
+\subsection{题目10}
+10．（20 分）解答如下问题：
+
+\begin{itemize}
+  \item[（1）] 设
+\[
+I=\int_{L} P \mathrm{~d} x+Q \mathrm{~d} y+R \mathrm{~d} z
+\]
+证明：\(|I| \leq M s\) ，其中 \(M=\max _{(x, y, z) \in L}\left\{\left[P^{2}(x, y, z)+Q^{2}(x, y, z)+R^{2}(x, y, z)\right]^{\frac{1}{2}}\right\}, s\) 为 \(L\) 的弧长。
+  \item[（2）] 求
+\[
+\int_{L}(y-z) \mathrm{d} x+(z-x) \mathrm{d} y+(x-y) \mathrm{d} z .
+\]
+其中 \(L\) 为 \(y=\tan \alpha \cdot x\) 与 \(x^{2}+y^{2}+z^{2}=1\) 的交线，其中 \(\alpha \in\left(0, \frac{\pi}{2}\right) . L\) 的方向从 \(x\) 轴正向看为逆时针方向。
+\end{itemize}
+\end{document}

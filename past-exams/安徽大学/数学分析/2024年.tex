@@ -1,0 +1,64 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{安徽大学2024年数学分析真题}
+\section*{110．安徽大学2024年数学分析试卷}
+
+\subsection{题目1}
+一、（15 分）计算极限．
+
+\begin{itemize}
+  \item[（1）] （7 分） \(\lim _{n \rightarrow \infty} n\left[\frac{1^{2}+3^{2}+\cdots+(2 n+1)^{2}}{n^{3}}-\frac{4}{3}\right]\) 。
+  \item[（2）] （8 分） \(\lim _{x \rightarrow \infty}\left[\frac{1}{e}\left(1+\frac{1}{x}\right)^{x}\right]^{x}\) ．
+\end{itemize}
+
+\subsection{题目2}
+二．（15 分）设数列 \(\left\{x_{n}\right\}\) 有界，且 \(\lim _{n \rightarrow \infty}\left(x_{n+1}-x_{n}\right)=0\) ．再设 \(m=\lim _{n \rightarrow \infty} x_{n}\) 和 \(M=\varlimsup_{n \rightarrow \infty} x_{n}\) ，其中\(m<M\) ．证明区间 \((m, M)\) 上任意一个数都是此数列的一个子列的极限．
+
+\subsection{题目3}
+三．（20 分）设函数 \(f(x)\) 在区间 \(I\) 上有定义，令 \(\omega_{f}(\delta)=\sup _{\substack{x, y \in I \\|x-y|<\delta}}|f(x)-f(y)|\) ．证明：
+
+\begin{itemize}
+  \item[（1）] \(\lim _{\delta \rightarrow 0^{+}} \omega_{f}(\delta)\) 存在．
+  \item[（2）] \(f(x)\) 在区间 \(I\) 上一致连续等价于 \(\lim _{\delta \rightarrow 0^{+}} \omega_{f}(\delta)=0\) ．
+\end{itemize}
+
+\subsection{题目4}
+四．（20 分）设函数 \(f(x)\) 为 \((a, b)\) 上的凸函数，即对任意的 \(x_{1}, x_{2} \in(a, b)\) 以及 \(\lambda \in(0,1)\) ，有
+
+\[
+f\left(\lambda x_{1}+(1-\lambda) x_{2}\right) \leq \lambda f\left(x_{1}\right)+(1-\lambda) f\left(x_{2}\right) .
+\]
+
+证明：
+
+\begin{itemize}
+  \item[（1）] 对任意的 \(x \in(a, b)\) ，左右导数 \(f_{-}^{\prime}(x), f_{+}^{\prime}(x)\) 均存在，且 \(f_{-}^{\prime}(x) \leq f_{+}^{\prime}(x)\) ．
+  \item[（2）] \(f_{-}^{\prime}(x), f_{+}^{\prime}(x)\) 均在 \((a, b)\) 上单调递增．
+\end{itemize}
+
+\subsection{题目5}
+五。（20分）设 \(f(n)=a_{0}+\sum_{k=1}^{\infty} \frac{a_{k}}{n^{k}}\) ，且满足 \(\left|a_{k}\right| \leq M\) ，这里 \(n, k\) 均为正整数。试证：数项级数 \(\sum_{n=1}^{\infty} f(n)\)收敛的充要条件为 \(a_{0}=a_{1}=0\) 。
+
+\subsection{题目6}
+六．（20 分）给定方程 \(x^{2}+y+\sin (x y)=0\) ．\\
+（1）说明在点 \((0,0)\) 的充分小的邻域内，此方程确定唯一的可导的函数 \(y=y(x)\) ，使得 \(y(0)=0\) ，并求出 \(y=y(x)\) 的导函数表达式．\\
+（2）判断在点 \((0,0)\) 的充分小的邻域内，此方程是否确定唯一的函数 \(x=x(y)\) ，使得 \(x(0)=0\) ，说明理由。
+
+\subsection{题目7}
+七．（20 分）计算 Gauss 曲面积分 \(I=\iint_{S} \frac{\cos (\widehat{n, r})}{r^{2}} \mathrm{~d} S\) ，其中 \(S\) 为光滑封闭曲面，原点不在 \(S\) 上，\(r\) 为 \(S\)上动点至原定的距离，\((\widehat{\mathbf{n}, \mathbf{r}})\) 为动点处外法向量 \(\mathbf{n}\) 与径向 \(\mathbf{r}\) 的夹角。
+
+\subsection{题目8}
+八．（20 分）计算 \(I(x)=\int_{0}^{+\infty} e^{-t^{2}} \cos (2 x t) \mathrm{d} t\) ．
+\end{document}

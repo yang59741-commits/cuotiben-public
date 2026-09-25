@@ -1,0 +1,104 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{太原理工大学2025年高等代数真题}
+\section*{60．太原理工大学2025年高等代数试卷}
+
+\subsection{题目1}
+1．（10 分）计算 \(n\) 阶行列式
+
+\[
+\left|\begin{array}{ccccc}
+x_{1}-m & x_{2} & x_{3} & \cdots & x_{n} \\
+x_{1} & x_{2}-m & x_{3} & \cdots & x_{n} \\
+x_{1} & x_{2} & x_{3}-m & \cdots & x_{n} \\
+\vdots & \vdots & \vdots & & \vdots \\
+x_{1} & x_{2} & x_{3} & \cdots & x_{n}-m
+\end{array}\right|
+\]
+
+\subsection{题目2}
+2．（20分）关于线性方程组
+
+\[
+\left\{\begin{array}{l}
+x_{1}+x_{2}+x_{3}+x_{4}+x_{5}=1 \\
+3 x_{1}+2 x_{2}+x_{3}+x_{4}-3 x_{5}=a \\
+x_{2}+2 x_{3}+2 x_{4}+6 x_{5}=3 \\
+5 x_{1}+4 x_{2}+3 x_{3}+3 x_{4}-x_{5}=b
+\end{array}\right.
+\]
+
+\begin{itemize}
+  \item[（1）] \(a, b\) 为何值时，方程组有解？
+  \item[（2）] 当方程组有解时，求方程组的一般解。
+\end{itemize}
+
+\subsection{题目3}
+3．（20 分）证明：
+
+\begin{itemize}
+  \item[（1）] 若 \((x-1)\left[f\left(x^{n}\right)\right.\) ．那么 \(\left(x^{n}-1\right) \mid f\left(x^{n}\right)\) ．
+  \item[（2）] 若 \(\left(x^{2}+x+1\right)\left[f_{1}\left(x^{3}\right)+x f_{2}\left(x^{3}\right)\right.\) 、那么 \((x-1) \mid f_{1}(x)\) ．
+\end{itemize}
+
+\subsection{题目4}
+4．（20 分）\(A, B\) 为 \(n\) 级矩阵。证明：
+
+\begin{itemize}
+  \item[（1）] 若 \(B\) 为可逆矩阵，同时 \(A^{2}+A B+B^{2}=O\) 成立，则 \(A\) 可逆．
+  \item[（2）] 若 \(A B=A+B\) ，则 \(A B=B A\) 。
+\end{itemize}
+
+\subsection{题目5}
+5．（20 分）解答如下问题：
+
+\begin{itemize}
+  \item[（1）] 若 \(B\) 为 \(n\) 级实反对称矩阵，证明：\(E-B^{2}\) 为正定矩阵．
+  \item[（2）] 若 \(A\) 为 \(n\) 级正定矩阵，\(B\) 为 \(n\) 级反对称矩阵，证明：\(A-B^{2}\) 为正定矩阵．
+\end{itemize}
+
+\subsection{题目6}
+6．（20 分）在 \(\mathbb{R}^{4}\) 中，求由 \(\alpha_{i}(i=1,2,3,4)\) 生成的子空间的基和维数，其中
+
+\[
+\alpha_{1}=(2,1,3,1), \alpha_{2}=(1,2,0,1), \alpha_{3}=(-1,1,-3,0), \alpha_{4}=(1,1,1,1) .
+\]
+
+\subsection{题目7}
+7．（20 分）已知 \(P[x]_{4}\) 中线性变换
+
+\[
+\varphi\left(a_{0}+a_{1} x+a_{2} x^{2}+a_{3} x^{3}\right)=\left(a_{0}+a_{1}\right)+\left(a_{0}-a_{1}\right) x+\left(a_{2}+a_{3}\right) x^{2}+\left(a_{2}-a_{3}\right) x^{3} .
+\]
+
+\begin{itemize}
+  \item[（1）] 求 \(\varphi\) 在基 \(\left\{1, x, x^{2}, x^{3}\right\}\) 下的矩阵。
+  \item[（2）] 线性变换 \(\varphi\) 可逆吗？若可逆，求逆变换．
+\end{itemize}
+
+\subsection{题目8}
+8．（20 分）已知二次型
+
+\[
+f\left(x_{1}, x_{2}, x_{3}\right)=X^{\mathrm{T}} A X=a x_{1}^{2}+2 x_{2}^{2}-2 x_{3}^{2}-2 b x_{1} x_{3}(b>0) .
+\]
+
+二次型的矩阵 \(A\) 的所有特征值之和为 1 ，所有特征值之积为－12 。
+
+\begin{itemize}
+  \item[（1）] 求 \(a, b\) 的值。
+  \item[（2）] 利用正交变换将二次型化为标准形并且写出所用的正交变换。
+\end{itemize}
+\end{document}

@@ -1,0 +1,91 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{中国石油大学(华东)2024年高等代数真题}
+\section*{25．中国石油大学（华东）2024年高等代数试卷（回忆版）}
+
+\subsection{题目1}
+1．（15 分）设 \(f_{1}(x), f_{2}(x)\) 是次数不超过3的首一互异多项式，若 \(x^{4}+x^{2}+1\) 整除 \(f_{1}\left(x^{3}\right)+x^{4} f_{2}\left(x^{3}\right)\)，求 \(f_{1}(x)\) 与 \(f_{2}(x)\) 的最大公因式．
+
+\subsection{题目2}
+2．（15 分）求行列式
+
+\[
+D_{n}=\left|\begin{array}{cccccc}
+a_{0} & -1 & 0 & \cdots & 0 & 0 \\
+a_{1} & x & -1 & \cdots & 0 & 0 \\
+a_{2} & 0 & x & \cdots & 0 & 0 \\
+\vdots & \vdots & \vdots & & \vdots & \vdots \\
+a_{n-2} & 0 & 0 & \cdots & x & -1 \\
+a_{n-1} & 0 & 0 & \cdots & 0 & x
+\end{array}\right| .
+\]
+
+\subsection{题目3}
+3．（15 分）已知方程组
+
+\[
+\left\{\begin{array} { l } 
+{ x _ { 1 } + 2 x _ { 2 } + 3 x _ { 3 } = 0 ; } \\
+{ 2 x _ { 1 } + 3 x _ { 2 } + 5 x _ { 3 } = 0 ; } \\
+{ x _ { 1 } + x _ { 2 } + a x _ { 3 } = 0 }
+\end{array} . \text { 与 } \left\{\begin{array}{l}
+x_{1}+b x_{2}+c x_{3}=0 ; \\
+2 x_{1}+b^{2} x_{2}+(c+1) x_{3}=0
+\end{array}\right.\right.
+\]
+
+同解，求 \(a, b, c\) 的值．
+
+\subsection{题目4}
+4．（15 分）已知 \(\lambda\) 是 \(n\) 阶正交矩阵 \(A\) 的特征值，\(\alpha\) 是 \(A\) 以 \(\lambda\) 为特征值的特征向量，证明：\(|\lambda|=1\) ，若\(\lambda\) 为复数，把 \(\alpha\) 拆分为 \(\alpha=\beta+\mathrm{i} \gamma, \beta, \gamma \in \mathbb{R}^{n}\) ，则 \(\beta, \gamma\) 正交也模长相等。
+
+\subsection{题目5}
+5．（20 分）设 \(P^{n \times n}\) 是数域 \(P\) 上全体 \(n\) 阶方阵构成的线性空间，定义变换
+
+\[
+\sigma\left(\left(a_{i j}\right)_{n \times n}\right)=\left(a_{i j}^{\prime}\right)_{n \times n}, a_{i j}^{\prime}= \begin{cases}a_{i j}, & i \neq j ; \\ i \sum_{k=1}^{n} a_{k k}, & i=j .\end{cases}
+\]
+
+\begin{itemize}
+  \item[（1）] 证明：\(\sigma\) 是 \(P^{n \times n}\) 上的线性变换．
+  \item[（2）] 求 \(\operatorname{Ker} \sigma\) 的维数和一组基．
+  \item[（3）] 求 \(\sigma\) 的所有特征子空间．
+\end{itemize}
+
+\subsection{题目6}
+6．（20 分）给定多项式 \(f_{1}, f_{2}, f_{3}, f_{4}, g_{1}, g_{2}, g_{3}, g_{4}\)（具体数据忘了）
+
+\begin{itemize}
+  \item[（1）] 求 \(g_{1}(t), g_{2}(t), g_{3}(t), g_{4}(t)\) 到 \(f_{1}(t), f_{2}(t), f_{3}(t), f_{4}(t)\) 的过渡矩阵．
+  \item[（2）] 未知。
+  \item[（3）] 求基下的坐标．
+\end{itemize}
+
+\subsection{题目7}
+7．（15 分）已知二次型 \(f\left(x_{1}, x_{2}, x_{3}\right)=2 x_{1}^{2}+3 x_{2}^{2}+3 x_{3}^{2}+2 t x_{2} x_{3}\) 经过正交变换 \(X=T Y\) 得到标准形\(2 y_{1}^{2}+y_{2}^{2}+5 y_{3}^{2}\) ，其中 \(t>0\) 。
+
+\begin{itemize}
+  \item[（1）] 求 \(t\) 和 \(T\) 。
+  \item[（2）] 在 \(x_{1}^{2}+x_{2}^{2}+x_{3}^{2}=1\) 的条件下，证明 \(f\left(x_{1}, x_{2}, x_{3}\right)\) 的最大值为 5 ．
+\end{itemize}
+
+\subsection{题目8}
+8．（15 分）设 \(A\) 是 \(n\) 阶复方阵，\(\alpha\) 为 \(n\) 维列向量，已知 \(\alpha, A \alpha, \cdots, A^{n-1} \alpha\) 线性无关，\(\lambda_{0}\) 是 \(A\) 的特征值，证明：以 \(\lambda_{0}\) 为特征值的特征子空间的维数为1。
+
+\subsection{题目9}
+9．（20 分）解答如下问题：\\
+（1）已知 \(A, B, C, D\) 为 \(n\) 阶方阵，且 \(r(B D)=r(A D)-r(B C)\) ，证明：\(r(B A)=r(A)+r(B)-n\) 。\\
+（2）如果一个矩阵非负，且每一行元素的和为 1，成这样的矩阵为随机矩阵。证明：随机矩阵的特征值必有1，且1是最大的特征值。
+\end{document}

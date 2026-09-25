@@ -1,0 +1,50 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{厦门大学2025年数学分析真题}
+\section*{114．厦门大学2025年数学分析试卷}
+
+\subsection{题目1}
+1．（15 分）判断级数 \(\sum_{n=1}^{\infty} \frac{(2024 n)^{n}}{2025^{n} n!}\) 的敛散性。
+
+\subsection{题目2}
+2．（15 分）设 \(f_{1}(x)\) 是 \([a, b]\) 上的连续函数，\(x_{0} \in[a, b], f_{n+1}(x)=\int_{x_{0}}^{x} f_{n}(t) \mathrm{d} t\) ，讨论函数列 \(\left\{f_{n}(x)\right\}\)在 \([a, b]\) 上的一致收敛性，并求出极限函数．
+
+\subsection{题目3}
+3．（20 分）设 \(f(x)\) 在 \([a, b]\) 上连续可导，\(f(a)=0\) ，证明： \(\int_{a}^{b} f^{2}(x) \mathrm{d} x \leq \frac{(b-a)^{2}}{2} \int_{a}^{b}\left[f^{\prime}(x)\right]^{2} \mathrm{~d} x\) ．
+
+\subsection{题目4}
+4．（20 分）设 \(f(x)\) 在 \((a,+\infty)\) 上有界且可导，若 \(x^{2025} f^{\prime}(x)\) 单调，证明： \(\lim _{x \rightarrow+\infty}(x \ln x) f(x)=0\) ．
+
+\subsection{题目5}
+5．（20 分）设 \(\left\{F_{\lambda}\right\}_{\lambda \in \Gamma}\) 是一族闭集，其中至少有一个是有界闭集，且 \(\bigcap_{\lambda \in \Gamma} F_{\lambda}=\emptyset\) ．证明：存在有限个\(\lambda_{1}, \lambda_{2}, \cdots, \lambda_{n} \in \Gamma\) ，使得 \(\bigcap_{k=1}^{n} F_{\lambda_{k}}=\emptyset\) ．
+
+\subsection{题目6}
+6．（20 分）计算 \(\iiint_{\Omega} e^{3 z^{2}-z^{3}} \mathrm{~d} x \mathrm{~d} y \mathrm{~d} z\) ，其中 \(\Omega: x^{2}+y^{2}+z^{2} \leq 2 z\) ．
+
+\subsection{题目7}
+7．（20 分）在 \(\mathbb{R}^{3}\) 中函数 \(u(x)=u\left(x_{1}, x_{2}, x_{3}\right)\) 二阶可微，设 \(\|x\|=\sqrt{x_{1}^{2}+x_{2}^{2}+x_{3}^{2}}, B_{r}\) 表示以原点为球心，半径为 \(r\) 的球。记
+
+\[
+H(r)=\int_{B_{r}} u^{2}(x)\left(r^{2}-\|x\|^{2}\right)^{\alpha} \mathrm{d} x, I(r)=\int_{B_{r}}\|\nabla u(x)\|^{2}\left(r^{2}-\|x\|^{2}\right)^{\alpha+1} \mathrm{~d} x, \alpha \geq 2 .
+\]
+
+（1）（10 分）证明：\(H^{\prime}(r)=2 \alpha r \int_{B_{r}} u^{2}(x)\left(r^{2}-\|x\|^{2}\right)^{\alpha-1} \mathrm{~d} x\) ．\\
+（2）（10 分）进一步地，若 \(u(x)\) 为调和函数，证明：\(H^{\prime}(r)=\frac{2 \alpha+1}{r} H(r)+\frac{1}{(\alpha+1) r} I(r)\) ．
+
+\subsection{题目8}
+8．（20 分）设 \(f(x)=x^{2}, x \in[-\pi, \pi]\) ．\\
+（1）（10 分）求 \(f(x)\) 的傅里叶级数．\\
+（2）（10 分）求 \(\sum_{n=1}^{\infty} \frac{1}{n^{2}}\) ．
+\end{document}

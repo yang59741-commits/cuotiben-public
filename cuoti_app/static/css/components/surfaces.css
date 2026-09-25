@@ -1,0 +1,19 @@
+/* ── 卡片 (Material Tailwind inspired) ── */
+.card{background:var(--card);border-radius:var(--radius-container);box-shadow:var(--shadow);transition:box-shadow var(--dur-med);overflow:hidden}
+.card:hover{box-shadow:var(--shadow-lg)}
+.card-header{padding:18px 20px 0}
+.card-header .ch-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.card-header .ch-title{font-size:18px;font-weight:800;color:var(--accent);margin-top:2px;line-height:1.3}
+.card-header h3{font-size:14px;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:6px}
+.card-body{padding:14px 20px}
+.card-body p{font-size:14px;color:var(--muted);line-height:1.65}
+.card-footer{padding:0 20px 18px;display:flex;gap:8px}
+.card-footer .btn{margin-top:0}
+/* Compact variant */
+.card.compact .card-header{padding:12px 14px 0}
+.card.compact .card-body{padding:6px 14px}
+.card.compact .card-footer{padding:0 14px 10px}
+/* Legacy: direct card padding (no header/body split) */
+.card:not(:has(.card-header)):not(:has(.card-body)){padding:18px 20px}
+.card h3{font-size:14px;font-weight:700;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;color:var(--accent)}
+.card.compact h3{font-size:13px;margin-bottom:8px;padding-bottom:7px}

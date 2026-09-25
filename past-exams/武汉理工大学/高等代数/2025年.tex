@@ -1,0 +1,108 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{武汉理工大学2025年高等代数真题}
+\section*{127．武汉理工大学 2025 年高等代数试卷}
+
+\subsection{题目1}
+1．已知矩阵 \(A=\left(\begin{array}{cccc}2 a_{1} b_{1} & a_{1} b_{2}+a_{2} b_{1} & \cdots & a_{1} b_{n}+a_{n} b_{1} \\ a_{2} b_{1}+a_{1} b_{2} & 2 a_{2} b_{2} & \cdots & a_{2} b_{n}+a_{n} b_{2} \\ \vdots & \vdots & & \vdots \\ a_{n} b_{1}+a_{1} b_{n} & a_{n} b_{2}+a_{2} b_{n} & \cdots & 2 a_{n} b_{n}\end{array}\right)\) ，求 \(|A|\) ．
+
+\subsection{题目2}
+2．已知矩阵
+
+\[
+A^{\bullet}=\left(\begin{array}{lll}
+5 & 1 & 0 \\
+1 & 1 & 0 \\
+0 & 0 & 1
+\end{array}\right) .
+\]
+
+存在矩阵 \(B\) 满足 \(A^{*} B A=44 E-B A\) ，其中 \(A^{*}\) 为 \(A\) 的伴随矩阵，\(E\) 为单位矩阵。求 \(B\) 。
+
+\subsection{题目3}
+3．已知向量组 \(\alpha_{1}=(1+a, 1,1,1), \alpha_{2}=(2,2+a, 2,2), \alpha_{3}=(3,3,3+a, 3), \alpha_{4}=(4,4,4,4+a)\) 。\\
+（1）\(a\) 为何值时，向量组 \(\alpha_{1}, \alpha_{2}, \alpha_{3}, \alpha_{4}\) 线性相关？\\
+（2）在向量组 \(\alpha_{1}, \alpha_{2}, \alpha_{3}, \alpha_{4}\) 线性相关的前提下，求 \(\alpha_{1}, \alpha_{2}, \alpha_{3}, \alpha_{4}\) 的一个极大线性无关组，并用其线性表出其余向量．
+
+\subsection{题目4}
+4．已知 \(A\) 为 3 阶方阵，满足 \(|A-E|=|A-2 E|=|A+E|=\lambda\) 。
+
+\begin{itemize}
+  \item[（1）] 当 \(\lambda=0\) 时，求行列式 \(|A+3 E|\) 。
+  \item[（2）] 当 \(\lambda=2\) 时，求行列式 \(|A+3 E|\) 。
+\end{itemize}
+
+\subsection{题目5}
+5．设集合 \(W=\left\{f(t)=a_{0}+a_{1} t+a_{2} t^{2}+a_{3} t^{3} \mid f(2)=0, a_{0}, a_{1}, a_{2}, a_{3} \in \mathbb{R}\right\}\) ．
+
+\begin{itemize}
+  \item[（1）] 证明：\(W\) 是一个线性空间．
+  \item[（2）] 求 \(W\) 的一组基和维数。
+\end{itemize}
+
+\subsection{题目6}
+6．设 \(\varepsilon_{1}, \varepsilon_{2}, \varepsilon_{3}\) 为欧氏空间 \(V\) 的一组标准正交基，设向量组 \(\alpha_{1}, \alpha_{2}, \alpha_{3}\) 为 \(V\) 的另一组基，其中
+
+\[
+\alpha_{1}=3 \varepsilon_{1}+2 \varepsilon_{2}+\varepsilon_{3}, \alpha_{2}=2 \varepsilon_{1}+\varepsilon_{2}, \alpha_{3}=\varepsilon_{1} .
+\]
+
+设 \(T\) 为 \(V\) 上的一个线性变换，且满足 \(T \varepsilon_{1}=\alpha_{1}, T \varepsilon_{2}=\alpha_{1}+\alpha_{2}, T \varepsilon_{3}=\alpha_{1}+\alpha_{2}+\alpha_{3}\) ．
+
+\begin{itemize}
+  \item[（1）] 判断 \(T\) 是否为可逆变换？是否为正交变换？
+  \item[（2）] 求 \(2 T-T^{-1}\) 在 \(\alpha_{1}, \alpha_{2}, \alpha_{3}\) 这组基下的矩阵。
+\end{itemize}
+
+\subsection{题目7}
+7．设非齐次线性方程组 \(A X=b\) ：
+
+\[
+\left\{\begin{array}{l}
+x_{3}=1 \\
+x_{1}+x_{2}+x_{3}=1 \\
+x_{1}+x_{2}=1
+\end{array}\right.
+\]
+
+定义欧氏空间 \(\mathbb{R}^{3}\) 中的内积：设 \(X, Y \in \mathbb{R}^{3}, X=\left(x_{1}, x_{2}, x_{3}\right)^{\prime}, Y=\left(y_{1}, y_{2}, y_{3}\right)^{\prime}\) ，
+
+\[
+(X, Y)=2 x_{1} y_{1}+x_{2} y_{2}+x_{3} y_{3} .
+\]
+
+范数为 \(\|X\|=\sqrt{(X, X)}\) ．
+
+\begin{itemize}
+  \item[（1）] 求集合 \(W=\left\{X \in \mathbb{R}^{3} \mid\|A X-b\|=\min _{Y \in \mathbb{R}^{3}}\|A Y-b\|\right.\) 。
+  \item[（2）] 求满足 \(\left\|X_{0}\right\|=\max _{X \in W}\|X\|\) 的 \(X_{0}\) ．
+\end{itemize}
+
+\subsection{题目8}
+8．设 \(A=\alpha \beta^{\prime}\) ，其中 \(\alpha, \beta\) 为复数域上的 \(n\) 维列向量，记 \(k=\alpha^{\prime} \beta\) 。
+
+\begin{itemize}
+  \item[（1）] 求 \(A\) 的最小多项式。
+  \item[（2）] 求 \(A\) 的 Jordan 标准形．
+\end{itemize}
+
+\subsection{题目9}
+9．设 \(A\) 为 \(n\) 阶方阵，若 \(A+E\) 可逆，设 \(f(A)=(E-A)(E+A)^{-1}\) 。
+
+\begin{itemize}
+  \item[（1）] 证明：\((E+f(A))(E+A)=2 E\) 。
+  \item[（2）] 证明：\(f(f(A))=A\) ．
+\end{itemize}
+\end{document}

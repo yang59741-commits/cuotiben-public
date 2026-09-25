@@ -1,0 +1,78 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{中国科学院大学2026年数学分析真题}
+\section*{18．中国科学院大学2026年数学分析试卷（回忆版）}
+
+\subsection{题目1}
+1．求极限．
+
+\begin{itemize}
+  \item[（1）] \(\lim _{n \rightarrow \infty} \frac{1}{n!} \sum_{p=1}^{n} p!\)
+  \item[（2）] \(\lim _{c \rightarrow 0^{+}} \varepsilon \ln \left(e^{\frac{a}{\varepsilon}}+e^{\frac{b}{\varepsilon}}\right)\) ．
+\end{itemize}
+
+\subsection{题目2}
+2．数列 \(\left\{a_{n}\right\}\) 满足 \(a_{1}=1, a_{n+1}=\frac{1}{1+a_{n}}(n=1,2, \cdots)\) ，证明：\(\left\{a_{n}\right\}\) 收敛，并求其极限值．
+
+\subsection{题目3}
+3 ．求函数 \(f\left(x_{1}, x_{2}, \cdots, x_{n}\right)=x_{1}^{2}+x_{2}^{2}+\cdots+x_{n}^{2}\) 在条件 \(\sum_{i=1}^{n} a_{i} x_{i}=1\) 下的最小值．
+
+\subsection{题目4}
+4．函数 \(f(x)\) 在 \([0, a]\) 上二阶可导，且 \(\left|f^{\prime \prime}(x)\right| \leq M, x \in[0, a]\) ．若 \(f(x)\) 在 \((0, a)\) 上存在最大值，证明：
+
+\[
+\left|f^{\prime}(0)\right|+\left|f^{\prime}(a)\right| \leq M a .
+\]
+
+\subsection{题目5}
+5．求曲面积分
+
+\[
+\iint_{\sum} x^{3} \mathrm{~d} y \mathrm{~d} z+y^{3} \mathrm{~d} z \mathrm{~d} x+z^{3} \mathrm{~d} x \mathrm{~d} y
+\]
+
+其中 \(\sum\) 为上半椭球面 \(\frac{x^{2}}{a^{2}}+\frac{y^{2}}{b^{2}}+\frac{z^{2}}{c^{2}}=1(z \geq 0)\) ，取上侧．
+
+\subsection{题目6}
+6．设 \(P(x, y), Q(x, y)\) 存在连续的偏导数，且对任意以 \(\left(x_{0}, y_{0}\right) \in \mathbb{R}^{2}\) 为圆心以 \(r>0\) 为半径的上半圆周 \(L: x=x_{0}+r \cos \theta, y=y_{0}+r \sin \theta, \theta \in[0, \pi]\) ，都有
+
+\[
+\int_{L} P(x, y) \mathrm{d} x+Q(x, y) \mathrm{d} y=0
+\]
+
+证明 \(P(x, y)=\frac{\partial Q}{\partial x}(x, y) \equiv 0\) ．
+
+\subsection{题目7}
+7．求积分 \(\int_{0}^{+\infty} \frac{\cos (a x)}{1+x^{2}} \mathrm{~d} x\) ．
+
+\subsection{题目8}
+8．已知 \(F_{n}=\int\left(\frac{\sin \frac{x-a}{2}}{\sin \frac{x+a}{2}}\right)^{n} \mathrm{~d} x\) ，其中 \(0<a<\pi\) ，证明：
+
+\[
+F_{n}=\frac{2 \sin a}{n-1}\left(\frac{\sin \frac{x-a}{2}}{\sin \frac{x+a}{2}}\right)^{n-1}+2 \cos a F_{n-1}-F_{n-2} .
+\]
+
+\subsection{题目9}
+9．证明：
+
+\[
+\iint_{D} f(m \sin \theta \cos \varphi+n \sin \theta \sin \varphi+p \cos \theta) \sin \theta \mathrm{d} \theta \mathrm{~d} \varphi=2 \pi \int_{-1}^{1} f\left(u \sqrt{m^{2}+n^{2}+p^{2}}\right) \mathrm{d} u .
+\]
+
+其中 \(D: \theta \in[0, \pi], \varphi \in[0,2 \pi]\) ．
+
+\subsection{题目10}
+10．证明： \(\lim _{n \rightarrow \infty} \int_{a}^{b} f(x)|\sin n x| \mathrm{d} x=\frac{2}{\pi} \int_{a}^{b} f(x) \mathrm{d} x\) ．
+\end{document}

@@ -1,0 +1,83 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{南京师范大学2025年高等代数真题}
+\section*{85．南京师范大学2025年高等代数试卷}
+
+\subsection{题目1}
+1．（20 分）计算行列式。\\
+（1）\(D_{n+1}=\left|\begin{array}{ccccc}a_{1}^{n} & a_{1}^{n-1} b_{1} & \cdots & a_{1} b_{1}^{n-1} & b_{1}^{n} \\ a_{2}^{n} & a_{2}^{n-1} b_{2} & \cdots & a_{2} b_{2}^{n-1} & b_{2}^{n} \\ \vdots & \vdots & & \vdots & \vdots \\ a_{n+1}^{n} & a_{n+1}^{n-1} b_{n+1} & \cdots & a_{n+1} b_{n+1}^{n-1} & b_{n+1}^{n}\end{array}\right|\) ，其中 \(a_{1} a_{2} \cdots a_{n+1} \neq 0 \quad\)（2）\(D \quad=\) \(\left|\begin{array}{cccc}1 & -1 & 1 & x-1 \\ 1 & -1 & x+1 & -1 \\ 1 & x-1 & 1 & -1 \\ x+1 & -1 & 1 & -1\end{array}\right|\).
+
+\subsection{题目2}
+2．（20 分）设 \(\alpha_{1}, \alpha_{2}, \alpha_{3}, \alpha_{4}\) 是数域 \(P\) 上四维线性空间 \(V\) 的一组基，\(V\) 上的线性变换 \(\sigma\) 在此基下的矩阵为
+
+\[
+A=\left(\begin{array}{cccc}
+1 & 0 & 2 & 1 \\
+-1 & 2 & 1 & 3 \\
+1 & 2 & 5 & 5 \\
+2 & -2 & 1 & -2
+\end{array}\right)
+\]
+
+\begin{itemize}
+  \item[（1）] 求 \(\sigma\) 的核．
+  \item[（2）] 求 \(\sigma\) 的值域．
+\end{itemize}
+
+\subsection{题目3}
+3．（20 分）已知二次型 \(f\left(x_{1}, x_{2}, x_{3}\right)=x_{1}^{2}+x_{2}^{2}+x_{3}^{2}+2 a x_{1} x_{2}+2 x_{1} x_{3}+2 b x_{2} x_{3}\) 经过正交变换 \(X=T Y\)可化为标准形 \(f=y_{2}^{2}+2 y_{3}^{2}\) ．
+
+\begin{itemize}
+  \item[（1）] 求参数 \(a, b\) 。
+  \item[（2）] 求所用的正交变换 \(T\) 。
+\end{itemize}
+
+\subsection{题目4}
+4．（15 分）已知 \(A=\left(\begin{array}{lll}1 & 5 & 5 \\ 0 & 4 & 3 \\ 0 & t & 2\end{array}\right)\) ，若 \(A\) 有一个二重特征根且 \(t<1\) ．
+
+\begin{itemize}
+  \item[（1）] 求 \(t\) ．
+  \item[（2）] 求 \(A\) 的最小多项式．
+  \item[（3）] 求 \(A\) 的 Jordan 标准形．
+\end{itemize}
+
+\subsection{题目5}
+5．（15 分）设 \(A\) 为 \(n\) 阶方阵，证明：\((A-E)(A-3 E)=O\) 当且仅当 \(r(A-E)+r(A-3 E)=n\) ．
+
+\subsection{题目6}
+6．（15 分）设 \(P\) 是数域，\(A \in P^{n \times n}\) 为数域 \(P\) 上的 \(n\) 阶方阵，证明：存在 \(B \in P^{n \times n}\) 使得 \(A=A B A\)且 \(B=B A B\) 。
+
+\subsection{题目7}
+7．（15 分）设 \(P\) 是数域，令 \(V_{1}=\left\{A \in P^{\mathrm{n} \times \mathrm{n}} \mid A^{\mathrm{T}}=A\right\}, V_{2}=\left\{A \in P^{\mathrm{n} \times \mathrm{n}} \mid A^{\mathrm{T}}=-A\right\}\) ．证明：
+
+\begin{itemize}
+  \item[（1）] \(V_{1}, V_{2}\) 为 \(P^{\mathrm{n} \times \mathrm{n}}\) 子空间。
+  \item[（2）] \(P^{\mathrm{n} \times \mathrm{n}}=V_{1} \oplus V_{2}\) ．
+\end{itemize}
+
+\subsection{题目8}
+8．（15 分）设有 \(n+1\) 个列向量 \(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{n}, \beta \in \mathbb{R}^{n}, A\) 是一个 \(n\) 阶正定矩阵．若满足
+
+\begin{itemize}
+  \item[（1）] \(a_{i} \neq 0(i=1,2, \cdots, n)\) ．
+  \item[（2）] \(a_{i}^{\mathrm{T}} A a_{j}=0,(i, j=1,2, \cdots ; i \neq j)\) ．
+  \item[（3）] \(\beta\) 与每一个 \(\alpha_{i}\) 都正交．
+\end{itemize}
+
+证明：\(\beta=0\) ．
+
+\subsection{题目9}
+9．（15 分）证明：非零复数 \(\alpha\) 是某一有理系数非零多项式的根的充要条件是存在一有理系数多项式\(f(x)\) ，使得 \(f(\alpha)=\alpha^{-1}\) 。
+\end{document}

@@ -1,0 +1,115 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{华南理工大学2024年高等代数真题}
+\section*{145．华南理工大学2024年高等代数试卷}
+
+\subsection{题目1}
+1．（20 分）设 \((f(x), g(x))=1\) ，证明：\(f^{2}(x)+g^{2}(x)\) 的重根必是 \(\left[f^{\prime}(x)\right]^{2}+\left[g^{\prime}(x)\right]^{2}\) 的根．
+
+\subsection{题目2}
+2．（15 分）计算 \(n\) 阶行列式
+
+\[
+D_{n}=\left|\begin{array}{ccccc}
+a & a+b & \cdots & a+b & a+b \\
+a-b & a & \cdots & a+b & a+b \\
+\vdots & \vdots & & \vdots & \vdots \\
+a-b & a-b & \cdots & a & a+b \\
+a-b & a-b & \cdots & a-b & a
+\end{array}\right|
+\]
+
+\subsection{题目3}
+3．（20 分）已知 \(A\) 为 \(m \times n\) 矩阵，\(\beta\) 为 \(n\) 维列向量．考虑下列两个线性方程组
+
+\[
+\text { (1) } A X=\beta ; \text { (2) }\binom{A^{\prime}}{\beta^{\prime}} X=\left(\begin{array}{c}
+0 \\
+\vdots \\
+0 \\
+1
+\end{array}\right)
+\]
+
+（1）当（）有解时，（2）有解吗？证明你的结论。\\
+（2）当（1）无解时，（2）有解吗？证明你的结论。
+
+\subsection{题目4}
+4．（20 分）设矩阵 \(A, B, C\) 满足 \(A C=C B\) ，证明：\(A, B\) 均为方阵。另外，若 \(r(C)=r\) ，证明：\(A, B\) 的特征多项式有 \(r\) 次公因式．
+
+\subsection{题目5}
+5．（20 分）解答如下问题：
+
+\begin{itemize}
+  \item[（1）] 设二次型 \(f\left(x_{1}, x_{2}, x_{3}, x_{4}\right)=X^{\prime} A X\) ，其中
+\[
+A=\left(\begin{array}{llll}
+1 & 2 & 3 & 4 \\
+2 & 3 & 4 & 5 \\
+3 & 4 & 5 & 6 \\
+4 & 5 & 6 & 7
+\end{array}\right), X=\left(\begin{array}{l}
+x_{1} \\
+x_{2} \\
+x_{3} \\
+x_{4}
+\end{array}\right)
+\]
+将 \(f\left(x_{1}, x_{2}, x_{3}, x_{4}\right)\) 化为一次因式的乘积。
+  \item[（2）] 根据（1）的结果，将 \(n\) 元二次型 \(f(X)=X^{\prime} A X\) 化为一次因式的乘积，其中
+\[
+A=\left(\begin{array}{ccccc}
+1 & 2 & 3 & \cdots & n \\
+2 & 3 & 4 & \cdots & n+1 \\
+3 & 4 & 5 & \cdots & n+2 \\
+\vdots & \vdots & \vdots & & \vdots \\
+n & n+1 & n+2 & \cdots & 2 n-1
+\end{array}\right)
+\]
+\end{itemize}
+
+\subsection{题目6}
+6．（20 分）设矩阵
+
+\[
+A=\left(\begin{array}{cccc}
+1 & 2 & 0 & -a-1 \\
+1 & 1 & 0 & 0 \\
+0 & 1 & 1 & a+2 \\
+0 & 0 & 1 & 1
+\end{array}\right)
+\]
+
+在复数域上不可对角化。
+
+\begin{itemize}
+  \item[（1）] 求 \(a\) 的值；
+  \item[（2）] 对每个 \(a\) ，求出 \(A\) 的若尔当标准型．
+\end{itemize}
+
+\subsection{题目7}
+7．（20 分）设 \(\mathcal{A}_{1}, \mathcal{A}_{2}, \cdots, \mathcal{A}_{m}\) 为 \(n\) 维线性空间 \(V\) 上的 \(m\) 个线性变换，且满足：
+
+\begin{itemize}
+  \item[（1）] \(\mathcal{A}_{i}^{2}=\mathcal{A}_{i}, i=1,2, \cdots, m\) ．
+  \item[（2）] \(\mathcal{A}_{i} \mathcal{A}_{j}=\mathcal{O}, \forall i \neq j\) ．
+  \item[（3）] \(\mathcal{A}_{1}^{-1}(0) \cap \mathcal{A}_{2}^{-1}(0) \cap \cdots \cap \mathcal{A}_{m}^{-1}(0)=\{0\}\) ．
+\end{itemize}
+
+证明：\(V=\mathcal{A}_{1}(V) \oplus \mathcal{A}_{2}(V) \oplus \cdots \oplus \mathcal{A}_{m}(V)\) ．
+
+\subsection{题目8}
+8．（15 分）定义在 \(\mathbb{R}^{n \times n}\) 上的内积（ ），声提 \(\forall A, B, C \in \mathbb{R}^{n \times n}\) ，成立 \((A C, B)=(A, C B)\) 。证明：存在常数 \(c>0\) ，使得 \((A, B)=c \operatorname{tr}(A B)\) 。
+\end{document}

@@ -1,0 +1,94 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{华南师范大学2024年高等代数真题}
+\section*{150．华南师范大学2024年高等代数试卷}
+一．（20 分）已知 \(f(x)=2 x^{3}-3 x+4, g(x)=x^{2}-2 x+3\) ．
+
+\begin{itemize}
+  \item[（1）] （12 分）求 \((f(x), g(x))\) ．
+  \item[（2）] \((8\) 分）求 \(u(x), v(x)\) ，使得 \(u(x) f(x)+v(x) g(x)=(f(x), g(x))\) ．
+\end{itemize}
+
+二．（15 分）求 \(n+1\) 阶行列式
+
+\[
+D_{n+1}=\left|\begin{array}{cccccc}
+a_{1} & a_{2} & a_{3} & \cdots & a_{n} & x \\
+a_{1} & a_{2} & a_{3} & \cdots & x & a_{n} \\
+a_{1} & a_{2} & a_{3} & \cdots & a_{n-1} & a_{n} \\
+\vdots & \vdots & \vdots & & \vdots & \vdots \\
+a_{1} & x & a_{2} & \cdots & a_{n-1} & a_{n} \\
+x & a_{1} & a_{2} & \cdots & a_{n-1} & a_{n}
+\end{array}\right|
+\]
+
+三．（20 分）已知含有五个未知量的线性方程组 \(A X=b\) ，其系数矩阵的秩为 3 ，且
+
+\[
+\eta_{1}=(1,1,1,1,1)^{\mathrm{T}}, \eta_{2}=(1,2,3,4,5)^{\mathrm{T}}, \eta_{3}=(1,0,-3,-2,-3)^{\mathrm{T}}
+\]
+
+为方程组的解．
+
+\begin{itemize}
+  \item[（1）] （8 分）说明 \(b\) 不是零向量．
+  \item[（2）] （4 分）检验 \(\eta_{1}+\eta_{2}+\eta_{3}, \frac{1}{3}\left(\eta_{1}+\eta_{2}+\eta_{3}\right)\) 是否为 \(A X=b\) 的解。
+  \item[（3）] （8 分）求该方程组的通解（或者说是一般解）．
+\end{itemize}
+
+四．（15 分）记
+
+\[
+\alpha_{1}=(2,1,-3)^{\mathrm{T}}, \alpha_{2}=(3,2,-5)^{\mathrm{T}}, \alpha_{3}=(1,-1,1)^{\mathrm{T}} .
+\]
+
+\(\sigma\) 为 \(\mathbb{R}^{3}\) 空间上的线性变换，且 \(\sigma\left(\alpha_{1}\right)=\beta_{1}, \sigma\left(\alpha_{2}\right)=\beta_{2}, \sigma\left(\alpha_{3}\right)=\beta_{3}\) ，其中
+
+\[
+\beta_{1}=(2,0,-1)^{\mathrm{T}}, \beta_{2}=(0,0,1)^{\mathrm{T}}, \beta_{3}=(-1,0,0)^{\mathrm{T}} .
+\]
+
+（1）（8 分）求 \(\sigma\) 在基 \(\left\{\alpha_{1}, \alpha_{2}, \alpha_{3}\right\}\) 下的矩阵。
+
+\begin{itemize}
+  \item[（2）] （7 分）记 \(\xi=(2,-1,1)^{\mathrm{T}}\) ，求 \(\xi\) 和 \(\sigma(\xi)\) 在基 \(\left\{\alpha_{1}, \alpha_{2}, \alpha_{3}\right\}\) 下的坐标．
+\end{itemize}
+
+五．（20 分）已知 \(A=\left(\begin{array}{lll}1 & 1 & 1 \\ 1 & 2 & 4 \\ 1 & 3 & 9\end{array}\right)\) ，求正交矩阵 \(Q\) 和对角元素均为正数的上三角矩阵 \(R\) ，使得 \(A=Q R\)．
+
+六。（10分）设 \(\left\{u_{1}, u_{2}, u_{3}\right\}\) 为3组列向量空间 \(\mathbb{R}^{3}\) 的一组规范正交基。记
+
+\[
+A=3 u_{1} u_{1}^{\mathrm{T}}+u_{2} u_{2}^{\mathrm{T}}-6 u_{3} u_{3}^{\mathrm{T}} .
+\]
+
+求 \(A\) 的特征值和特征向量．
+
+七．（第1，2题15分，第3题20分）\\
+
+\subsection{题目1}
+1．设 \(f(x)\) 为整系数多项式，\(\alpha\) 为整数。证明：\((\alpha-1) \mid f(1)\) 当且仅当 \((\alpha-1) \mid f(\alpha)\) 。\\
+
+\subsection{题目2}
+2．记 \(A\) 为 \(F^{n \times n}\) 上的矩阵（ \(F\) 为数城），且 \(A^{2}=A\) 。\\
+（1）证明：向量 \(X \in F^{n}\) 属于 \(A\) 的列空间当且仅当 \(A X=X\) 。\\
+（2）记 \(W_{1}=\left\{X \in F^{n} \mid A X=0\right\}, W_{2}=\left\{X \in F^{n} \mid A X=X\right\}\) ，证明：\(F^{n}=W_{1} \oplus W_{2}\) 。\\
+
+\subsection{题目3}
+3．记 \(\mathbb{R}^{n \times m}\) 为实数域上的 \(n \times m\) 矩阵空间，\(A, B\) 分别为 \(n \times n, m \times m\) 阶实矩阵，\(\sigma\) 为 \(\mathbb{R}^{n \times m}\) 上的变换，满足 \(\sigma(X)=A X+X B, X \in \mathbb{R}^{n \times m}\) 。\\
+（1）证明：\(\sigma\) 为 \(\mathbb{R}^{n \times m}\) 空间上的线性变换。\\
+（2）证明：矩阵 \(B\) 与 \(B^{\mathrm{T}}\) 有相同的特征值．\\
+（3）若 \(\lambda\) 为 \(A\) 的特征值，\(\mu\) 为 \(B\) 的特征值，证明：\(\lambda+\mu\) 为 \(\sigma\) 的一个特征值．
+\end{document}

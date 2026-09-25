@@ -1,0 +1,99 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{中国科学技术大学2025年高等代数真题}
+\section*{98．中国科学技术大学2025年线性代数与解析几何试卷}
+一．填空题。\\
+
+\subsection{题目1}
+1．在空间直角坐标系中，设 \(A=(1,1,1), B=(1,2,3), C=(2,3,4), D=(3,3,4)\) ，则平面 \(A B C\) 的方程为 \(\_\_\_\_\)，\(\triangle A B C\) 的面积为 \(\_\_\_\_\)，四面体 \(A B C D\) 的体积为 \(\_\_\_\_\)．
+
+\subsection{题目2}
+2．点 \(A(1,2,3)\) 到 \(l: \frac{x-5}{-4}=\frac{y-4}{3}=\frac{z-3}{-2}\) 的距离为 \(\_\_\_\_\)．
+
+\subsection{题目3}
+3．设 \(A=\left(\begin{array}{cccc}1 & 1 & 1 & 1 \\ -1 & 1 & -1 & 1 \\ -1 & -1 & 1 & 1 \\ -1 & -1 & -1 & 1\end{array}\right)\) ，则 \(A^{2025}=\) \(\_\_\_\_\)，\(A\) 的特征多形式 \(\varphi(x)=\) \(\_\_\_\_\)．\\
+\(\_\_\_\_\)
+
+\subsection{题目4}
+4．设实方阵 \(A=J_{2025}(0)\) 是 Jordan 块，则 \(A^{10}\) 的 Jordan 标准形为 \(\_\_\_\_\)．
+
+\subsection{题目5}
+5． \(\mathbb{R}[x]\) 上的多项式矩阵
+
+\[
+\left(\begin{array}{ccc}
+x-1 & x^{2}-1 & x^{3}-1 \\
+x^{2}-1 & x^{3}-1 & x^{4}-1 \\
+x^{3}-1 & x^{4}-1 & x^{5}-1
+\end{array}\right)
+\]
+
+的 Smith 标准型为 \(\_\_\_\_\)．
+
+\subsection{题目6}
+6．设 \(p, q\) 分别是实二次型
+
+\[
+Q\left(x_{1}, x_{2}, x_{3}, x_{4}, x_{5}\right)=x_{1} x_{2}+x_{2} x_{3}+x_{3} x_{4}+x_{4} x_{5}
+\]
+
+的正负惯性指数，则 \((p, q)=\) \(\_\_\_\_\)．
+
+\subsection{题目7}
+7．设实线性空间 \(V\) 中的向量组 \(\alpha_{1}, \alpha_{2}, \alpha_{3}, \alpha_{4}, \alpha_{5}\) 线性无关，则向量组
+
+\[
+\alpha_{1}+\alpha_{2}, \alpha_{2}+\alpha_{3}, \alpha_{3}+\alpha_{4}, \alpha_{4}+\alpha_{5}, \alpha_{5}+\alpha_{1}
+\]
+
+的秩为 \(\_\_\_\_\)．
+
+二．简答题．\\
+
+\subsection{题目8}
+1．\(A, B\) 为 \(n\) 阶复方阵，证明： \(\operatorname{det}\left(\begin{array}{cc}A & -B \\ B & A\end{array}\right)=\operatorname{det}(A+\mathrm{i} B) \operatorname{det}(A-\mathrm{i} B)\) ，其中 i 为虚数单位。
+
+\subsection{题目9}
+2．\(A, B\) 为 \(n\) 阶实方阵，证明：线性方程组 \(A X=0\) 和 \(B X=0\) 有相同的解集的充要条件为
+
+\[
+\operatorname{rank}\binom{A}{B}=\operatorname{rank}(A)=\operatorname{rank}(B) .
+\]
+
+\subsection{题目10}
+3．\(A\) 为实方阵，证明：若存在实方阵 \(P\) ，使得 \(A^{\mathrm{T}}=A P\) ，则存在正交方阵 \(Q\) ，使得 \(Q^{-1} A Q\) 形如
+
+\[
+\left(\begin{array}{ll}
+B & O \\
+O & O
+\end{array}\right)
+\]
+
+\(B\) 为可逆方阵．
+
+\subsection{题目11}
+4．设实线性空间 \(V\) 上的线性变换 \(\mathcal{A}\) 满足 \(\mathcal{A}^{3}=\mathcal{A}, \mathcal{E}\) 是 \(V\) 上的恒等变换．证明：
+
+\[
+V=\operatorname{Im}\left(\mathcal{A}^{2}+\mathcal{A}\right) \oplus \operatorname{Im}\left(\mathcal{A}^{2}-\mathcal{A}\right) \oplus \operatorname{Im}\left(\mathcal{A}^{2}-\mathcal{E}\right) .
+\]
+
+\subsection{题目12}
+5．设欧氏空间 \(V=\left\{a x^{2}+b x+c \mid a, b, c \in \mathbb{R}\right\}\) 上的内积 \((f, g)=\int_{0}^{1} f(x) g(x) \mathrm{d} x\) 。求 \(V\) 上的线性变换 \(\mathcal{A}: f(x) \rightarrow f(1-x)\) 的伴随变换 \(\mathcal{A}^{*}\) 在基 \(1, x, x^{2}\) 下的矩阵。
+
+\subsection{题目13}
+6．求所有的实数 \(a\) ，使得方程 \(x^{2}+y^{2}+z^{2}+x y+x z+a y z=1\) 表示一个圆柱面，并求此圆柱面半径．
+\end{document}

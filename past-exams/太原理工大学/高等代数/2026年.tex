@@ -1,0 +1,117 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{太原理工大学2026年高等代数真题}
+\section*{61．太原理工大学2026年高等代数试卷}
+
+\subsection{题目1}
+1．计算行列式
+
+\[
+\left|\begin{array}{ccccc}
+\lambda & 0 & \cdots & 0 & a_{n} \\
+-1 & \lambda & \cdots & 0 & a_{n-1} \\
+0 & -1 & \cdots & 0 & a_{n-2} \\
+\vdots & \vdots & & \vdots & \vdots \\
+0 & 0 & \cdots & -1 & \lambda+a_{1}
+\end{array}\right|
+\]
+
+\subsection{题目2}
+2．证明：次数大于 0 且首项系数为 1 的多项式 \(f(x)\) 是不可约多项式的充分必要条件是对任意多项式\(g(x)\) ，满足 \((f(x), g(x))=1\) 或者存在一个正整数 \(m\) 使得 \(f(x) \mid g^{m}(x)\) ．
+
+\subsection{题目3}
+3．已知矩阵 \(A=\left(\begin{array}{lll}0 & 1 & 0 \\ 0 & 0 & 1 \\ 2 & 1 & 0\end{array}\right)\) ．\\
+（1）判断 \(A\) 的特征多项式是否有有理根，并说明在有理数域上是否存在可逆矩阵 \(T\) ，使得 \(T^{-1} A T\) 是对角矩阵。\\
+（2）判断 \(A\) 的特征多项式在复数域上有无重根，并说明在复数域上是否存在可逆矩阵 \(T\) ，使得 \(T^{-1} A T\)是对角矩阵。
+
+\subsection{题目4}
+4．已知齐次线性方程组
+
+\[
+\left\{\begin{array}{l}
+x_{1}-3 x_{2}+x_{3}-2 x_{4}-x_{5}=0 \\
+-3 x_{1}+9 x_{2}-3 x_{3}+6 x_{4}+4 x_{5}=0 \\
+2 x_{1}-6 x_{2}+2 x_{3}-4 x_{4}-2 x_{5}=0
+\end{array}\right.
+\]
+
+向量组
+
+\[
+\alpha_{1}=(4,1,1,1,0)^{\mathrm{T}}, \alpha_{2}=(8,2,4,3,0)^{\mathrm{T}}, \alpha_{3}=(4,7,5,3,0)^{\mathrm{T}} .
+\]
+
+（1）求该方程组的一个基础解系。\\
+（2）判断该方程组的解是否都可以由 \(\alpha_{1}, \alpha_{2}, \alpha_{3}\) 线性表出。\\
+（3）求该方程组的一个基础解系使得其尽可能多的含 \(\alpha_{1}, \alpha_{2}, \alpha_{3}\) 。
+
+\subsection{题目5}
+5．设实二次型
+
+\[
+f\left(x_{1}, x_{2}, x_{3}\right)=x_{1}^{2}+a x_{2}^{2}+x_{3}^{2}+2 b x_{1} x_{2}+2 x_{1} x_{3}+2 x_{2} x_{3}=X^{\mathrm{T}} A X .
+\]
+
+其中 \(A^{\mathrm{T}}=A\) 。若 \(f\) 经过正交线性替换 \(X=\left(x_{1}, x_{2}, x_{3}\right)^{\mathrm{T}}=P\left(y_{1}, y_{2}, y_{3}\right)^{\mathrm{T}}\) 化为标准形 \(y_{1}^{2}+4 y_{2}^{2}\) 。
+
+\begin{itemize}
+  \item[（1）] 求 \(a, b\) 及 \(P\) 。
+  \item[（2）] 求 \(f\left(x_{1}, x_{2}, x_{3}\right)\) 在 \(x_{1}^{2}+x_{2}^{2}+x_{3}^{2}=1\) 上的最大值，最小值．
+  \item[（3）] \(B=x A^{2}+y A+E\) ，若 \(B\) 正定，求 \(x, y\) 满足的条件．
+\end{itemize}
+
+\subsection{题目6}
+6．设 \(A \in \mathbb{C}^{n \times n}\) ，记 \(C(A)=\left\{B \in \mathbb{C}^{n \times n} \mid A B=B A\right\}\) 。
+
+\begin{itemize}
+  \item[（1）] 证明：\(C(A)\) 是 \(\mathbb{C}^{n \times n}\) 的子空间．
+  \item[（2）] 若 \(A\) 为单位矩阵，求 \(C(A)\) 。
+  \item[（3）] 若 \(A=\left(\begin{array}{lll}2 & 0 & 0 \\ 0 & 2 & 0 \\ 0 & 0 & 3\end{array}\right)\) ，求 \(C(A)\) 的一组基和维数。
+  \item[（4）] 若将（3）中 \(C(A)\) 看作 \(\mathbb{R}\) 上的线性空间，求 \(C(A)\) 的一组基和维数。
+\end{itemize}
+
+\subsection{题目7}
+7．设向量组
+
+\[
+\left\{\begin{array} { l } 
+{ \varepsilon _ { 1 } = ( 1 , 0 , 0 ) , } \\
+{ \varepsilon _ { 2 } = ( - 2 , 1 , 0 ) , } \\
+{ \varepsilon _ { 3 } = ( 0 , 0 , 1 ) . }
+\end{array} \left\{\begin{array}{l}
+\eta_{1}=(1,2,-3), \\
+\eta_{2}=(2,2,-1), \\
+\eta_{3}=(2,-1,-1) .
+\end{array}\right.\right.
+\]
+
+设线性变换 \(\mathcal{T}: \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}\) 满足 \(\mathcal{T} \varepsilon_{i}=\eta_{i}, i=1,2,3\) ．
+
+\begin{itemize}
+  \item[（1）] 求 \(\varepsilon_{1}, \varepsilon_{2}, \varepsilon_{3}\) 到 \(\eta_{1}, \eta_{2}, \eta_{3}\) 的过渡矩阵。
+  \item[（2）] 求 \(\mathcal{T}\) 在 \(\varepsilon_{1}, \varepsilon_{2}, \varepsilon_{3}\) 下的矩阵．
+  \item[（3）] 求 \(\mathcal{T}\) 在 \(\eta_{1}, \eta_{2}, \eta_{3}\) 下的矩阵．
+  \item[（4）] 是否存在非零 \(\xi \in \mathbb{R}^{3}\) ，使得 \(\mathcal{T} \xi=\xi\) ？
+\end{itemize}
+
+\subsection{题目8}
+8．设 \(V\) 为有限维欧氏空间，线性变换 \(\mathcal{A}: V \rightarrow V\) 满足 \((\mathcal{A} \alpha, \beta)=(\alpha, \mathcal{A} \beta), \forall \alpha, \beta \in V\) 。证明：
+
+\begin{itemize}
+  \item[（1）] \(\mathcal{A}\) 在标准正交基下的矩阵为对称矩阵。
+  \item[（2）] 存在 \(V\) 的一组基使得 \(\mathcal{A}\) 在该基下的矩阵是对角矩阵。
+  \item[（3）] \((\mathcal{A}(V))^{\perp}=\mathcal{A}^{-1}(0)\) ，且 \(V=\mathcal{A}(V) \oplus \mathcal{A}^{-1}(0)\) ．
+\end{itemize}
+\end{document}

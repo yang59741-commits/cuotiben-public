@@ -1,0 +1,94 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{北京师范大学2026年高等代数真题}
+\section*{3．北京师范大学2026年高等代数与空间解析几何试卷}
+一．（12 分）设 \(P=\left(\begin{array}{lll}0 & 1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 1\end{array}\right)\) ，考虑增广矩阵 \(B=(A, P)\) ，其中 \(A\) 是3 阶方阵。若 \(B\) 经过若干次初等\\
+行变换化为
+
+\[
+\left(\begin{array}{cccccc}
+1 & 0 & 0 & 2 & -3 & -3 \\
+0 & 1 & 0 & -1 & 2 & 2 \\
+0 & 0 & 1 & 0 & 0 & -1
+\end{array}\right)
+\]
+
+证明：\(A\) 可逆，并求 \(A^{-1}\) 。
+
+二．（12 分）证明：\(n\) 维向量空间 \(\mathbb{F}^{n}\) 的任意一个不等于 \(\mathbb{F}^{n}\) 的子空间都是若干个 \(n-1\) 维子空间的交。
+
+三．（15 分）设 \(M\) 是秩为 \(r\) 的 \(m\) 阶方阵，\(V\) 是全体 \(m \times n\) 矩阵构成的线性空间，定义 \(V\) 上的变换 \(\varphi\)为
+
+\[
+\varphi(N)=M N, N \in V .
+\]
+
+证明：\(\varphi\) 是线性变换，并求 \(\varphi\) 的像空间的维数．
+
+四．（16 分）设 \(A\) 是如下的实对称矩阵：
+
+\[
+A=\left(\begin{array}{cccc}
+2 & -1 & 0 & 1 \\
+-1 & 2 & 1 & 0 \\
+0 & 1 & 2 & -1 \\
+1 & 0 & -1 & 2
+\end{array}\right) .
+\]
+
+证明：\(A\) 为半正定矩阵，并求半正定矩阵 \(B\) ，满足 \(B^{2}=A\) 。
+
+五．（15 分）设 \(A\) 是 \(m \times n\) 矩阵，若存在 \(n \times m\) 矩阵 \(G\) ，满足 \(A G A=A\) ，则称 \(G\) 为 \(A\) 的一个广义逆．若 \(A\) 为 \(m \times n\) 矩阵，且满足 \(A=P\left(\begin{array}{cc}I_{r} & O \\ O & O\end{array}\right) Q\) ，其中 \(P, Q\) 分别是 \(m\) 阶和 \(n\) 阶可逆矩阵。证明：\(A\) 的全部广义逆可表示为
+
+\[
+G=Q^{-1}\left(\begin{array}{cc}
+I_{r} & C \\
+D & F
+\end{array}\right) P^{-1}
+\]
+
+其中 \(C, D, F\) 分别是任意的 \(r \times(m-r),(n-r) \times r,(n-r) \times(m-r)\) 矩阵。
+
+六．（15 分）设 \(f_{1}(x), f_{2}(x), f_{3}(x), f_{4}(x) \in \mathbb{C}[x]\) ，若多项式
+
+\[
+f_{1}\left(x^{2025}\right)+x f_{2}\left(x^{2025}\right)+x^{2} f_{3}\left(x^{2025}\right)+x^{3} f_{4}\left(x^{2025}\right)
+\]
+
+可以被 \(1+x+x^{2}+x^{3}+x^{4}\) 整除，证明：\(f_{i}(1)=0(i=1,2,3,4)\) ．
+
+七．（20 分）填空题．每题 5 分．
+
+\begin{itemize}
+
+\subsection{题目1}
+  \item[1．] 点 \(P(2,-1,3)\) 关于直线 \(L: \frac{x-1}{1}=\frac{y}{2}=\frac{z+2}{-2}\) 的对称点的坐标为 \(\_\_\_\_\)．
+
+\subsection{题目2}
+  \item[2．] 直线 \(L_{1}: \frac{x-1}{2}=\frac{y}{-1}=\frac{z+1}{3}\) 与直线 \(L_{2}: \frac{x}{1}=\frac{y-1}{2}=\frac{z-2}{-1}\) 之间的距离为 \(\_\_\_\_\)．
+
+\subsection{题目3}
+  \item[3．] 平面曲线 \(3 x^{2}+4 x y+5 y^{2}-7 x-8 y-3=0\) 在点 \((-1,1)\) 的切线方程为 \(\_\_\_\_\)。
+
+\subsection{题目4}
+  \item[4．] 方程 \(f(x+y+z, 2 x-3 y)=0\) 表示空间中的一个柱面，其母线的单位方向向量为 \(\_\_\_\_\)．
+\end{itemize}
+
+八．（12 分）给定平面 \(\sum: x+y+1=0\) ，求平行于 \(\sum\) 且与直线 \(L_{1}: \frac{x-2}{1}=\frac{y+3}{2}=\frac{z-5}{1}\) 及直线\(L_{2}: \frac{x}{1}=\frac{y-2}{2}=\frac{z+1}{0}\) 都相交的动直线形成的曲面方程。
+
+九．（13 分）设有两条异面直线 \(L_{1}: \frac{x-1}{2}=\frac{y+1}{1}=\frac{z-2}{0}\) 与 \(L_{2}: \frac{x}{1}=\frac{y-2}{-1}=\frac{z-1}{2}\) ，求 \(L_{2}\) 绕 \(L_{1}\) 所得的旋转曲面方程。
+
+十．（20 分）已知二次曲面方程 \(2 x^{2}+5 y^{2}+5 z^{2}+4 x y-4 x z-8 y z-9=0\) ，使用直角坐标变换将其化为标准方程，并判断该曲面的类型（要求写出所用的坐标变换及得到这一变换的详细过程）．
+\end{document}

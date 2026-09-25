@@ -1,0 +1,101 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{浙江大学2024年高等代数真题}
+\section*{94．浙江大学2024年高等代数试卷}
+
+\subsection{题目1}
+1．假设 \(\frac{5}{11}\) 是整系数多项式 \(f(x)\) 的根，证明：\(f(\sqrt{-1}) f(-\sqrt{-1})\) 是正整数，且是146的倍数。
+
+\subsection{题目2}
+2．求线性方程组
+
+\[
+\left\{\begin{array}{r}
+x_{1}-2 x_{2}+3 x_{3}-x_{4}=0 \\
+3 x_{1}+x_{2}+x_{3}-3 x_{4}=0 \\
+x_{1}+5 x_{2}-5 x_{3}-x_{4}=0
+\end{array}\right.
+\]
+
+的基础解系，假设该方程组的解和另外一个解为 \(k_{1}\left(\begin{array}{c}3 \\ -4 \\ -3 \\ 0\end{array}\right)+k_{2}\left(\begin{array}{l}0 \\ 2 \\ 2 \\ 1\end{array}\right)\) 的方程组有公共解，求出所有公共解。
+
+\subsection{题目3}
+3．设 \(X=\left(x_{1}, x_{2}, x_{3}, x_{4}\right), X^{\mathrm{T}}\) 是 \(X\) 的转置，问是否存在一次多项式
+
+\[
+u_{i}(x)=a_{i} x_{1}+b_{i} x_{2}+c_{i} x_{3}+d_{i} x_{4}(i=1,2,3,4)
+\]
+
+满足
+
+\[
+X\left(\begin{array}{llll}
+2 & 0 & 2 & 4 \\
+0 & 2 & 4 & 2 \\
+2 & 4 & 2 & 0 \\
+4 & 2 & 0 & 2
+\end{array}\right) X=\left|\begin{array}{ll}
+u_{1}(x) & u_{2}(x) \\
+u_{3}(x) & u_{4}(x)
+\end{array}\right| .
+\]
+
+并说明理由．
+
+\subsection{题目4}
+4．假设 \(\mathbb{R}\) 是实数域，实向量空间 \(\mathbb{R}^{3}\) 两组向量分别为 \(\alpha_{1}=(-1,1,0), \alpha_{2}=(2,-1,2), \alpha_{3}=(0,1, b)\) 和
+
+\[
+\beta_{1}=(1,0,-1), \beta_{2}=(-1,1,1), \beta_{3}=(1,1, c) .
+\]
+
+（1）当 \(b, c\) 取何值时，不存在 \(\mathbb{R}^{3}\) 上的线性变换 \(\mathcal{T}\) ，满足 \(\mathcal{T}\left(\alpha_{i}\right)=\beta_{i}, i=1,2,3\) 。\\
+（2）当 \(b, c\) 取何值时，至少存在两个 \(\mathbb{R}^{3}\) 上的线性变换 \(\mathcal{T}\) 满足 \(\mathcal{T}\left(\alpha_{i}\right)=\beta_{i}, i=1,2,3\) ．\\
+（3）当 \(b, c\) 取何值时，存在 \(\mathbb{R}^{3}\) 上唯一的线性变换 \(\mathcal{T}\) ，满足 \(\mathcal{T}\left(\alpha_{i}\right)=\beta_{i}, i=1,2,3\) ．这样的线性变换是正交变换吗？为什么？
+
+\subsection{题目5}
+5．假设 \(A\) 是2024阶方阵，主对角线上全是偶数，其余的都是奇数。证明该矩阵为可逆矩阵。
+
+\subsection{题目6}
+6．求 \(f(x)=x^{4}+2 x^{3}-x^{2}-4 x-2, g(x)=x^{4}+x^{3}-x^{2}-2 x-2\) 的最大公因式 \(d(x)\) 以及多项式\(u(x), v(x)\) 满足 \(d(x)=u(x) f(x)+v(x) g(x)\) ．
+
+\subsection{题目7}
+7．已知矩阵
+
+\[
+A=\left(\begin{array}{ccc}
+3 & a & 6 \\
+-5 & -7 & -1 \\
+b & -6 & -7
+\end{array}\right)
+\]
+
+的特征值 \(\lambda\) 对应的特征向量 \(\alpha=\left(\begin{array}{c}-2 \\ 1 \\ 2\end{array}\right)\) ，求该矩阵的若当（Jordan）标准型．
+
+\subsection{题目8}
+8．设 \(A\) 是 \(n\) 阶非幂零矩阵，\(S\) 是使得 \(\lambda A\) 与 \(\lambda\) 相似的复数 \(\lambda\) 的集合，证明 \(S\) 是一个有限集．
+
+\subsection{题目9}
+9．设 \(\alpha, \beta, \gamma\) 是有理数域上线性空间 \(V\) 中的向量，其中 \(\alpha \neq 0\) ，假如存在 \(V\) 上线性变换 \(\mathcal{T}\) ，使得
+
+\[
+\mathcal{T} \alpha=\beta, \mathcal{T} \beta=-\gamma, \mathcal{T} \gamma=\alpha-\beta .
+\]
+
+证明：\(\alpha, \beta, \gamma\) 在 \(V\) 中线性无关．
+
+\subsection{题目10}
+10．已知 \(\mathcal{A}, \mathcal{B}, \mathcal{C}\) 是有限维线性空间上的三个线性变换，证明： \(\mathcal{A}+\mathcal{B}-\mathcal{A} \mathcal{C} \mathcal{B}\) 和 \(\mathcal{A}+\mathcal{B}-\mathcal{B} \mathcal{C} \mathcal{A}\) 核空间是同构的．
+\end{document}

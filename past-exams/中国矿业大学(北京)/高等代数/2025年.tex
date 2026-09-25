@@ -1,0 +1,102 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{中国矿业大学(北京)2025年高等代数真题}
+\section*{23．中国矿业大学（北京）2025年高等代数试卷}
+
+\subsection{题目1}
+1．（12 分）计算行列式
+
+\[
+D_{n}=\left|\begin{array}{ccccc}
+1+x & x & x & \cdots & x \\
+x & 2+x & x & \cdots & x \\
+x & x & 3+x & \cdots & x \\
+\vdots & \vdots & \vdots & & \vdots \\
+x & x & x & \cdots & n+x
+\end{array}\right|
+\]
+
+\subsection{题目2}
+2．（8 分）已知 \(n\) 阶方阵 \(A\) 每行元素之和为常数 \(\lambda\) ，证明：对任意的正整数 \(m, A^{m}\) 的每行元素之和为\(\lambda^{m}\) ．
+
+\subsection{题目3}
+3．（12 分）数域 \(P\) 上一元多项式全体构成线性空间 \(P[x]\) ，其上的线性变换 \(\mathcal{D}\) 满足 \(\mathcal{D}(x)=1\) ，且对任意的 \(f(x), g(x) \in P[x]\) ，有 \(\mathcal{D}(f(x) g(x))=\mathcal{D}(f(x)) g(x)+f(x) \mathcal{D}(g(x))\) ，证明：对任意的\(f(x) \in P[x]\) ，有
+
+\[
+\mathcal{D}(f(x))=\frac{\mathrm{d} f(x)}{\mathrm{d} x}
+\]
+
+\subsection{题目4}
+4．（12 分）当 \(\lambda\) 取何值时，线性方程组
+
+\[
+\left\{\begin{array}{l}
+\lambda x_{1}+x_{2}+x_{3}=1 \\
+x_{1}+\lambda x_{2}+x_{3}=\lambda \\
+2 x_{1}+(1+\lambda) x_{2}+(1+\lambda) x_{3}=\lambda+\lambda^{2}
+\end{array}\right.
+\]
+
+\begin{itemize}
+  \item[（1）] 有唯一解？
+  \item[（2）] 没有解？
+  \item[（3）] 有无穷多解？并求通解。
+\end{itemize}
+
+\subsection{题目5}
+5。（16 分）已知 \(\tau\) 是线性空间 \(V\) 上的线性变换，\(\varepsilon_{1}, \varepsilon_{2}, \varepsilon_{3}\) 为 \(V\) 的一组基，满足
+
+\[
+\tau\left(\varepsilon_{1}\right)=2 \varepsilon_{1}+3 \varepsilon_{2}+4 \varepsilon_{3}, \tau\left(\varepsilon_{2}\right)=\varepsilon_{2}, \tau\left(\varepsilon_{3}\right)=\varepsilon_{1}+x \varepsilon_{2}+5 \varepsilon_{3} .
+\]
+
+求 \(x\) 为何值时，存在 \(V\) 的一组基，使得 \(\tau\) 在该基下为对角阵？并求这组基。
+
+\subsection{题目6}
+6．（16 分）已知 \(A=\left(\begin{array}{ccc}-1 & -2 & 6 \\ -1 & 0 & 3 \\ -1 & -1 & 4\end{array}\right)\) ．
+
+\begin{itemize}
+  \item[（1）] 求 \(A\) 的 Jordan 标准型 \(J\) ，并求可逆矩阵 \(P\) ，使得 \(P^{-1} A P=J\) ．
+  \item[（2）] 对任意的 \(k \in \mathbb{N}_{+}\)，求 \(A^{k}\) 。
+\end{itemize}
+
+\subsection{题目7}
+7．（16 分）设 \(V\) 是由全体2阶实矩阵构成的线性空间，\(\Psi\) 是 \(V\) 上的变换，且满足对任意的 \(A \in V\) ， \(\Psi(A)=A M-M A\) ，其中 \(M=\left(\begin{array}{ll}1 & 2 \\ 0 & 3\end{array}\right)\) ．
+
+\begin{itemize}
+  \item[（1）] 证明：\(\Psi\) 为 \(V\) 上的线性变换。
+  \item[（2）] 求 \(\operatorname{Ker} \Psi\) 的一组基．
+\end{itemize}
+
+\subsection{题目8}
+8．（10 分）设 \(\sigma\) 是有限维线性空间 \(V\) 上的线性变换，\(f(x), g(x), h(x) \in P[x]\) ，且满足 \((f(x), g(x))=\) \(1, h(x)=f(x) g(x)\) ，证明： \(\operatorname{Ker} h(\sigma)=\operatorname{Ker} f(\sigma) \oplus \operatorname{Ker} g(\sigma)\) ．
+
+\subsection{题目9}
+9．（8 分）已知 \(n\) 阶方阵 \(A\) 满足 \(A^{2}+2 A=O, \operatorname{rank} A=k\) ，证明： \(\operatorname{det}(A+3 E)=3^{n-k}\) ．
+
+\subsection{题目10}
+10．（10 分）设 \(\varphi\) 是有限维欧氏空间 \(V\) 上的映射，满足 \(\varphi(0)=0,|\varphi(\alpha)-\varphi(\beta)|=|\alpha-\beta|, \forall \alpha, \beta \in V\)，证明：\(\varphi\) 是 \(V\) 上的正交变换。
+
+\subsection{题目11}
+11．（18 分）利用正交替换将二次型 \(f\left(x_{1}, x_{2}, x_{3}\right)=2 x_{1}^{2}+4 x_{1} x_{2}-4 x_{1} x_{3}+5 x_{2}^{2}-8 x_{2} x_{3}+5 x_{3}^{2}\) 化为标准型．
+
+\subsection{题目12}
+12．（12 分）关于 \(\lambda\) 的一元多项式 \(f_{1}(\lambda), f_{2}(\lambda)\) 都与 \(g_{1}(\lambda), g_{2}(\lambda)\) 互素．证明：
+
+\begin{itemize}
+  \item[（1）] \(\left(f_{1}(\lambda) g_{1}(\lambda), f_{2}(\lambda) g_{2}(\lambda)\right)=\left(f_{1}(\lambda), f_{2}(\lambda)\right)\left(g_{1}(\lambda), g_{2}(\lambda)\right)\) ．
+  \item[（2）] \(\lambda\)－矩阵 \(\left(\begin{array}{cc}f_{1}(\lambda) g_{1}(\lambda) & 0 \\ 0 & f_{2}(\lambda) g_{2}(\lambda)\end{array}\right)\) 与 \(\left(\begin{array}{cc}f_{2}(\lambda) g_{1}(\lambda) & 0 \\ 0 & f_{1}(\lambda) g_{2}(\lambda)\end{array}\right)\) 等价．
+\end{itemize}
+\end{document}

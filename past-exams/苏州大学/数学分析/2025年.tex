@@ -1,0 +1,76 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{苏州大学2025年数学分析真题}
+\section*{89．苏州大学2025年数学分析试卷}
+
+\subsection{题目1}
+1．设
+
+\[
+f(x)= \begin{cases}\frac{\sin \left(x^{2}\right)}{x^{2}}, & x \neq 0 \\ 1, & x=0\end{cases}
+\]
+
+求 \(f^{(2024)}(0)\) ．
+
+\subsection{题目2}
+2．已知 \(f(x)=\cos \left(x^{p}\right)\) 在 \((0,+\infty)\) 上一致连续，求 \(p\) 的范围．
+
+\subsection{题目3}
+3．设 \(I(x)=\int_{0}^{+\infty} e^{-x y^{2}} \sin x \mathrm{~d} y, x \geq 0\) ，求 \(\int_{0}^{+\infty} I(x) \mathrm{d} x\) ．
+
+\subsection{题目4}
+4．设平面 \(x+y+z=1\) 在球 \(x^{2}+y^{2}+z^{2} \leq 1\) 内部的平面部分为 \(S\) ，计算
+
+\[
+\iint_{S}\left(1-x^{2}-y^{2}-z^{2}\right) \mathrm{d} S
+\]
+
+\subsection{题目5}
+5．设 \(f(x), g(x)\) 在 \([a, b]\) 上黎曼可积，证明：\(f(x) g(x)\) 在 \([a, b]\) 上黎曼可积．
+
+\subsection{题目6}
+6．设 \(f(x)\) 在 \([0,1]\) 上连续可微， \(\int_{0}^{1} f(x) \mathrm{d} x=0\) ，且有
+
+\[
+f^{\prime}(x)+f(x) \tan x=\int_{0}^{x} f(t) \mathrm{d} t
+\]
+
+求证：\(f(x)\) 在 \([0,1]\) 上恒为零．
+
+\subsection{题目7}
+7．函数 \(f(x, y)\) 存在二阶连续偏导数，且 \(f(0,0)=2024, f_{x x}+f_{y y}=2 x y\) ，记 \(L_{r}: x^{2}+y^{2}=r^{2}(r>0)\) ，求
+
+\[
+I(r)=\frac{1}{2 \pi r} \int_{L_{r}} f(x, y) \mathrm{d} s
+\]
+
+\subsection{题目8}
+8．判断级数
+
+\[
+\sum_{n=1}^{\infty} \frac{(-1)^{n}}{\sqrt{n}}, \sum_{n=1}^{\infty} \frac{(-1)^{n}}{\sqrt{n}-(-1)^{n}}, \sum_{n=1}^{\infty} \frac{(-1)^{[\sqrt{n}]}}{n}
+\]
+
+的敛散性。
+
+\subsection{题目9}
+9．设 \(f(x)\) 在 \([0,1]\) 上二阶连续可微，\(f(0)<0<f(1)\) ，且 \(f^{\prime}(x)>0, f^{\prime \prime}(x)>0\) ．
+
+\begin{itemize}
+  \item[（1）] 证明：存在唯一的 \(\xi \in(0,1)\) ，满足 \(f(\xi)=0\) 。
+  \item[（2）] 记 \(x_{1}=1, x_{n+1}=x_{n}-\frac{f\left(x_{n}\right)}{f^{\prime}\left(x_{n}\right)}\) ，证明： \(\lim _{n \rightarrow \infty} x_{n}=\xi\) ．
+  \item[（3）] 求极限 \(\lim _{n \rightarrow \infty} \frac{x_{n+1}-\xi}{\left(x_{n}-\xi\right)^{2}}\) ．
+\end{itemize}
+\end{document}

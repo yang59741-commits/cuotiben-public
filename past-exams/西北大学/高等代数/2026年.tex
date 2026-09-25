@@ -1,0 +1,85 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{西北大学2026年高等代数真题}
+\section*{168．西北大学2026年高等代数试卷}
+
+\subsection{题目1}
+一．（10 分）设 \(x_{1}, x_{2}, x_{3}\) 是多项式
+
+\[
+f(x)=x^{3}+a x+1
+\]
+
+的全部根，求一个三次多项式 \(g(x)\) ，使得 \(g(x)\) 以 \(x_{1}^{2}, x_{2}^{2}, x_{3}^{2}\) 为根。
+
+\subsection{题目2}
+二．（10 分）设 \(V\) 是 \(n\) 维线性空间，\(n \geq 1\) ，证明：\(V\) 中存在一个由无穷多个向量构成的向量组，使得该向量组中任意 \(n\) 个向量都是 \(V\) 的一组基．
+
+\subsection{题目3}
+三。（15 分）设 \(A\) 是数域上的 \(n\) 阶方阵，\(n \geq 2, A^{*}\) 是 \(A\) 的伴随矩阵，且存在 \(n\) 维非零向量 \(\alpha\) ，满足\(A \alpha=0\) 。证明：非齐次线性方程组 \(A^{*} X=\alpha\) 有解当且仅当秩 \((A)=n-1\) 。
+
+\subsection{题目4}
+四．（15 分）设 \(A\) 为三阶矩阵，\(X\) 为三维列向量，满足 \(X, A X, A^{2} X\) 线性无关，以及 \(A^{3} X=3 A X-2 A^{2} X\)．
+
+\begin{itemize}
+  \item[（1）] 记 \(P=\left(X, A X, A^{2} X\right)\) ，求三阶矩阵 \(B\) ，使得 \(A=P B P^{-1}\) 。
+  \item[（2）] 计算行列式 \(|A+E|\) ，其中 \(E\) 为单位矩阵。
+\end{itemize}
+
+\subsection{题目5}
+五．（15 分）设
+
+\[
+A=\left(\begin{array}{lll}
+1 & 0 & 0 \\
+1 & 0 & 1 \\
+0 & 1 & 0
+\end{array}\right) .
+\]
+
+证明：\(A^{n}=A^{n-2}+A^{2}-E\) ，其中 \(n \geq 3, E\) 为单位矩阵，并求出 \(A^{1000}\) 。
+
+\subsection{题目6}
+六。（15 分）设 \(V\) 为有限维线性空间，\(V_{1}\) 为 \(V\) 的非零子空间。证明：如果有且仅有一个子空间 \(V_{2}\) ，使得 \(V=V_{1} \oplus V_{2}\) ，则必有 \(V_{1}=V\) 。
+
+\subsection{题目7}
+七．（15 分）设 \(V\) 是数域上的 \(n\) 维线性空间，\(\sigma\) 是 \(V\) 上的一个线性变换，\(\sigma(V)\) 表示 \(\sigma\) 的值域，\(\sigma^{-1}(0)\)表示 \(\sigma\) 的核．证明：
+
+\begin{itemize}
+  \item[（1）] 维 \(\left(\sigma(V)+\sigma^{-1}(0)\right) \geq \frac{n}{2}\) 。
+  \item[（2）] 维 \(\left(\sigma(V)+\sigma^{-1}(0)\right)=\frac{n}{2}\) 当且仅当 \(\sigma(V)=\sigma^{-1}(0)\) ．
+\end{itemize}
+
+\subsection{题目8}
+八．（15 分）设 \(A\) 为实对称矩阵，\(S\) 为实反称矩阵，\(A S=S A, A\) 可逆，证明：\(A-S\) 可逆，且
+
+\[
+(A+S)(A-S)^{-1}
+\]
+
+为正交矩阵。
+
+\subsection{题目9}
+九．（20 分）设 \(A, B\) 为数域上的 \(n\) 阶方阵，且 \(A\) 的 \(n\) 个特征值两两不同。证明：\(A\) 的特征向量都是 \(B\)的特征向量当且仅当 \(A B=B A\) ．
+
+\subsection{题目10}
+十。（20分）设 \(\alpha_{1}, \alpha_{2}, \alpha_{3}, \alpha_{4}, \alpha_{5}\) 为五维欧几里得空间 \(V\) 的一组标准正交基，
+
+\[
+W=\left\{x_{1} \alpha_{1}+x_{2} \alpha_{2}+x_{3} \alpha_{3}+x_{4} \alpha_{4} \mid x_{1}+x_{2}+x_{3}+x_{4}=0\right\} .
+\]
+
+证明：\(W\) 是 \(V\) 的子空间，求出 \(W\) 的维数与一组基，并求出 \(W\) 的正交补。
+\end{document}

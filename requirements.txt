@@ -1,0 +1,9 @@
+-c requirements-constraints.txt
+flask>=2.0
+keyring>=25.6,<26
+customtkinter>=5.2,<6
+pillow>=10,<13
+pystray>=0.19,<1
+certifi==2025.10.5
+PyMuPDF==1.27.2.3
+tzdata==2025.2; sys_platform == "win32"

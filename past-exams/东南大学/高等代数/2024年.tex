@@ -1,0 +1,99 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{东南大学2024年高等代数真题}
+\section*{79．东南大学2024年高等代数试卷}
+一．（20 分）设 \(V\) 为数域 \(P\) 上的全体4维列向量构成的向量空间．
+
+\[
+\alpha_{1}=\left(\begin{array}{l}
+1 \\
+1 \\
+0 \\
+0
+\end{array}\right), \alpha_{2}=\left(\begin{array}{l}
+1 \\
+0 \\
+0 \\
+1
+\end{array}\right), \alpha_{3}=\left(\begin{array}{l}
+2 \\
+1 \\
+0 \\
+1
+\end{array}\right), \beta_{1}=\left(\begin{array}{c}
+-1 \\
+0 \\
+1 \\
+0
+\end{array}\right), \beta_{2}=\left(\begin{array}{l}
+0 \\
+1 \\
+0 \\
+a
+\end{array}\right) .
+\]
+
+\(V\) 的子空间 \(V_{1}=\left\{k_{1} \alpha_{1}+k_{2} \alpha_{2}+k_{3} \alpha_{3} \mid k_{1}, k_{2}, k_{3} \in P\right\}, V_{2}=\left\{l_{1} \beta_{1}+l_{2} \beta_{2} \mid l_{1}, l_{2} \in P\right\}\) ．
+
+\begin{itemize}
+
+  \item[1．] 参数 \(a\) 满足什么条件时，\(V_{1}+V_{2}\) 为直和？
+
+  \item[2．] 若 \(V_{1}+V_{2}\) 不是直和，分别求 \(V_{1}+V_{2}\) 与 \(V_{1} \cap V_{2}\) 的一组基．
+\end{itemize}
+
+二．（20 分）设二次型 \(f\left(x_{1}, x_{2}, x_{3}\right)=(B X)^{\mathrm{T}}(B X)\) ，其中 \(B=\left(\begin{array}{ccc}1 & 0 & 1 \\ 0 & -1 & 1 \\ 0 & 0 & a\end{array}\right)\) ，\(a\) 为实数，\(X=\left(\begin{array}{l}x_{1} \\ x_{2} \\ x_{3}\end{array}\right)\)已知 \(f\left(x_{1}, x_{2}, x_{3}\right)\) 经过可逆线性变换化为标准形 \(y_{1}^{2}+y_{2}^{2}+0 y_{3}^{2}\) 。求 \(a\) 的值，并求一个正交矩阵 \(Q\) ，使\(f\left(x_{1}, x_{2}, x_{3}\right)\) 经过正交变换 \(X=Q Y\) 化为标准形．
+
+三。（20分）设 \(A\) 为3阶方阵，\(E\) 为3阶单位矩阵。
+
+\begin{itemize}
+
+  \item[1．] 若行列式 \(|-E-A|=|E-A|=|2 E-A|=0\) ，求 \(|3 E-A|\) 。
+
+  \item[2．] 若行列式 \(|-E-A|=-1,|E-A|=1,|2 E-A|=2\) ，求 \(|3 E-A|\) 。
+\end{itemize}
+
+四．（20 分）已知 \(A\) 为 \(m \times n\) 矩阵，\(b\) 为 \(m\) 维列向量。\\
+
+1．若存在 \(n \times m\) 矩阵 \(B\) 使得 \(B A\) 为单位矩阵，关于线性方程组 \(A X=b\) 的解，你有怎样的结论？并说明理由。\\
+
+2．若存在 \(n \times m\) 矩阵 \(B\) 使得 \(A B\) 为单位矩阵，关于线性方程组 \(A X=b\) 的解，你有怎样的结论？并说明理由．
+
+五．（15 分）设矩阵
+
+\[
+A=\left(\begin{array}{ccc}
+1-a & a & 0 \\
+-a & 1+a & b \\
+0 & 0 & 1
+\end{array}\right)
+\]
+
+针对参数 \(a, b\) 的不同取值范围分别求矩阵 \(A\) 的不变因子及初等因子．
+
+六．（10 分）设非零实矩阵 \(A=\left(a_{i j}\right)_{n \times n}\) ，其中 \(n \geq 2, a_{i j}\) 的代数余子式为 \(A_{i j}\) 。若 \(a_{i j}+A_{i j}=0\) ，其中 \(i, j=1,2, \cdots, n\) ，证明：\(A\) 可逆．
+
+七．（15 分）设 \(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{n}\) 为欧氏空间 \(V\) 的一组基，\(\beta_{1}, \beta_{2}, \cdots, \beta_{n}\) 为 \(V\) 中的一个正交向量组，\(\gamma_{1}, \gamma_{2}, \cdots, \gamma_{n}\) 为 \(V\) 中的另一个正交向量组，已知对于任意的 \(i=1,2, \cdots, n, \alpha_{1}, \alpha_{2}, \cdots, \alpha_{i}\) 能由\(\beta_{1}, \beta_{2}, \cdots, \beta_{i}\) 线性表出，也能由 \(\gamma_{1}, \gamma_{2}, \cdots, \gamma_{i}\) 线性表出．证明：存在数 \(k_{1}, k_{2}, \cdots, k_{n}\) ，使得
+
+\[
+\beta_{1}=k_{1} \gamma_{1}, \beta_{2}=k_{2} \gamma_{2}, \cdots, \beta_{n}=k_{n} \gamma_{n} .
+\]
+
+八．（10 分）设 \(V\) 为数域 \(P\) 上的 \(n\) 维线性空间，其中 \(n\) 为正整数．\(f, g\) 为 \(V\) 上的线性变换，\(I\) 为 \(V\) 上的恒等变换，即 \(I(\alpha)=\alpha, \forall \alpha \in V\) 。令 \(V_{1}\) 为 \(I-f g\) 的值域，\(V_{2}\) 为 \(I-g f\) 的值域。证明：\(V_{1}\) 与 \(V_{2}\) 的维数相等。
+
+九．（10 分）设 \(f(x), g(x)\) 为多项式，\(A\) 为 \(n\) 阶方阵．证明：分块矩阵 \(\binom{f(A)}{g(A)}\) 与 \((f(A) g(A))\)的秩相等。
+
+十．（10 分）设 \(A, B\) 均为 \(n\) 阶实对称矩阵（其中 \(n \geq 2\) ），且 \(A\) 正定。若矩阵 \(A B\) 的特征值全为 1 ，证明：存在次数小于 \(n\) 的多项式 \(f(x)\) ，使得 \(B=f(A)\) ．
+\end{document}

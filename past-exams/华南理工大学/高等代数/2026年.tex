@@ -1,0 +1,87 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{华南理工大学2026年高等代数真题}
+\section*{147．华南理工大学2026年高等代数试卷}
+
+\subsection{题目1}
+1．（15 分）求所有整数 \(m\) ，使得 \(f(x)=x^{5}+m x+1\) 在有理数域上可约．
+
+\subsection{题目2}
+2．（15 分）已知 \(n\) 阶上三角矩阵
+
+\[
+A=\left(\begin{array}{cccc}
+1 & 1 & \cdots & 1 \\
+& 1 & \cdots & 1 \\
+& & \ddots & \vdots \\
+& & & 1
+\end{array}\right)
+\]
+
+求 \(|A|\) 的所有元素的代数余子式之和．
+
+\subsection{题目3}
+3．（20 分）设 \(A\) 是 \(m \times n\) 矩阵，证明： \(\operatorname{rank}\left(E_{m}-A A^{\mathrm{T}}\right)-\operatorname{rank}\left(E_{n}-A^{\mathrm{T}} A\right)=m-n\) 。
+
+\subsection{题目4}
+4．（20 分）设 \(\alpha_{1}=(1,4,0,2), \alpha_{2}=(2,7,1,3), \alpha_{3}=(0,1,-1, a), \beta=(3,10, b, 4)\) ．求：
+
+\begin{itemize}
+  \item[（1）] \(a, b\) 取何值时，\(\beta\) 不能被 \(\alpha_{1}, \alpha_{2}, \alpha_{3}\) 线性表示？
+  \item[（2）] \(a, b\) 取何值时，\(\beta\) 可由 \(\alpha_{1}, \alpha_{2}, \alpha_{3}\) 线性表示？并写出表达式。
+\end{itemize}
+
+\subsection{题目5}
+5．（20 分）设 \(L_{i}=c_{i 1} x_{1}+c_{i 2} x_{2}+\cdots+c_{i n} x_{n}, i=1,2, \cdots, p+q, c_{i j} \in \mathbb{R}\) ，证明：实二次型
+
+\[
+f\left(x_{1}, x_{2}, \cdots, x_{n}\right)=L_{1}^{2}+\cdots+L_{p}^{2}-L_{p+1}^{2}-\cdots-L_{p+q}^{2}
+\]
+
+的正惯性指数 \(\leq p\) ，负惯性指数 \(\leq q\) 。
+
+\subsection{题目6}
+6．（20 分）设 \(W_{1}, W_{2}\) 是 \(n\) 维欧氏空间 \(V\) 的线性子空间，且 \(\operatorname{dim} W_{1}<\operatorname{dim} W_{2}\) ，证明：\(W_{2}\) 中必有一个非零向量正交于 \(W_{1}\) 中的所有向量．
+
+\subsection{题目7}
+7．（20 分）设 \(n \geq 2, V=F^{n \times n}\) 为数域 \(F\) 上 \(n\) 阶方阵全体构成的线性空间， \(\mathcal{A}\) 为 \(V\) 上的一个线性变换，满足 \(\mathcal{A}: X \rightarrow X^{\mathrm{T}}, \forall X \in F^{n \times n}\) 。
+
+\begin{itemize}
+  \item[（1）] 求 \(\mathcal{A}\) 的特征值和特征向量．
+  \item[（2）] 判断 \(\mathcal{A}\) 是否可以对角化？并说明理由．
+\end{itemize}
+
+\subsection{题目8}
+8．（20 分）设 \(V\) 为 \(\mathbb{C}\) 上的 \(n\) 维线性空间，\(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{n}\) 为 \(V\) 的一组基，且 \(V\) 上线性变换 \(\sigma\) 在\(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{n}\) 下的矩阵表示为
+
+\[
+A=\left(\begin{array}{cccccc}
+\lambda & 0 & 0 & \cdots & 0 & 0 \\
+1 & \lambda & 0 & \cdots & 0 & 0 \\
+0 & 1 & \lambda & \cdots & 0 & 0 \\
+\vdots & \vdots & \vdots & & \vdots & \vdots \\
+0 & 0 & 0 & \cdots & \lambda & 0 \\
+0 & 0 & 0 & \cdots & 1 & \lambda
+\end{array}\right) .
+\]
+
+证明：
+
+\begin{itemize}
+  \item[（1）] \(V\) 是仅有的包含 \(\alpha_{1}\) 的 \(\sigma\) 不变子空间．
+  \item[（2）] \(\sigma\) 的任意不变子空间必包含 \(\alpha_{n}\) 。（应该指明非零不变子空间）
+  \item[（3）] 每个子空间 \(V_{i}=L\left(\alpha_{n-i+1}, \cdots, \alpha_{n}\right)(i=1,2, \cdots, n)\) 为 \(\sigma\) 的不变子空间，且 \(\alpha \in V_{i}\) 当且仅当\((\sigma-\lambda \varepsilon)^{i} \alpha=0\) ，其中 \(\varepsilon\) 为恒等变换．
+\end{itemize}
+\end{document}

@@ -1,0 +1,103 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{中山大学2026年高等代数真题}
+\section*{144．中山大学2026年高等代数试卷}
+
+\subsection{题目1}
+一．（15 分）下面行列式
+
+\[
+d(x)=\left|\begin{array}{cccc}
+2 x & x & 1 & 2 \\
+1 & x & 1 & -1 \\
+3 & 2 & x & 1 \\
+1 & 1 & 1 & x
+\end{array}\right|
+\]
+
+中 \(x^{k}\) 的系数记为 \(a_{k}\) ，求 \(a_{2}\) 及 \(a_{3}\) 。
+
+\subsection{题目2}
+二．（15 分）已知实数域上关于 \(X=\left(x_{1}, x_{2}, x_{3}\right)^{\mathrm{T}}\) 的线性方程组
+
+\[
+\left\{\begin{array}{l}
+x_{1}+a x_{2}+x_{3}=4 \\
+b x_{1}+x_{2}+x_{3}=3 \\
+2 b x_{1}+x_{2}+x_{3}=4
+\end{array}\right.
+\]
+
+有解，求 \(a, b\) 的值，并求出方程组的解。
+
+\subsection{题目3}
+三．（15 分）实矩阵
+
+\[
+A=\left(\begin{array}{ccc}
+1 & -2 & -4 \\
+-2 & x & -2 \\
+-4 & -2 & 1
+\end{array}\right)
+\]
+
+与对角阵 \(\Lambda=\operatorname{diag}\{5,-4, y\}\) 相似，求 \(x, y\) 的值．
+
+\subsection{题目4}
+四．（15 分）设 \(A=\left(\begin{array}{lll}0 & 1 & 1 \\ 1 & 0 & 1 \\ 1 & 1 & 0\end{array}\right)\) ，求正交矩阵 \(P\) 及对角矩阵 \(D\) ，使得 \(P^{\mathrm{T}} A P=D\) ．
+
+\subsection{题目5}
+五．（15 分）设
+
+\[
+A=\left(\begin{array}{ccc}
+4 & -15 & 6 \\
+1 & -4 & 2 \\
+1 & -5 & 3
+\end{array}\right) \in M_{3}(\mathbb{C})
+\]
+
+求 \(A\) 的 Jordan 标准形 \(J\) 及 \(A\) 的最小多项式 \(g(\lambda)\) ．
+
+\subsection{题目6}
+六。（15 分）设 \(A \in M_{n}(\mathbb{C})\) ，任意给定非零列向量 \(\alpha \in \mathbb{C}^{n}\) ，求证：存在次数小 \(n\) 的多项式 \(h(x) \in \mathbb{C}[x]\)，使得 \(h(A) \alpha\) 为 \(A\) 的特征向量。
+
+\subsection{题目7}
+七．（15 分）设 \(A, B \in M_{n}(\mathbb{R})\) 为可逆矩阵，满足 \(A B A=B\) 且 \(B A B=A\) ，证明：\(A^{4}=B^{4}=I\) ．
+
+\subsection{题目8}
+八．（15 分）设 \(A=\left(a_{i j}\right)_{n \times n} \in M_{n}(\mathbb{R})\) 是正定对称矩阵，其对角元 \(a_{i i}\) 及特征值 \(\lambda_{i}\) 满足
+
+\[
+a_{11} \leq a_{22} \leq \cdots \leq a_{n n}, \lambda_{1} \leq \lambda_{2} \leq \cdots \leq \lambda_{n} .
+\]
+
+问 \(\lambda_{i} \leq a_{i i}\) 是否对所有 \(1 \leq i \leq n\) 成立？若成立，给出证明；若不成立，举出反例．
+
+\subsection{题目9}
+九．（15 分）对非负整数 \(n\) ，已知 \(M_{2 n+1}(\mathbb{R})\) 关于矩阵加法与数乘构成一个实线性空间，设 \(V\) 是\(M_{2 n+1}(\mathbb{R})\) 的一个非零子空间，满足 \(V\) 中任意非零矩阵都可逆。求证： \(\operatorname{dim} V=1\) 。
+
+\subsection{题目10}
+十．（15 分）记 \(E_{i j}\) 是 \((i, j)\) 元素是1其余元素是 0 的 \(n\) 阶实矩阵。设 \(\varphi\) 是实列向量空间 \(\mathbb{R}^{n}\) 上的线性变换，定义映射
+
+\[
+\begin{gathered}
+f_{\varphi}: \mathbb{R}^{n} \rightarrow \mathbb{R}^{n} \\
+\alpha \mapsto \sum_{i, j=1}^{n} E_{i j} \varphi\left(E_{j i} \alpha\right)
+\end{gathered}
+\]
+
+求证：存在常数 \(c_{\varphi}\) ，满足 \(f_{\varphi}=c_{\varphi} \mathrm{Id}, \mathrm{Id}\) 为 \(\mathbb{R}^{n}\) 上的恒等变换。
+\end{document}

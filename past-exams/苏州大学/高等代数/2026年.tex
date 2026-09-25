@@ -1,0 +1,99 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{苏州大学2026年高等代数真题}
+\section*{83．苏州大学2026年高等代数试卷}
+
+\subsection{题目1}
+1．（20 分）设 \(A\) 为 \(n\) 阶实方阵，且满足 \(A^{2}=A\) ，定义子空间
+
+\[
+W_{1}=\left\{X \in \mathbb{R}^{n} \mid A X=0\right\}, W_{2}=\left\{X \in \mathbb{R}^{n} \mid A X=X\right\} .
+\]
+
+证明： \(\mathbb{R}^{n}=W_{1} \oplus W_{2}\) 。
+
+\subsection{题目2}
+2．（20 分）设 \(V\) 是 \(n\) 维欧氏空间，\(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{n}\) 为 \(V\) 的一组基，\((\cdot, \cdot)\) 表示内积。设向量组 \(\beta_{1}, \beta_{2}, \cdots, \beta_{m}\)由基向量组线性表示为
+
+\[
+\left(\beta_{1}, \beta_{2}, \cdots, \beta_{m}\right)=\left(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{n}\right) C .
+\]
+
+其中 \(C \in \mathbb{R}^{n \times m}\) ，定义 \(\Delta=\left(b_{i j}\right)_{m \times m}\) ，其中 \(b_{i j}=\left(\beta_{i}, \beta_{j}\right)\) 。证明：
+
+\[
+\operatorname{rank}\left\{\beta_{1}, \beta_{2}, \cdots, \beta_{m}\right\}=\operatorname{rank}(C)=\operatorname{rank}(\Delta) .
+\]
+
+\subsection{题目3}
+3．（25 分）多项式 \(f(x)=x^{p}+p x+1\) ，其中 \(p\) 为奇素数．
+
+\begin{itemize}
+  \item[（1）] 证明：\(f(x)\) 在有理数域 \(\mathbb{Q}\) 上是不可约多项式。
+  \item[（2）] 证明：存在矩阵 \(A \in \mathbb{Q}^{n \times n}\) ，使得 \(f(A)=O\) 的充要条件是 \(p \mid n\) 。
+\end{itemize}
+
+\subsection{题目4}
+4．（20 分）解答如下问题：
+
+\begin{itemize}
+  \item[（1）] 证明：实反对称矩阵的特征值只能是 0 或纯虚数。
+  \item[（2）] 设 \(S=\left(\begin{array}{cc}O & E_{k} \\ -E_{k} & O\end{array}\right)\) ，子空间 \(W=\left\{A \in \mathbb{R}^{2 k \times 2 k} \mid A S+S A^{\mathrm{T}}=O\right\}\) ，求 \(W\) 的维数及一组基。
+\end{itemize}
+
+\subsection{题目5}
+5．（20 分）设线性变换 \(\sigma\) 在基 \(e_{1}, e_{2}, \cdots, e_{n}\) 下的矩阵为
+
+\[
+J_{n}(\mu)=\left(\begin{array}{cccc}
+\mu & & & \\
+1 & \mu & & \\
+& \ddots & \ddots & \\
+& & 1 & \mu
+\end{array}\right) .
+\]
+
+（1）证明：对于任意非零的 \(\sigma-\) 不变子空间 \(W\) ，必有 \(e_{n} \in W\) 。\\
+（2）求所有的 \(\sigma-\) 子空间．
+
+\subsection{题目6}
+6．（20 分）解答如下问题：\\
+（1）设 \(A \in \mathbb{R}^{n \times n}\) 满足 \(A^{2}=E_{n}\) ，证明：一定存在可逆矩阵 \(C\) ，使得
+
+\[
+C^{-1} A C=\left(\begin{array}{cc}
+E_{s} & O \\
+O & -E_{n-s}
+\end{array}\right) \text {. }
+\]
+
+（2）\(n\) 为奇数，如果存在矩阵 \(A_{1}, A_{2}, \cdots, A_{k} \in \mathbb{R}^{n \times n}\) ，使得对于任意实数 \(x_{1}, x_{2}, \cdots, x_{n}\) ，均有
+
+\[
+\left(x_{1} A_{1}+x_{2} A_{2}+\cdots+x_{k} A_{k}\right)^{2}=\left(x_{1}^{2}+x_{2}^{2}+\cdots+x_{k}^{2}\right) E_{n}
+\]
+
+成立，证明：\(k=1\) 。
+
+\subsection{题目7}
+7．（25 分）解答如下问题：\\
+（1）设 \(M\) 是 \(n\) 阶实对称矩阵，\(\lambda_{M}\) 是 \(M\) 的最大特征值，证明：对于任意非零向量 \(\alpha \in \mathbb{R}^{n}\) ，有
+
+\[
+\alpha^{\mathrm{T}} \dot{M} \alpha \leq \lambda_{M} \alpha^{\mathrm{T}} \alpha .
+\]
+
+（2）若 \(M=\left(\begin{array}{cc}A & B \\ B^{\mathrm{T}} & D\end{array}\right)\) 半正定，其中 \(A, D\) 为方阵，记 \(\lambda_{M}, \lambda_{A}, \lambda_{D}\) 分别为矩阵 \(M, A, D\) 的最大特征值，证明：\(\lambda_{M} \leq \lambda_{A}+\lambda_{D}\) ．
+\end{document}

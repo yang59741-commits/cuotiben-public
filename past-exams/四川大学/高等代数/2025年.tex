@@ -1,0 +1,86 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{四川大学2025年高等代数真题}
+\section*{156．四川大学2025年高等代数试卷（回忆版）}
+
+\subsection{题目1}
+1．记 \(f(x)=\left(x^{5}+4 x+5\right)(x+1)\) ，记 \(A\) 为 \(n\) 阶方阵，且有着 \(f(A)=O\) 。
+
+\begin{itemize}
+  \item[（1）] 求出 \(f(x)\) 的有理根及其全部重数．
+  \item[（2）] 求出 \(f(x)\) 在 \(\mathbf{Q}\) 的有理标准型．
+  \item[（3）] 记 \(\alpha_{1}, \alpha_{2}, \alpha_{3}, \alpha_{4}, \alpha_{5}, \alpha_{6}\) 为 \(f(x)\) 的全部复根，求
+\[
+\alpha_{1}^{5}+\alpha_{2}^{5}+\alpha_{3}^{5}+\alpha_{4}^{5}+\alpha_{5}^{5}+\alpha_{6}^{5} .
+\]
+  \item[（4）] 若存在 \(B\) ，有着 \(B^{3}=E\) ，问 \(f(B)\) 是否可逆？
+  \item[（5）] 求 \(L\left(\alpha, A \alpha, \cdots, A^{n-1} \alpha\right)\) 的维数．
+\end{itemize}
+
+\subsection{题目2}
+2．解答如下问题：
+
+\begin{itemize}
+  \item[（1）] 记 \(M\) 是 \(n\) 阶方阵，有 \(M^{*} \neq O\) ，又有着 \(M X=\beta\) ，其解为 \(\gamma_{1}, \gamma_{2}, \gamma_{1} \neq \gamma_{2}\) ，求 \(M X=\beta\) 的一个通解．
+  \item[（2）] 设 \(\alpha\) 为 \(n\) 维向量，\(\alpha^{\prime} \alpha=2024\) ，求 \(f(\lambda)=\left|\begin{array}{cc}\lambda E & \alpha \\ \alpha^{\prime} & 0\end{array}\right|\) 。
+  \item[（3）] 记 \(A+B, A-B\) 都可逆，证明 \(D=\left(\begin{array}{cc}A & B \\ B & A\end{array}\right)\) 可逆，并用 \((A+B)^{-1},(A-B)^{-1}, A, B\) 表示 \(D^{-1}\) ．
+  \item[（4）] 对任意一个非零的 \(n\) 维向量 \(\alpha\) ，是否存在 \(n\) 阶矩阵 \(P\) ，使得 \(\alpha, P \alpha, \cdots, P^{n-1} \alpha\) 线性无关？
+\end{itemize}
+
+\subsection{题目3}
+3．记 \(\sigma\) 为线性空间上的一个线性变换，\(\sigma\) 在基 \(\varepsilon_{1}, \varepsilon_{2}, \varepsilon_{3}, \varepsilon_{4}\) 下的矩阵为
+
+\[
+A=\left(\begin{array}{cccc}
+1 & 1 & 1 & 2 \\
+0 & 1 & 0 & 2 \\
+0 & 0 & -1 & 1 \\
+0 & 0 & 0 & -1
+\end{array}\right)
+\]
+
+（1）求 \(\sigma\) 的特征子空间。\\
+（2）求 \(\sigma\) 的 Jordan 标准型，以及可逆矩阵 \(P\) ，使得 \(P^{-1} A P=J\) ．\\
+（3）求 \(\sigma\) 包含 \(\varepsilon_{3}\) 的最小不变子空间．\\
+（4）试问 \(\sigma\) 在其上是否可以分解为两个不变子空间的直和 \(V=W \oplus U\) ，其中 \(W\) 为（3）中的不变子空间。\\
+（5）问是否存在线性变换 \(\varphi\) ，使得 \(\sigma=\varphi^{2025}\) ，请说明理由。
+
+\subsection{题目4}
+4．记 \(\alpha_{1}, \alpha_{2}, \alpha_{3}\) 是欧氏空间上面的一组向量，记它们在欧氏空间下的度量矩阵为
+
+\[
+A=\left(\begin{array}{lll}
+2 & 1 & 0 \\
+1 & 2 & 1 \\
+0 & 1 & 2
+\end{array}\right)
+\]
+
+（1）用施密特正交化求出其一个标准正交基。\\
+（2）问是否仅对 \(A\) 作合同变换就可以将其变为一组标准正交基？\\
+（3）未知。\\
+（4）是否存在一个正交变换 \(\sigma\) ，使得 \(\sigma\left(\alpha_{1}+\alpha_{2}\right)=\alpha_{2}+\alpha_{3}\) ？请说明理由。
+
+\subsection{题目5}
+5．解答如下问题：\\
+（1）\(A\) 是 \(n\) 阶方阵，证明 \(A\) 正定等价于对任意非零向量 \(d \in \mathbb{Q}^{n}\) ，有 \(d^{\mathrm{T}} A d>0\) 。\\
+（2）若现在 \(d \in \mathbb{R}^{n}\) 时，根据 \(d^{\mathrm{T}} A d>0\) 能否得到 \(A\) 正定？\\
+（3）记 \(A\) 半正定，求有着对角元都为非负的对角阵 \(D\) 和对角元要么为 0 要么为 1 的上三角矩阵 \(U\) ，使得 \(A=U^{\mathrm{T}} D U\) 。
+
+\subsection{题目6}
+6．解答如下问题：\\
+（1）若多项式有着不同的复根，有着不同的重数，问是否可以只用辗转相除法求出其全部复根？\\
+（2）现在我们记有着行列式为 1 的 2 阶整数阵组成的集合为 \(S L(2)\) ，任取 \(A \in S L(2)\) ，有 \(A^{o(A)}=E_{2}\),\(o(A)\) 是使得 \(A^{o(A)}=E_{2}\) 最小的一个倍数，求 \(S=\left\{n \mid A^{o(A)}=E_{2}, o(A)=n\right\}\) 。
+\end{document}

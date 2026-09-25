@@ -1,0 +1,99 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{东华大学2026年高等代数真题}
+\section*{43．东华大学2026年高等代数试卷}
+一．（14）分）设 \(K^{n}\) 中向量 \(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{n}\) 线性无关，\(c \in K\) ，向量组
+
+\[
+\beta_{1}=\alpha_{1}+c \alpha_{2}, \beta_{2}=\alpha_{2}+c \alpha_{3}, \cdots, \beta_{n-1}=\alpha_{n-1}+c \alpha_{n}, \beta_{n}=\alpha_{n}+c \alpha_{1} .
+\]
+
+求使向量组 \(\beta_{1}, \beta_{2}, \cdots, \beta_{n}\) 线性无关的 \(c\) 的值。
+
+二．（21 分）解答如下问题：\\
+
+\subsection{题目1}
+1．（7 分）给定数域 \(K\) 上的对角矩阵
+
+\[
+A=\left(\begin{array}{lll}
+\lambda_{1} & & \\
+& \lambda_{2} & \\
+& & \\
+& & \lambda_{n}
+\end{array}\right) .
+\]
+
+其中 \(\lambda_{i} \neq \lambda_{j}(i \neq j)\) ，求与 \(A\) 可交换的数域 \(K\) 上的所有 \(n\) 阶方阵。\\
+
+\subsection{题目2}
+2．（14 分）设 \(A, B\) 是数域 \(K\) 上的 \(n\) 阶矩阵，\(A\) 有 \(n\) 个互不相同的特征值，\(A B=B A\) ，证明：\(A, B\) 可同时对角化．
+
+三．（15 分）设 \(A=\left(\begin{array}{cccc}2 & 1 & 1 & -1 \\ 1 & -1 & 2 & 1 \\ 1 & 3 & -2 & 1\end{array}\right), B=\left(\begin{array}{c}2 a+b \\ a-b \\ c\end{array}\right), X=\left(\begin{array}{l}x_{1} \\ x_{2} \\ x_{3} \\ x_{4}\end{array}\right)\) ．\\
+
+\subsection{题目3}
+1．（9 分）更改 \(A\) 中的一个数得到矩阵 \(C\) ，使得齐次线性方程组 \(C X=0\) 的基础解系含有2个向量。\\
+
+\subsection{题目4}
+2．（6 分）求 \(a, b, c\) ，使线性方程组 \(A X=B\) 有解 \(x_{1}=1, x_{2}=a, x_{3}=b, x_{4}=c\) 。
+
+四．（25 分）设 \(A\) 是数域 \(K\) 上的 \(m \times n\) 矩阵。\\
+
+\subsection{题目5}
+1．（10 分）证明：\(r(A) \leq 1\) 当且仅当存在列向量 \(\alpha \in K^{m}, \beta \in K^{n}\) ，使得 \(A=\alpha \beta^{\mathrm{T}}\) 。\\
+
+\subsection{题目6}
+2．（15 分）证明：\(r(A)=r\) 当且仅当存在两个线性无关的列向量组 \(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{r}\) 和 \(\beta_{1}, \beta_{2}, \cdots, \beta_{r}\) ，使得 \(A=\alpha_{1} \beta_{1}^{\mathrm{T}}+\alpha_{2} \beta_{2}^{\mathrm{T}}+\cdots+\alpha_{r} \beta_{r}^{\mathrm{T}}\) 。
+
+\begin{itemize}
+  \item[五．] （15 分）设 \(B=\left(\begin{array}{ccc}1 & 2026 & 1 \\ 0 & 1 & 1 \\ 0 & 0 & 1\end{array}\right)\) ．
+
+  \item[1．] （10 分）求可逆矩阵 \(T\) ，使得 \(T^{-1} B T=J\) 为 Jordan标准形。
+
+  \item[2．] （5 分）证明：矩阵方程组 \(X^{2}+E=B\) 无解，其中 \(E\) 是单位矩阵。
+\end{itemize}
+
+六。（15 分）解答如下问题：
+
+\begin{itemize}
+
+  \item[1．] （8 分）设 \(M=\left(\begin{array}{ll}A & B \\ C & D\end{array}\right)\) ，其中 \(A, B, C, D\) 均是 \(n\) 阶方阵，且 \(A\) 可逆，\(A B=B A\) ，证明：
+\[
+|M|=|D A-C B| .
+\]
+
+  \item[2．] （7 分）设 \(A, B, C\) 都是有理数域上的 \(n\) 阶方阵，\(E\) 是 \(n\) 阶单位矩阵，\(M=\left(\begin{array}{cc}k E & A \\ B & C\end{array}\right)\) ，若对任意正整数 \(k\) 有 \(|M|=0\) ，证：必有 \(|C|=0\) ．
+\end{itemize}
+
+七．（20 分）设 \(\mathcal{A}, \mathcal{B}\) 和 \(\mathcal{A}_{1}, \mathcal{A}_{2}, \cdots, \mathcal{A}_{n}\) 是 \(n\) 维线性空间 \(V\) 上的线性变换， \(\mathcal{E}\) 是 \(V\) 上的单位变换．\\
+
+\subsection{题目11}
+1．（8 分）若 \(\mathcal{A}, \mathcal{B}\) 是幂等变换，即 \(\mathcal{A}^{2}=\mathcal{A}, \mathcal{B}^{2}=\mathcal{B}\) ，证明： \(\mathcal{A}+\mathcal{B}\) 是幂等变换的充要条件是
+
+\[
+\mathcal{A}\mathcal{B}=\mathcal{B}\mathcal{A}=\mathcal{O}
+\]
+
+\subsection{题目12}
+2．（12 分）若 \(\mathcal{A}_{1}+\mathcal{A}_{2}+\cdots+\mathcal{A}_{n}=\mathcal{E}, r\left(\mathcal{A}_{1}\right)+r\left(\mathcal{A}_{2}\right)+\cdots+r\left(\mathcal{A}_{n}\right)=n\) ，其中 \(r\left(\mathcal{A}_{i}\right)\) 表示 \(\mathcal{A}_{i}\) 的矩阵的秩，证明： \(\mathcal{A}_{i}\) 都是幂等变换，且 \(\mathcal{A}_{i} \mathcal{A}_{j}=\mathcal{O}(1 \leq i \neq j \leq n)\) 。
+
+八．（25 分）设线性空间 \(V=M_{n}(\mathbb{R})\) ，即实数域上 \(n\) 阶方阵全体，给定 \(A \in V\) ，且 \(A^{\mathrm{T}}=A\) ，对任意的 \(X, Y \in V\) ，定义二元函数 \(f: V \times V \rightarrow \mathbb{R}, f(X, Y)=\operatorname{Tr}\left(X^{\mathrm{T}} A Y\right), \operatorname{Tr}\) 表示矩阵的迹．\\
+
+\subsection{题目13}
+1．（10 分）证明：若 \(A\) 是正定矩阵，则 \(f(X, Y)\) 成为 \(V\) 上的内积。\\
+
+\subsection{题目14}
+2．（15 分）若 \(A\) 是半正定或半负定矩阵，证明：\(M=\{X \in V \mid f(X, X)=0\}\) 是 \(V\) 的一个子空间，并求 \(\operatorname{dim} M\) ，举例说明若 \(A\) 是不定矩阵，则 \(M\) 不是线性空间．
+\end{document}

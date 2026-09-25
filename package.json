@@ -1,0 +1,11 @@
+{
+  "name": "cuoti-local-frontend",
+  "private": true,
+  "scripts": {
+    "lint:js": "eslint cuoti_app/static/js/",
+    "check:frontend": "python tools/check_frontend.py"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.0"
+  }
+}

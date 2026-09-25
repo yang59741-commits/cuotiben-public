@@ -1,0 +1,467 @@
+{
+  "schema_version": 1,
+  "subjects": [
+    {
+      "subject_code": "math_analysis",
+      "name": "数学分析",
+      "display_order": 10,
+      "fallback_source": "综合题目_数学分析.tex",
+      "chapters": [
+        {
+          "chapter_code": "math_analysis.chapter_01",
+          "name": "引论",
+          "display_order": 10,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_01_引论.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_02",
+          "name": "数列极限",
+          "display_order": 20,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_02_数列极限.tex",
+            "chapterB5_01_一元函数极限.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_03",
+          "name": "实数系基本定理",
+          "display_order": 30,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_03_实数系基本定理.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_04",
+          "name": "函数极限",
+          "display_order": 40,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_04_函数极限.tex",
+            "chapterB4_01_函数与极限.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_05",
+          "name": "连续函数",
+          "display_order": 50,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_05_连续函数.tex",
+            "chapterB4_02_一元函数的连续性.tex",
+            "chapterB5_02_一元函数的连续性.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_06",
+          "name": "导数与微分",
+          "display_order": 60,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_06_导数与微分.tex",
+            "chapterB4_03_一元微分学.tex",
+            "chapterB5_03_一元微分学.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_07",
+          "name": "微分学应用",
+          "display_order": 70,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_07_不定积分.tex",
+            "chapterB3_08_微分学的应用.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_08",
+          "name": "不定积分",
+          "display_order": 80,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_09_定积分.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_09",
+          "name": "定积分",
+          "display_order": 90,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_10_定积分.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_10",
+          "name": "积分学的应用",
+          "display_order": 100,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_11_积分学的应用.tex",
+            "chapterB4_04_一元积分学.tex",
+            "chapterB5_04_一元函数积分学.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_11",
+          "name": "广义积分",
+          "display_order": 110,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_12_广义积分.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_12",
+          "name": "数项级数",
+          "display_order": 120,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_13_数项级数.tex",
+            "chapterB4_05_级数.tex",
+            "chapterB5_05_级数.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_13",
+          "name": "函数项级数",
+          "display_order": 130,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_14_函数项级数幂级数.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_14",
+          "name": "Fourier级数",
+          "display_order": 140,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_15_Fourier级数.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_15",
+          "name": "无穷级数的应用",
+          "display_order": 150,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_16_无穷级数的应用.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_16",
+          "name": "高维空间点集",
+          "display_order": 160,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_17_高维空间点集.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_17",
+          "name": "多元函数极限",
+          "display_order": 170,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_18_多元函数极限.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_18",
+          "name": "偏导数全微分",
+          "display_order": 180,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_19_偏导数全微分.tex",
+            "chapterB4_06_多元微分学.tex",
+            "chapterB5_06_多元函数微分学.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_19",
+          "name": "隐函数定理",
+          "display_order": 190,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_20_隐函数定理.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_20",
+          "name": "偏导数的应用",
+          "display_order": 200,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_21_偏导数的应用.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_21",
+          "name": "重积分",
+          "display_order": 210,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_22_重积分.tex",
+            "chapterB4_07_多元积分学.tex",
+            "chapterB5_07_多元积分学.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_22",
+          "name": "含参变量积分",
+          "display_order": 220,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_23_含参变量积分.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_23",
+          "name": "曲线积分",
+          "display_order": 230,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_24_曲线积分.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_24",
+          "name": "曲面积分",
+          "display_order": 240,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_25_曲面积分.tex"
+          ]
+        },
+        {
+          "chapter_code": "math_analysis.chapter_25",
+          "name": "场论初步",
+          "display_order": 250,
+          "parent_code": null,
+          "sources": [
+            "chapterB3_26_场论初步.tex"
+          ]
+        }
+      ]
+    },
+    {
+      "subject_code": "linear_algebra",
+      "name": "高等代数",
+      "display_order": 20,
+      "fallback_source": "综合题目_高等代数.tex",
+      "chapters": [
+        {
+          "chapter_code": "linear_algebra.chapter_01",
+          "name": "行列式",
+          "display_order": 10,
+          "parent_code": null,
+          "sources": [
+            "chapterB6_01_行列式.tex",
+            "chapterB7_01_行列式.tex",
+            "chapter2_行列式.tex",
+            "樊启斌_Ch2_行列式.tex"
+          ]
+        },
+        {
+          "chapter_code": "linear_algebra.chapter_02",
+          "name": "矩阵",
+          "display_order": 20,
+          "parent_code": null,
+          "sources": [
+            "chapterB6_02_矩阵.tex",
+            "chapterB7_02_矩阵.tex",
+            "chapter4_矩阵的运算.tex",
+            "樊启斌_Ch4_矩阵.tex",
+            "b2_content_ch4.tex"
+          ]
+        },
+        {
+          "chapter_code": "linear_algebra.chapter_03",
+          "name": "线性空间",
+          "display_order": 30,
+          "parent_code": null,
+          "sources": [
+            "chapterB6_03_线性空间与线性方程组.tex",
+            "chapterB7_03_线性空间与线性方程组.tex",
+            "chapter1_线性方程组.tex",
+            "chapter3_n维向量空间.tex",
+            "chapter8_线性空间.tex",
+            "樊启斌_Ch3_线性方程组.tex",
+            "樊启斌_Ch5_线性空间.tex"
+          ]
+        },
+        {
+          "chapter_code": "linear_algebra.chapter_04",
+          "name": "线性变换",
+          "display_order": 40,
+          "parent_code": null,
+          "sources": [
+            "chapterB6_04_线性变换.tex",
+            "chapterB7_04_线性映射.tex",
+            "chapter9_线性映射.tex",
+            "樊启斌_Ch6_线性变换.tex"
+          ]
+        },
+        {
+          "chapter_code": "linear_algebra.chapter_05",
+          "name": "多项式",
+          "display_order": 50,
+          "parent_code": null,
+          "sources": [
+            "chapterB6_05_多项式.tex",
+            "chapterB7_05_多项式.tex",
+            "chapter7_多项式环.tex",
+            "樊启斌_Ch1_多项式.tex"
+          ]
+        },
+        {
+          "chapter_code": "linear_algebra.chapter_06",
+          "name": "特征值",
+          "display_order": 60,
+          "parent_code": null,
+          "sources": [
+            "chapterB6_06_特征值.tex",
+            "chapterB7_06_特征值.tex",
+            "樊启斌_Ch8_特征值与实对称矩阵.tex"
+          ]
+        },
+        {
+          "chapter_code": "linear_algebra.chapter_07",
+          "name": "相似标准型",
+          "display_order": 70,
+          "parent_code": null,
+          "sources": [
+            "chapterB6_07_相似标准型.tex",
+            "chapterB7_07_相似标准型.tex",
+            "chapter5_矩阵的相抵与相似.tex",
+            "樊启斌_Ch7_Jordan标准形.tex"
+          ]
+        },
+        {
+          "chapter_code": "linear_algebra.chapter_08",
+          "name": "二次型",
+          "display_order": 80,
+          "parent_code": null,
+          "sources": [
+            "chapterB6_08_二次型.tex",
+            "chapterB7_08_二次型.tex",
+            "chapter6_二次型.tex"
+          ]
+        },
+        {
+          "chapter_code": "linear_algebra.chapter_09",
+          "name": "内积空间",
+          "display_order": 90,
+          "parent_code": null,
+          "sources": [
+            "chapterB6_09_内积空间.tex",
+            "chapterB7_09_内积空间.tex",
+            "chapter10_具有度量的线性空间.tex",
+            "樊启斌_Ch9_欧氏空间.tex"
+          ]
+        },
+        {
+          "chapter_code": "linear_algebra.chapter_10",
+          "name": "双线性型",
+          "display_order": 100,
+          "parent_code": null,
+          "sources": [
+            "chapterB6_10_双线性型.tex",
+            "chapterB7_10_双线性型.tex",
+            "chapter11_多重线性代数.tex"
+          ]
+        }
+      ]
+    }
+  ],
+  "exclusions": [
+    {
+      "kind": "whole_file",
+      "source_file": "chapterB3_26_场论初步.tex",
+      "reason": "excluded_whole_file_field_theory",
+      "owner": "system",
+      "expires_when": "source_sha256_changes"
+    },
+    {
+      "kind": "whole_file",
+      "source_file": "chapter11_多重线性代数.tex",
+      "reason": "excluded_whole_file_empty_placeholder",
+      "owner": "system",
+      "expires_when": "source_sha256_changes"
+    },
+    {
+      "kind": "question_numbers",
+      "source_file": "chapterB7_09_内积空间.tex",
+      "numbers": [
+        89
+      ],
+      "reason": "excluded_symplectic_matrix",
+      "owner": "system",
+      "expires_when": "question_content_changes"
+    },
+    {
+      "kind": "question_numbers",
+      "source_file": "chapterB7_09_内积空间.tex",
+      "numbers": [
+        93,
+        94,
+        95
+      ],
+      "reason": "excluded_generalized_inverse",
+      "owner": "system",
+      "expires_when": "question_content_changes"
+    },
+    {
+      "kind": "question_numbers",
+      "source_file": "chapterB7_10_双线性型.tex",
+      "numbers": [
+        21,
+        22
+      ],
+      "reason": "excluded_symplectic_space",
+      "owner": "system",
+      "expires_when": "question_content_changes"
+    },
+    {
+      "kind": "range",
+      "source_file": "chapter5_矩阵的相抵与相似.tex",
+      "start_pattern": "\\\\textbf\\{\\s*5\\.3\\b",
+      "end_pattern": "\\\\textbf\\{\\s*5\\.4\\b",
+      "reason": "excluded_section_5_3",
+      "owner": "system",
+      "expires_when": "source_sha256_changes"
+    },
+    {
+      "kind": "range",
+      "source_file": "chapter5_矩阵的相抵与相似.tex",
+      "start_pattern": "\\\\textbf\\{\\s*习题\\s*5\\.3\\s*\\}",
+      "end_pattern": "\\\\textbf\\{\\s*习题\\s*5\\.4\\s*\\}",
+      "reason": "excluded_exercises_5_3",
+      "owner": "system",
+      "expires_when": "source_sha256_changes"
+    },
+    {
+      "kind": "range",
+      "source_file": "chapterB4_07_多元积分学.tex",
+      "start_pattern": "(?m)^[ \\t]*(?:\\\\textbf\\{)?\\s*7\\.5\\s*场论",
+      "end_pattern": null,
+      "reason": "excluded_from_section_7_5_field_theory",
+      "owner": "system",
+      "expires_when": "source_sha256_changes"
+    },
+    {
+      "kind": "range",
+      "source_file": "chapterB5_07_多元积分学.tex",
+      "start_pattern": "(?m)^[ \\t]*单元练习\\s*7[．.]5\\b",
+      "end_pattern": null,
+      "reason": "excluded_from_unit_exercises_7_5",
+      "owner": "system",
+      "expires_when": "source_sha256_changes"
+    }
+  ]
+}

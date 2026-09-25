@@ -1,0 +1,89 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{天津大学2025年高等代数真题}
+\section*{52．天津大学2025年高等代数试卷（回忆版）}
+\begin{itemize}
+
+\subsection{题目1}
+  \item[1．] 记
+\[
+\begin{gathered}
+s_{1}\left(x_{1}, x_{2}, x_{3}, x_{4}\right)=x_{1}+x_{2}+x_{3}+x_{4}, s_{2}\left(x_{1}, x_{2}, x_{3}, x_{4}\right)=\sum_{i<j} x_{i} x_{j} \\
+s_{3}\left(x_{1}, x_{2}, x_{3}, x_{4}\right)=\sum_{i<j<k} x_{i} x_{j} x_{k}, s_{4}\left(x_{1}, x_{2}, x_{3}, x_{4}\right)=x_{1} x_{2} x_{3} x_{4}
+\end{gathered}
+\]
+  \item[（1）] 证明：\(s_{i}\) 为对称多项式 \((i=1,2,3,4)\) 。
+  \item[（2）] \(f\left(y_{1}, y_{2}, y_{3}, y_{4}\right)=2 y_{1}^{2}-3 y_{3} y_{4}\) ，计算 \(f\left(s_{1}, s_{2}, s_{3}, s_{4}\right)\) ，并证明其是对称多项式。
+
+\subsection{题目2}
+  \item[2．] 证明：\(n\) 阶矩阵 \(A\) 与任意 \(n\) 阶可逆矩阵 \(B\) 可交换的充要条件是 \(A=k I_{n}\) ．
+\end{itemize}
+
+\subsection{题目3}
+3．\(A\) 为 \(m \times n\) 矩阵，\(B\) 为 \(s \times n\) 矩阵，\(X A=B\) 有解的充要条件是 \(r\left(A^{\mathrm{T}} \mid B^{\mathrm{T}}\right)=r\left(A^{\mathrm{T}}\right)\) 。
+
+\subsection{题目4}
+4．\(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{n}\) 是线性无关的向量组，记
+
+\[
+\beta_{1}=\alpha_{1}+\alpha_{2}, \beta_{2}=\alpha_{2}+\alpha_{3}, \cdots, \beta_{n}=\alpha_{n}+\alpha_{1} .
+\]
+
+证明：当 \(n\) 为奇数时，\(\beta_{1}, \cdots, \beta_{n}\) 线性无关，当 \(n\) 为偶数时，\(\beta_{1}, \cdots, \beta_{n}\) 线性相关。
+
+\subsection{题目5}
+5． \(\mathbb{C}_{n}[x]\) 表示次数小于 \(n\) 的多项式与零多项式生成的集合，\(\lambda_{1}, \cdots, \lambda_{n}\) 为 \(n\) 个不同的 \(n\) 次单位根。证明：\\
+（1） \(\mathbb{C}_{n}[x]\) 中多项式构成 \(\mathbb{C}\) 上的线性空间，并说明维数，且 \(1, x, \cdots, x^{n-1}\) 为 \(\mathbb{C}_{n}[x]\) 的一组基。\\
+（2）设 \(f_{i}(x)=\left(x-\lambda_{1}\right) \cdots\left(x-\lambda_{i-1}\right)\left(x-\lambda_{i+1}\right) \cdots\left(x-\lambda_{n}\right)\) ，证明：\(f_{1}, \cdots, f_{n}\) 构成 \(\mathbb{C}_{n}[x]\) 的一组基，并求 \(1, x, \cdots, x^{n-1}\) 到 \(f_{1}, \cdots, f_{n}\) 的过渡矩阵．
+
+\subsection{题目6}
+6．解答如下问题：\\
+（1）设 \(A\) 为实对称矩阵，\(C\) 为任意的可逆矩阵，证明：\(A\) 正定的充要条件是 \(C^{\mathrm{T}} A C\) 正定．\\
+（2）设 \(A=\left(\begin{array}{ccc}1 & 2 t & 5 \\ 2 t & 16 & 6 \\ 4 & 6 & 1\end{array}\right)\) 为正定阵，求 \(t\) 的取值范围．
+
+\subsection{题目7}
+7．\(A\) 为 \(n\) 阶实对称矩阵，定积内积 \((\alpha \mid \beta)=\alpha^{\mathrm{T}} \beta\) 。
+
+\begin{itemize}
+  \item[（1）] 证明：\(\lambda_{1}\left(\alpha^{\mathrm{T}} \mid \alpha\right) \leq \alpha^{\mathrm{T}} A \alpha=\lambda_{n}\left(\alpha^{\mathrm{T}} \mid \alpha\right)\) ，其中 \(\lambda_{1} \leq \lambda_{2} \leq \cdots \leq \lambda_{n}\) 为 \(A\) 的全部特征值。
+  \item[（2）] 求 \(f(x, y, z)=x^{2}+y^{2}+z^{2}-2 x y-2 x z+2 y z\) 在 \(x^{2}+y^{2}+z^{2}=1\) 的情况下的最大值，取最大值时，\(x, y, z\) 分别是多少？
+\end{itemize}
+
+\subsection{题目8}
+8．已知
+
+\[
+A=\left(\begin{array}{cccc}
+1 & 1 & \cdots & 1 \\
+0 & 1 & \cdots & 1 \\
+\vdots & \vdots & & \vdots \\
+0 & 0 & \cdots & 1
+\end{array}\right) .
+\]
+
+\begin{itemize}
+  \item[（1）] 求 \(\sum_{i=1}^{n} \sum_{j=1}^{n} A_{i j}\) ．
+  \item[（2）] 求 \(A\) 的 Jordan 标准形．
+  \item[（3）] 设 \(C\) 为幂零阵，\(B=I-C\) ，求 \(B^{-1}\) 的若尔当标准形．
+\end{itemize}
+
+\subsection{题目9}
+9．\(M_{n \times n}(\mathbb{K})\) 为 \(n\) 阶矩阵全体，\(A, X \in M_{n \times n}(\mathbb{K})\) ，定义 \(\varphi(X)=A X\) 。
+
+\begin{itemize}
+  \item[（1）] 证明：\(\varphi\) 为 \(M_{n \times n}(\mathbb{K})\) 上的线性变换。
+  \item[（2）] 证明：存在 \(M_{n \times n}(\mathbb{K})\) 的一组基 \(X_{i j}\) 与常数 \(c_{i j}\) ，使得 \(\varphi\left(X_{i j}\right)=c_{i j} X_{i j}\) ．
+\end{itemize}
+\end{document}

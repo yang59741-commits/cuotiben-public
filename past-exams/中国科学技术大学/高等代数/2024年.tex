@@ -1,0 +1,86 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{中国科学技术大学2024年高等代数真题}
+\section*{97．中国科学技术大学2024年线性代数与解析几何试卷}
+一．填空题（每空6分，共60分；要求答案写成最简形式，否则不得分）．\\
+
+\subsection{题目1}
+1．在 \(\mathbb{R}^{3}\) 中，已知点 \(A=(1,-1,2), B=(5,-6,2), C=(1,3,-1)\) ，则 \(\triangle A B C\) 的面积 \(S=\)\\
+\(\_\_\_\_\)，\(A C\) 边上的高 \(h=\) \(\_\_\_\_\)．
+
+\subsection{题目2}
+2．点 \(P=(3,2,17)\) 在平面 \(3 x+4 y+12 z-52=0\) 上的垂足 \(Q=\) \(\_\_\_\_\)．
+
+\subsection{题目3}
+3．矩阵 \(\left(\begin{array}{cc}1 & \sqrt{3} \\ -\sqrt{3} & 1\end{array}\right)^{2024}=\) \(\_\_\_\_\)；行列式 \(\operatorname{det}\left(\begin{array}{ll}2 I_{n} & 4 I_{n} \\ 9 I_{n} & 3 I_{n}\end{array}\right)=\) \(\_\_\_\_\)，其中 \(I_{n}\) 是 \(n\) 阶单位方阵。\\
+\(\_\_\_\_\)
+
+\subsection{题目4}
+4．已知方阵 \(A\) 满足 \(I-2 A-3 A^{2}+4 A^{3}+5 A^{4}-6 A^{5}=O\) ，则 \((I-A)^{-1}=\) \(\_\_\_\_\)．
+
+\subsection{题目5}
+5．已知 \(\lambda\) —方阵 \(A=\left(\begin{array}{ccc}1-\lambda & \lambda^{2} & \lambda \\ \lambda & \lambda & -\lambda \\ 1+\lambda^{2} & \lambda^{2} & -\lambda^{2}\end{array}\right)\) ，则 \(A\) 的初等因子组为 \(\_\_\_\_\)，\(A\) 的 Smith 标准型为\\
+\(\_\_\_\_\)．
+
+\subsection{题目6}
+6．矩阵 \(A=\left(\begin{array}{ccc}-2 & 0 & 0 \\ 2 & x & 2 \\ 3 & 1 & 1\end{array}\right), B=\left(\begin{array}{ccc}-1 & 0 & 0 \\ 0 & 2 & 0 \\ 0 & 0 & y\end{array}\right)\) 是同一个线性变换在两组不同基下的矩阵，则 \(x\) 与 \(y\) 分别是（只写一个或顺序写错不得分） \(\_\_\_\_\)．
+
+\subsection{题目7}
+7． \(\mathbb{R}^{4}\) 中向量组 \((1,-1,1-1),(-1,1,5,-5),(-1,1,1,-1),(0,0,12,-12)\) 张成子空间 \(V\) 的维数是\\
+\(\_\_\_\_\)。
+
+二．（20 分）设 \(\mathbb{R}^{3}\) 上线性变换 \(\mathcal{A}\) 把 \(\alpha_{1}=(0,1,1)^{\mathrm{T}}, \alpha_{2}=(1,0,1)^{\mathrm{T}}, \alpha_{3}=(1,1,0)^{\mathrm{T}}\) 分别映射到 \(\beta_{1}=(2,1,1)^{\mathrm{T}}, \beta_{2}=(1,2,3)^{\mathrm{T}}, \beta_{3}=(1,1,2)^{\mathrm{T}}\) ．
+
+\begin{itemize}
+  \item[（1）] 求 \(\mathcal{A}\) 分别在基 \(\left\{\alpha_{1}, \alpha_{2}, \alpha_{3}\right\}\) 和 \(\left\{e_{1}, e_{2}, e_{3}\right\}\) 下的表示矩阵。这里 \(\left\{e_{1}, e_{2}, e_{3}\right\}\) 为 \(\mathbb{R}^{3}\) 的自然基。
+  \item[（2）] 求 \(\mathcal{A}\) 的特征值和特征向量．
+\end{itemize}
+
+三。（18 分）解答如下问题：
+
+\begin{itemize}
+  \item[（1）] 设矩阵 \(A \in \mathbb{F}^{m \times n}, B \in \mathbb{F}^{n \times m}\) ，证明： \(\operatorname{det}\left(I_{m}+A B\right)=\operatorname{det}\left(I_{n}+B A\right)\) 。
+  \item[（2）] 已知矩阵 \(A \in \mathbb{F}^{n \times n}\) ，秩 \(r(A)=1\) ，迹 \(\operatorname{tr}(A)=\lambda\) ，求 \(\operatorname{det}(I+A)\) ．
+\end{itemize}
+
+四．（20 分）对于任意向量 \(X, Y \in \mathbb{R}^{3}\) ，定义
+
+\[
+(X, Y)=X^{\mathrm{T}}\left(\begin{array}{lll}
+2 & 1 & 1 \\
+1 & 2 & 1 \\
+1 & 1 & 2
+\end{array}\right) Y
+\]
+
+\begin{itemize}
+  \item[（1）] 证明上述定义给出了 \(\mathbb{R}^{3}\) 上的一个内积．
+  \item[（2）] 利用 Schmidt 正交化从基向量组 \(\alpha_{1}=(1,0,0)^{\mathrm{T}}, \alpha_{2}=(1,0,1)^{\mathrm{T}}, \alpha_{3}=(1,1,0)^{\mathrm{T}}\) 构造一组标准正交基．
+\end{itemize}
+
+五．（16 分）设二次型 \(Q\left(x_{1}, x_{2}, x_{3}\right)=\lambda\left(x_{1}^{2}+x_{2}^{2}+x_{3}^{2}\right)+3 x_{2}^{2}-4 x_{1} x_{2}-2 x_{1} x_{3}+4 x_{2} x_{3}\) ．
+
+\begin{itemize}
+  \item[（1）] 当 \(\lambda\) 取何值时，二次型 \(Q\left(x_{1}, x_{2}, x_{3}\right)\) 为正定二次型．
+  \item[（2）] 当 \(\lambda\) 取何值时，二次型 \(Q\left(x_{1}, x_{2}, x_{3}\right)\) 为实一次多项式的完全平方？并求出该完全平方式。
+\end{itemize}
+
+六。（16 分）设矩阵 \(A\) 为 \(n\) 阶 Hermite 矩阵，其特征值满足 \(\lambda_{1}(A) \geq \lambda_{2}(A) \geq \cdots \geq \lambda_{n}(A)\) 。
+
+\begin{itemize}
+  \item[（1）] 证明：\(\lambda_{n}(A) \leq \frac{X^{*} A X}{X^{*} X} \leq \lambda_{1}(A)\) 对任意非零向量 \(X \in \mathbb{C}^{n}\) 成立，其中 \(X^{*}\) 表示向量 \(X\) 的共轭转置．
+  \item[（2）] 设 \(A, B\) 是 \(n\) 阶 Hermite 矩阵，证明：\(\lambda_{1}(A+B) \leq \lambda_{1}(A)+\lambda_{1}(B)\) 。
+\end{itemize}
+\end{document}

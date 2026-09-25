@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="theme-color" content="#6b4e34"><title>错题本 v2</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<script>MathJax={loader:{load:['ui/safe']},tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},options:{ignoreHtmlClass:'no-math',processHtmlClass:'math',safeOptions:{allow:{URLs:'safe',classes:'none',cssIDs:'none',styles:'none'},safeProtocols:{http:false,https:true,file:false,javascript:false,data:false}}},startup:{typeset:false}}</script>
+<script id="MathJax-script" defer src="{{ url_for('static', filename='vendor/mathjax/es5/tex-chtml.js') }}" onerror="window.mathJaxLoadFailed=true"></script>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/review.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/mistakes.css') }}"></head><body>
+<a class="skip-link" href="#main-content">跳到主要内容</a>
+<div id="offline-shell-banner" class="offline-shell-banner" hidden role="status"><strong>PC 或网络不可用</strong><span>当前仅显示应用壳，错题数据不可查看，也不会离线保存任何写入。</span></div>
+<div id="pwa-update-banner" class="pwa-update-banner" hidden role="status"><span>应用壳已有新版本，刷新后切换。</span><button type="button" id="pwa-update-refresh">刷新更新</button><button type="button" id="pwa-update-dismiss" class="pwa-update-dismiss" aria-label="稍后处理" title="稍后处理"><span data-icon="x"></span></button></div>
+<div class="sb">
+  <div class="brand">
+    <img class="brand-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="错题本 logo">
+    <span class="brand-name">错题本</span>
+  </div>
+  <nav aria-label="主导航">
+    <div class="sec-label">学习</div>
+    <button type="button" class="nav-btn ac" data-page="add" data-action="navigate" aria-label="标记错题"><span class="ico" data-icon="plus"></span><span>标记错题</span></button>
+    <button type="button" class="nav-btn" data-page="list" data-action="navigate" aria-label="错题列表"><span class="ico" data-icon="listChecks"></span><span>错题列表</span></button>
+	    <button type="button" class="nav-btn" data-page="input" data-action="navigate" aria-label="录入题目"><span class="ico" data-icon="filePlus"></span><span>录入题目</span></button>
+    <button type="button" class="nav-btn" data-page="review" data-action="navigate" aria-label="复习"><span class="ico" data-icon="refresh"></span><span>复习</span><span class="ml-auto" id="nav-review-count" hidden>0</span></button>
+    <div class="sec-label">考试</div>
+    <button type="button" class="nav-btn" data-page="exam" data-action="navigate" aria-label="组卷"><span class="ico" data-icon="fileText"></span><span>组卷</span></button>
+    <div class="sec-label">数据</div>
+    <button type="button" class="nav-btn" data-page="stats" data-action="navigate" aria-label="统计分析"><span class="ico" data-icon="chart"></span><span>统计分析</span></button>
+    <button type="button" class="nav-btn" data-action="export-data" aria-label="导出备份"><span class="ico" data-icon="download"></span><span>导出备份</span></button>
+    <button type="button" class="nav-btn" data-action="pick-import" aria-label="导入备份"><span class="ico" data-icon="upload"></span><span>导入备份</span></button>
+  </nav>
+  <div class="footer">SQLite · Flask · XeLaTeX</div>
+</div>
+<input type="file" id="imp" accept=".json,.zip,application/json,application/zip" style="display:none" onchange="importData(event)">
+<main id="main-content" class="main" tabindex="-1">
+  <div class="topbar">
+    <h1 id="page-title"><span data-icon="plus"></span><span>标记错题</span></h1>
+    <div class="topbar-actions">
+      <span class="top-date" id="top-date"></span>
+      <button type="button" class="icon-btn" id="task-panel-toggle" aria-label="后台任务" aria-expanded="false" aria-controls="task-panel" title="后台任务"><span data-icon="history"></span><span class="task-count" id="task-count" hidden>0</span></button>
+      <button type="button" class="icon-btn" id="settings-open" data-action="navigate" data-page="settings" aria-label="AI 设置" title="AI 设置"><span data-icon="settings"></span></button>
+    </div>
+  </div>
+  <div class="app-status math-status" id="math-status" role="status" hidden>本地公式组件未加载，公式将以原始文本显示。</div>
+  <div class="content">
+
+    {% include 'partials/pages.html' %}
+  </div>
+</main>
+<aside class="task-panel" id="task-panel" role="dialog" aria-modal="true" aria-labelledby="task-panel-title" tabindex="-1" hidden>
+  <div class="task-panel-header"><h2 id="task-panel-title">后台任务</h2><button type="button" class="icon-btn" id="task-panel-close" aria-label="关闭后台任务" title="关闭"><span data-icon="x"></span></button></div>
+  <div class="task-panel-status" id="task-panel-status" role="status" aria-live="polite"></div>
+  <div class="task-list" id="task-list"></div>
+</aside>
+<button type="button" class="task-panel-scrim" id="task-panel-scrim" aria-label="关闭后台任务" tabindex="-1" hidden></button>
+<div class="toast-region" id="toast-region" aria-live="polite" aria-relevant="additions"></div>
+<!-- 通用弹窗（放在body最外层，避免被面板display:none隐藏） -->
+<div class="modal-overlay hidden" id="modal">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-body" tabindex="-1">
+    <div class="modal-header info" id="modal-header">
+      <div class="modal-heading"><span class="modal-type-icon" id="modal-type-icon" data-icon="circleHelp"></span><h4 id="modal-title">提示</h4></div>
+      <button type="button" class="btn btn-txt btn-xs modal-close" data-action="hide-modal" aria-label="关闭" title="关闭"><span data-icon="x"></span></button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/icons.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/ui/render.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/ui/selects.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/ui/editor.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/feature-loader.js', bundle='exam-modules-v1') }}" defer></script>
+<script src="{{ url_for('static', filename='js/core.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/daily.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/jobs.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/remote.js') }}" defer></script>
+{% if enable_performance_observer %}<script src="{{ url_for('static', filename='js/performance-observer.js') }}" defer></script>{% endif %}
+<script src="{{ url_for('static', filename='js/pwa.js') }}" defer></script></body></html>

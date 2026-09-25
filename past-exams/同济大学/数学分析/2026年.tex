@@ -1,0 +1,92 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{同济大学2026年数学分析真题}
+\section*{41．同济大学2026年数学分析试卷}
+
+\subsection{题目1}
+1．（10 分）判断极限
+
+\[
+\lim _{(x, y) \rightarrow(0,0)} \frac{\sin \left(x+y^{2}\right)+\tan \left(x^{2}+y\right)-x-y}{\arcsin \left(x^{2}+y^{2}\right)}
+\]
+
+是否存在，若存在求出极限，若不存在，说明理由．
+
+\subsection{题目2}
+2．（15 分）设 \(f(x)\) 是 \([a, b]\) 上可导的函数，证明：若 \(f(x)\) 满足 \(\left|f^{\prime}(x)\right| \leq M|f(x)|(M>0)\) ，且 \(f(a)=0\) ，则 \(f(x)\) 恒为常数。
+
+\subsection{题目3}
+3．（15 分）设 \(f(x) \in C^{2}[a, b]\) ，证明梯形求积公式误差满足
+
+\[
+\int_{a}^{b} f(x) \mathrm{d} x-\frac{b-a}{2}[f(a)+f(b)]=-\frac{(b-a)^{3}}{12} f^{\prime \prime}(\xi) .
+\]
+
+其中 \(\xi \in[a, b]\) ．
+
+\subsection{题目4}
+4．（20 分）设 \(T(r)\) 是定义在 \(\left[r_{0},+\infty\right)\left(r_{0}>0\right)\) 上的一个单调递增函数，且 \(T\left(r_{0}\right) \geq 1\) 。证明：
+
+\begin{itemize}
+  \item[（1）] 若 \(T(r) \in C^{0}\left[r_{0},+\infty\right)\) ，则存在 \(\left\{r_{n}\right\} \subset\left[r_{0},+\infty\right)\) 满足 \(r_{n} \rightarrow+\infty\) ，使得
+\[
+T\left(r_{n}+\frac{1}{T\left(r_{n}\right)}\right)<2 T\left(r_{n}\right) .
+\]
+  \item[（2）] 若 \(T(r) \in C^{1}\left[r_{0},+\infty\right)\) ，则存在 \(\left\{r_{n}\right\} \subset\left[r_{0},+\infty\right)\) ，满足 \(r_{n} \rightarrow+\infty\) ，使得
+\[
+T^{\prime}\left(r_{n}\right)<T^{1+\varepsilon}\left(r_{n}\right), \varepsilon>0 .
+\]
+\end{itemize}
+
+\subsection{题目5}
+5．（15 分）设数域 \(\mathbb{F}\) 上的绝对值 \(|\cdot|\) 满足 \(|x+y| \leq \max \{|x|,|y|\}, x, y \in \mathbb{F}\) ，而且 \(\mathbb{F}\) 关于 \(|\cdot|\) 是完备的。
+
+\begin{itemize}
+  \item[（1）] 试给出 \(\mathbb{F}\) 上级数 \(\sum_{n=1}^{\infty} a_{n}\) 收敛的定义。
+  \item[（2）] 确定 \(\sum_{n=1}^{\infty} a_{n}\) 收敛与 \(\lim _{n \rightarrow \infty} a_{n}=0\) 的关系，并证明你的结论。
+\end{itemize}
+
+\subsection{题目6}
+6．（15 分）设 \(\mathbf{f}: \mathbb{R}^{n} \rightarrow \mathbb{R}^{n}\) 是 \(C^{r}\) 映射（ \(r \geq 1\) ），若 \(\mathbf{f}\) 的 Jacobi 行列式在 \(\mathbf{x} \in \mathbb{R}^{n}\) 处不为零，证明：存在点 \(\mathbf{x}\) 的开邻域 \(U\) 和实数 \(\omega>0\) ，使得
+
+\[
+\left\|f\left(\mathbf{x}^{\prime}\right)-f\left(\mathbf{x}^{\prime \prime}\right)\right\| \geq \omega\left\|\mathbf{x}^{\prime}-\mathbf{x}^{\prime \prime}\right\|, \forall \mathbf{x}^{\prime}, \mathbf{x}^{\prime \prime} \in U .
+\]
+
+这里 \(\|\cdot\|\) 为向量的 2 －范数．
+
+\subsection{题目7}
+7．（15 分）设开集 \(U \subset \mathbb{R}^{3}\) ，函数 \(u \in C^{2}(U)\) ，且在 \(U\) 中满足 \(\frac{\partial^{2} u}{\partial x^{2}}+\frac{\partial^{2} u}{\partial y^{2}}+\frac{\partial^{2} u}{\partial z^{2}}=0\) ．证明：对任意\(x_{0} \in U\) ，有
+
+\[
+u\left(x_{0}\right)=\frac{1}{\left|\partial B\left(x_{0}, r\right)\right|} \iint_{\partial B\left(x_{0}, r\right)} u \mathrm{~d} S
+\]
+
+其中 \(B\left(x_{0}, r\right)\) 为包含于 \(U\) 中的以 \(x_{0}\) 为球心，\(r\) 为半径的任意球，\(\left|\partial B\left(x_{0}, r\right)\right|\) 为球面面积．
+
+\subsection{题目8}
+8．（20分）判断下列反常积分的敛散性，若收敛，计算积分值；若发散，说明理由．
+
+\begin{itemize}
+  \item[（1）] \(\iint_{D} \frac{x^{2}-y^{2}}{\left(x^{2}+y^{2}\right)^{2}} \mathrm{~d} x \mathrm{~d} y\) ，其中 \(D=\{(x, y) \mid x \geq 1, y \geq 1\}\) 。
+  \item[（2）] \(\iiint_{D} \frac{\mathrm{~d} x \mathrm{~d} y \mathrm{~d} z}{(x+y+z)^{2}}\) ，其中 \(D=\{(x, y, z) \mid x>0, y>0, z>0, x+y+z<1\}\) 。
+\end{itemize}
+
+\subsection{题目9}
+9．（15 分）设 \(f(x, y)=\int_{0}^{+\infty} \frac{\arctan x t \cdot \arctan y t}{t^{2}} \mathrm{~d} t(x>0, y>0)\) ，计算 \(\frac{\partial^{2} f}{\partial x \partial y}\) ．
+
+\subsection{题目10}
+10．（10 分）设 \(F=\left(x-z, x^{3}-y z,-3 x y^{2}\right), S: z=\sqrt{4-x^{2}-y^{2}}, n\) 为 \(S\) 上侧的单位法向量，计算曲面积分 \(\iint_{S} \operatorname{rot} \mathbf{F} \cdot \mathbf{n d} S\) 。
+\end{document}

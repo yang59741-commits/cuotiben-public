@@ -1,0 +1,101 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{北京科技大学2026年高等代数真题}
+\section*{11．北京科技大学2026年高等代数试卷}
+
+\subsection{题目1}
+一．计算题（15 分）\\
+计算 \(n\) 阶行列式 \(D_{n}\) 的值，其中
+
+\[
+D_{n}=\left|\begin{array}{cccc}
+1+x_{1} & 1+x_{1}^{2} & \cdots & 1+x_{1}^{n} \\
+1+x_{2} & 1+x_{2}^{2} & \cdots & 1+x_{2}^{n} \\
+\cdot & \vdots & & \vdots \\
+1+x_{n} & 1+x_{n}^{2} & \cdots & 1+x_{n}^{n}
+\end{array}\right|
+\]
+
+\subsection{题目2}
+二．证明题（15 分）\\
+设 \(A\) 是 \(n\) 阶非零矩阵，其中 \(n \geq 1\) ，记矩阵 \(A\) 的秩为 \(r\) ，若 \(A^{2}=O, O\) 为零矩阵。
+
+\begin{itemize}
+  \item[（1）] 证明：\(r(A) \leq \frac{n}{2}\) ．
+  \item[（2）] 若已知非齐次线性方程组 \(A X=b\) 有解，证明：该方程组的线性无关的解向量的最大个数为
+\[
+n-r+1
+\]
+\end{itemize}
+
+\subsection{题目3}
+三．计算题（15 分）\\
+已知 \(A=\left(\begin{array}{llll}2 & 4 & 0 & 0 \\ 1 & 2 & 0 & 0 \\ 0 & 0 & 2 & 0 \\ 0 & 0 & 4 & 2\end{array}\right)\) ，求 \(A^{2026}\) ．
+
+\subsection{题目4}
+四．证明题（20 分）\\
+设 \(V\) 是实数域的 \(n\) 维线性空间，\(\left\{\xi_{1}, \xi_{2}, \cdots, \xi_{n}\right\}\) 是 \(V\) 的一组基，令 \(\xi_{n+1}=-\xi_{1}-\xi_{2}-\cdots-\xi_{n}\) ．证明：
+
+\begin{itemize}
+  \item[（1）] 对 \(i=1,2, \cdots, n+1,\left\{\xi_{1}, \cdots, \xi_{i-1}, \xi_{i+1}, \cdots, \xi_{n+1}\right\}\) 都构成 \(V\) 的基．
+  \item[（2）] 对任意的 \(\alpha \in V\) ，在（1）中的 \(n+1\) 组基中，存在一组基使得 \(\alpha\) 在此基下的坐标分量均为非负。
+\end{itemize}
+
+\subsection{题目5}
+五．简单题（20 分）\\
+设 \(V\) 为 \(n\) 阶实方阵全体在矩阵的加法和数乘运算下构成的实数域上的线性空间，\(\sigma\) 是 \(V\) 上的线性变换，且对任意的 \(A \in V\) ，都有 \(\sigma(A)=2 A^{\mathrm{T}}\) 。
+
+\begin{itemize}
+  \item[（1）] 求 \(\sigma\) 的特征值．
+  \item[（2）] 求 \(\sigma\) 的属于每一个特征值的特征子空间的维数和一组基。
+  \item[（3）] 证明：\(V\) 恰为 \(\sigma\) 的所有特征子空间的直和。
+\end{itemize}
+
+\subsection{题目6}
+六．计算题（15 分）\\
+设 \(V\) 为欧氏空间，\(v_{1}, v_{2}, v_{3}, v_{4}\) 是 \(V\) 的一组标准正交基，令向量
+
+\[
+\alpha=v_{1}+v_{2}, \beta=v_{1}+v_{3}, \gamma=2 v_{1}+v_{2}+2 v_{3}+v_{4} .
+\]
+
+子空间 \(W=L(\alpha, \beta), W^{\perp}\) 为 \(W\) 的正交补。求 \(\gamma_{1}, \gamma_{2}\) ，使得 \(\gamma=\gamma_{1}+\gamma_{2}\) ，且 \(\gamma_{1} \in W, \gamma_{2} \in W^{\perp}\) 。
+
+\subsection{题目7}
+七．简答题（15 分）\\
+设 \(A\) 为 \(n\) 阶实对称矩阵，且存在 \(n\) 阶实矩阵 \(B\) ，使得 \(A B+B^{\mathrm{T}} A\) 为正定矩阵，判断矩阵 \(A\) 是否可逆，并给出理由。
+
+\subsection{题目8}
+八．证明题（15 分）\\
+设 \(n\) 为正整数，\(f_{1}(x), f_{2}(x), \cdots, f_{n}(x)\) 是 \(n\) 个多项式，若
+
+\[
+\left(x^{n}+x^{n-1}+\cdots+x+1\right) \mid\left(f_{1}\left(x^{n+1}\right)+x f_{2}\left(x^{n+1}\right)+\cdots+x^{n-1} f_{n}\left(x^{n+1}\right)\right) .
+\]
+
+证明：\((x-1)^{n} \mid f_{1}(x) f_{2}(x) \cdots f_{n}(x)\) ．
+
+\subsection{题目9}
+九．计算题（20 分）\\
+设 \(A\) 为6阶实方阵，已知 \(A\) 的极小多项式为 \(m(\lambda)=\left(\lambda^{2}-2 \lambda+2\right)^{2}(\lambda-1)\) ．
+
+\begin{itemize}
+  \item[（1）] 求矩阵 \(A\) 的行列式。
+  \item[（2）] 求矩阵 \(A^{*}\) 的初等因子组，其中 \(A^{*}\) 为 \(A\) 的伴随矩阵。
+\end{itemize}
+
+\subsection{题目9}
+原题边界“（3）”：求矩阵 \(A^{*}\) 的初等因子组，其中 \(A^{*}\) 为 \(A\) 的伴随矩阵。
+\end{document}

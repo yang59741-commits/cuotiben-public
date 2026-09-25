@@ -1,0 +1,105 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{合肥工业大学2025年高等代数真题}
+\section*{101．合肥工业大学2025年高等代数试卷（回忆版）}
+
+\subsection{题目1}
+1．计算行列式
+
+\[
+D_{n}=\left|\begin{array}{ccccc}
+1-a_{1} & a_{2} & & & \\
+-1 & 1-a_{2} & a_{3} & & \\
+& -1 & 1-a_{3} & \ddots & \\
+& & \ddots & \ddots & a_{n} \\
+& & & -1 & 1-a_{n}
+\end{array}\right|
+\]
+
+\subsection{题目2}
+2．已知 \(A+B=A B\) ．
+
+\begin{itemize}
+  \item[（1）] 证明 \(A+E\) 可逆，并求 \((A+E)^{-1}\) ．
+  \item[（2）] 证明 \(A B=B A\) ．
+  \item[（3）] 若 \(A=\left(\begin{array}{ccc}2 & 0 & 0 \\ 0 & 1 & 2 \\ 0 & -3 & 1\end{array}\right)\) ，求 \(B\) ．
+\end{itemize}
+
+\subsection{题目3}
+3．已知 \(a, b \neq 0, n \geq 2\) ，判断下列齐次方程组
+
+\[
+\left\{\begin{array}{c}
+a x_{1}+b x_{2}+\cdots+b x_{n}=0 \\
+b x_{1}+a x_{2}+\cdots+b x_{n}=0 \\
+\cdots \cdots \\
+b x_{1}+b x_{2}+\cdots+a x_{n}=0
+\end{array}\right.
+\]
+
+（1）若方程组仅有零解，则 \(a, b\) 应满足什么条件？\\
+（2）若方程组有非零解，则 \(a, b\) 应满足什么条件？并求通解。
+
+\subsection{题目4}
+4．已知二项式 \(f\left(x_{1}, x_{2}, \cdots, x_{n}\right)=a \sum_{i=1}^{n} x_{i}^{2}+b \sum_{i=1}^{n} x_{i} x_{n+1-i}\) ，其中 \(a, b\) 都是实数，\(n \geq 2\) ，试判断当二项式正定时，\(a, b\) 应满足什么条件。
+
+\subsection{题目5}
+5．已知矩阵的迹为 \(\operatorname{tr}(A)=\sum_{i=1}^{n} a_{i i}\) ，其中 \(A=\left(a_{i j}\right)_{n \times n}\) ．
+
+\begin{itemize}
+  \item[（1）] 证明： \(\operatorname{tr}(A+B)=\operatorname{tr}(A)+\operatorname{tr}(B), \operatorname{tr}(k A)=k \operatorname{tr}(A), \operatorname{tr}(A B)=\operatorname{tr}(B A)\) ，其中 \(B=\left(b_{i j}\right)_{n \times n}\) ．
+  \item[（2）] 空间 \(U=\left\{B \in P^{n \times n} \mid \operatorname{tr}(B)=0\right\}\) ，试确定 \(U\) 的维数，并求 \(U\) 的一组基。
+\end{itemize}
+
+\subsection{题目6}
+6．已知 \(f(x)=x^{3}+a x^{2}+3 x-1\) ，试确定 \(a\) 的值，使得 \(f(x)\) 有重根，并求重根及重数，\(a \in \mathbb{R}\) ．
+
+\subsection{题目7}
+7．已知 \((f(x), g(x))=1\) ，设 \(M \in P^{n \times n}\) ，令 \(A=f(M), B=g(M)\) ，且 \(W, W_{1}, W_{2}\) 分别为\(A B X=0\) 与 \(A X=0, B X=0\) 的解空间，证明：\(W:=W_{1} \oplus W_{2}\) 。
+
+\subsection{题目8}
+8．设 \(V\) 是 \(\mathbb{C}\) 上的 2 维线性空间，\(\alpha_{1}, \alpha_{2}\) 是 \(V\) 的一组基，线性变换 \(\mathcal{A}\) 将 \(\mathbb{C}\) 降域到 \(\mathbb{R}, V\) 可视为 \(\mathbb{R}\) 上的线性空间，记为 \(V_{\mathbb{R}}\) ，记 \(\mathcal{A}_{\mathbb{R}}\) 为 \(\mathcal{A} \mid V_{\mathbb{R}}\) 上的线性变换。
+
+\begin{itemize}
+  \item[（1）] 设 \(\alpha_{3}=\mathrm{i} \alpha_{1}, \alpha_{4}=\mathrm{i} \alpha_{2}, \mathrm{i}^{2}=-1\) ，证明 \(\alpha_{1}, \alpha_{2}, \alpha_{3}, \alpha_{4}\) 是 \(V_{\mathrm{R}}\) 的一组基。
+  \item[（2）] 若设 \(\mathcal{A}\) 在 \(\alpha_{1}, \alpha_{2}\) 下的矩阵
+\[
+A=\left(\begin{array}{ll}
+a_{11} & a_{12} \\
+a_{21} & a_{22}
+\end{array}\right) .
+\]
+且 \(a_{i j}=u_{i j}+\mathrm{i} v_{i j}(i, j=1,2)\) ，试求 \(\mathcal{A}_{\mathrm{R}}\) 在 \(\alpha_{1}, \alpha_{2}, \alpha_{3}, \alpha_{4}\) 下的矩阵。
+\end{itemize}
+
+\subsection{题目9}
+9．解答如下问题：
+
+\begin{itemize}
+  \item[（1）] \(A, B\) 是 3 阶复矩阵，\(A, B\) 的特征多项式相同，最小多项式相同，试证 \(A\) 与 \(B\) 相似。
+  \item[（2）] 举例说明（1）对 4 阶矩阵不成立。
+\end{itemize}
+
+\subsection{题目10}
+10．已知 \(\langle f(x), g(x)\rangle=\sum_{k=1}^{n} f\left(\frac{k}{n}\right) g\left(\frac{k}{n}\right), f(x), g(x) \in \mathbb{R}[x]_{n+1}\) ．
+
+\begin{itemize}
+  \item[（1）] 试证 \(\langle f(x), g(x)\rangle\) 构成欧氏空间的内积。
+  \item[（2）] 试求与 \(x\) 正交的所有一次多项式，在上述内积下．
+\end{itemize}
+
+\subsection{题目11}
+11．（可能有误）已知 \(\mathcal{A}\) 是线性空间 \(V\) 上的线性变换，试证： \(\mathcal{A}^{2}=\mathcal{A}\) 的充要条件是 \(V=\mathcal{A} V \oplus \operatorname{Ker} \mathcal{A}\)
+\end{document}

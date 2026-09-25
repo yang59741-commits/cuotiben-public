@@ -1,0 +1,92 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+% === 错题本排版优化（不参与题目标识） ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em plus 0.10em minus 0.08em}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em, topsep=0.40em, parsep=0pt}
+\allowdisplaybreaks[2]
+% === 错题本排版优化结束 ===
+\begin{document}
+\section*{东北师范大学2025年高等代数真题}
+\section*{72．东北师范大学2025年高等代数与解析几何试卷}
+
+一、计算题．
+
+\subsection{题目1}
+1．（15 分）设 \(n\) 是大于1的正整数，\(t_{1}, \cdots, t_{n}\) 是 \(n\) 个未定元，计算下列 \(n\) 阶行列式的值：
+\[
+\left|\begin{array}{cccc}
+1+t_{1} & 1+t_{2} & \cdots & 1+t_{n} \\
+2+t_{1} & 3+t_{2} & \cdots & (n+1)+t_{n} \\
+\vdots & \vdots & & \vdots \\
+2^{n-1}+t_{1} & 3^{n-1}+t_{2} & \cdots & (n+1)^{n-1}+t_{n}
+\end{array}\right| .
+\]
+
+\subsection{题目2}
+2．（15 分）设矩阵 \(A=\left(\begin{array}{ccc}1 & a & b \\ a & 1 & 1 \\ b & 1 & 0\end{array}\right)\) ，且与矩阵 \(B=\left(\begin{array}{ccc}1 & 0 & 0 \\ 0 & 2 & 0 \\ 0 & 0 & -1\end{array}\right)\) 相似．
+
+（1） （5 分）求整数 \(a\) 和 \(b\) 的值．
+（2） （10 分）求正交矩阵 \(T\) ，使得 \(T^{-1} A T=B\) ．
+\section*{二、证明题。}
+
+\subsection{题目3}
+3．（15 分）设 \(A\) 是 \(m\) 行 \(n\) 列矩阵，\(b\) 是 \(m\) 维非零向量，\(X\) 是 \(n\) 个未知量构成的 \(n\) 维向量，向量方程\(A X=b\) 的增广矩阵记为 \(C\) ，若 \(A\) 的秩 \(r(A)\) 与 \(C\) 的秩 \(r(C)\) 都是 \(r\) ，且满足 \(1 \leq r<n\) ，证明：
+（1）（5 分）若 \(X_{1}, \cdots, X_{n-r}\) 是 \(n-r\) 个线性无关的 \(n\)－维向量，且
+\[
+A X_{k}=0, k=1,2, \cdots, n-r .
+\]
+则 \(X_{1}, \cdots, X_{n-r}\) 是向量方程 \(A X=0\) 的一个基础解系。
+（2）（10 分）若 \(Y_{1}, \cdots, Y_{n-r+1}\) 是 \(n-r+1\) 个线性无关的 \(n\) 维向量，且
+\[
+A Y_{s}=b, s=1,2, \cdots, n-r+1 .
+\]
+则向量方程 \(A X=b\) 的任何一个解可由 \(Y_{1}, \cdots, Y_{n-r+1}\) 线性表示。
+
+\subsection{题目4}
+4．（15 分）设 \(A\) 是 \(m\) 行 \(n\) 列矩阵，\(B\) 是 \(n\) 行 \(s\) 列矩阵。证明：
+
+（1） （5 分）若 \(A B=O\) ，则 \(r(A)+r(B) \leq n\) 。
+（2） （10 分）\(r(A B) \geq r(A)+r(B)-n\) ．
+
+\subsection{题目5}
+5．（10 分）设矩阵 \(A\) 和 \(B\) 都是 \(n\) 阶正定矩阵，且 \(A B=B A\) ，证明：\(A B\) 也是正定矩阵。
+
+\subsection{题目6}
+6．（15 分）设 \(f(x), g(x)\) 是多项式，且 \(x^{2}+x+1\) 整除 \(f\left(x^{3}\right)+x g\left(x^{3}\right)\) ．
+（1）（10 分）证明：\(x-1\) 整除 \(f(x)\) ，且 \(x-1\) 整除 \(g(x)\) ．
+（2）（5 分）若 \(f(x)\) 是 \(x-1\) 的方幂，\(h(x)\) 和 \(q(x)\) 是多项式，且 \(f(x) \mid h(x) q(x)\) ．证明：或者 \(f(x)\)整除 \(h(x)\) ，或者 \(f(x)\) 整除 \(q(x)\) 的某个方幂。
+
+\subsection{题目7}
+7．（15 分）设 \(V\) 是有限维向量空间，\(\Phi\) 和 \(\Psi\) 是 \(V\) 上的线性变换，且 \(\Phi \Psi=\Psi \Phi\) ．
+（1）（5 分）若 \(M\) 是 \(\Phi\) 的不变子空间，则 \(\Psi(M)\) 也是 \(\Phi\) 的不变子空间。
+（2）（10 分）若 \(\Phi\) 和 \(\Psi\) 都可对角化，证明：存在 \(V\) 的一组基，使得 \(\Phi\) 和 \(\Psi\) 在这组基下的矩阵都是对角矩阵。
+
+\section*{三．计算题．}
+
+\subsection{题目8}
+8．（15 分）空间直角坐标系下，已知两异面直线的方程分别为
+\[
+l_{1}: \frac{x}{2}=\frac{y+2}{-2}=\frac{z-1}{-1}, l_{2}: \frac{x-1}{4}=\frac{y-3}{2}=\frac{z+1}{-1} .
+\]
+（1）（10 分）求两条异面直线的公垂线方程。
+（2）（5 分）求该公垂线在坐标平面 \(x O y\) 的射影直线方程．
+
+\subsection{题目9}
+9．（15 分）已知空间中的两条异面直线 \(l_{1}\) 与 \(l_{2}\) 的距离是 \(4, l_{1}\) 与 \(l_{2}\) 所成角是 \(\frac{\pi}{3}\) ，建立空间直角坐标系，求直线 \(l_{1}\) 绕 \(l_{2}\) 旋转一周所成的曲面的方程。
+
+四．解答题．
+
+\subsection{题目10}
+10．（20 分）空间直角坐标系下，已知两相交平面方程分别为
+\[
+\pi_{1}: x-2 y-2 z-3=0,=\pi_{2}: 6 x+3 y-2 z-4=0 .
+\]
+（1）（10分）求 \(\pi_{1}\) 与 \(\pi_{2}\) 所成的二面角的角平分面方程。
+（2）（10 分）说明上述哪一个角平分面是位于坐标原点所在的二面角的角平分面．
+\end{document}
