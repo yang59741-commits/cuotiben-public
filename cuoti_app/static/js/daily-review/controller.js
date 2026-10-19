@@ -6,14 +6,19 @@
   const PREFS_KEY='cuoti-daily-generation';
   const DRAWER_TEXT=Object.freeze({
     generate:['生成新批次','选题并导出 PDF，生成后自动下载'],
-    remediation:['挑选再练','多次答错的题，按到期时间排序'],
-    summary:['题型表现','按题型看独立答对率与待巩固情况']
+    remediation:['挑选再练','再次答错或提示后答对的题，按到期时间排序'],
+    summary:['练习表现','查看独立作答与跨日巩固情况']
   });
   let subjects=[];
   let types=[];
+  let methods=[];
   let undoTimer=null;
   const pendingWrites=new Set();
+  let remediationDirty=false;
   let drawerPreviousFocus=null;
+  let summaryRevision=0;
+  let summaryController=null;
+  let summaryChapterRevision=0;
   const el=id=>document.getElementById(id);
   const render=()=>feature.render;
   function label(session){return session?.selection?.practice_kind==='remediation'?`复错再练 · 批次 ${safeInteger(session.id)}`:session?.practice_mode==='focused'?`专项第 ${safeInteger(session.round_number)} 批`:`全库第 ${safeInteger(session?.round_number)} 轮 · 批次 ${safeInteger(session?.id)}`;}
@@ -32,6 +37,14 @@
     syncCustomSelect(node);
   }
   function typeName(code){return types.find(type=>type.code===code)?.name||'';}
+  function methodName(code){return methods.find(method=>method.code===code)?.name||'';}
+  function hasMethod(typed,code,subject){
+    if(!['auto','manual'].includes(typed.status))return false;
+    if(typed.method_annotations)return typed.method_annotations.some(item=>item.code===code);
+    const method=methods.find(item=>item.code===code);
+    const key=value=>String(value||'').normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase();
+    return Boolean(method&&method.subjects.includes(subject)&&(typed.methods||[]).some(name=>[method.name,...method.aliases].some(alias=>key(alias)===key(name))));
+  }
 
   /* ---------- derived view state ---------- */
   function outcomeOf(item){
@@ -48,6 +61,7 @@
     if(state.subjectId&&String(item.subjectId)!==String(state.subjectId))return false;
     if(state.filters.chapter_id&&String(item.chapterId)!==String(state.filters.chapter_id))return false;
     if(state.filters.primary_type_code&&typed.primary_type_code!==state.filters.primary_type_code)return false;
+    if(state.filters.method_code&&!hasMethod(typed,state.filters.method_code,item.subject))return false;
     if(state.filters.classification_status&&(typed.status||'historical_unknown')!==state.filters.classification_status)return false;
     return true;
   }
@@ -109,9 +123,12 @@
     const filterCount=el('daily-filter-count');
     if(filterCount){const active=serverFilterCount();filterCount.hidden=!active;filterCount.textContent=String(active);}
     const title=el('daily-batch-title');
-    if(title)title.textContent=state.session?label(state.session):'还没有复习批次';
+    // Without a batch the empty state below carries the message and the call to action.
+    if(title)title.textContent=state.session?label(state.session):'每日自主复习';
+    const generate=el('daily-open-generate');
+    if(generate)generate.hidden=!state.session;
     const meta=el('daily-batch-meta');
-    if(meta)meta.innerHTML=render().sessionMeta(state.session,typeName(state.session?.selection?.primary_type_code));
+    if(meta)meta.innerHTML=render().sessionMeta(state.session,methodName(state.session?.selection?.method_code)||typeName(state.session?.selection?.primary_type_code));
     const listBar=document.querySelector('#review-daily-panel .daily-list-bar');
     if(listBar)listBar.hidden=!state.session;
     const kicker=document.querySelector('#review-daily-panel .daily-batch-kicker');
@@ -176,6 +193,7 @@
     setStatus('已撤销，这道题仍待记录',{visible:false});
   }
   async function flushQueued(){
+    const mountRevision=state.mountRevision;
     const queued=state.queued;
     if(queued){
       clearTimeout(undoTimer);
@@ -188,6 +206,13 @@
     // Include writes started by the undo timer or another card, not just the
     // queued card. A refreshed session must not replace their optimistic state.
     while(pendingWrites.size)await Promise.all([...pendingWrites]);
+    if(remediationDirty&&mountRevision===state.mountRevision){
+      remediationDirty=false;
+      const revision=state.requestRevision;
+      void remediation(revision).catch(error=>{
+        if(revision===state.requestRevision)setStatus('作答已保存，待巩固列表暂不可用：'+error.message);
+      });
+    }
   }
   async function submitRecord(queued){
     const item=state.items.find(candidate=>candidate.id===queued.itemId);
@@ -203,7 +228,7 @@
       item.result=response?.completion_result||response?.result||queued.result;
       item.assistance=response?.assistance||queued.assistance;
       setStatus(`已记录：${render().outcomeLabel(render().outcome(item.result,item.assistance))}`,{visible:false});
-      if(queued.result==='again')void remediation().catch(()=>{});
+      remediationDirty=true;
     }catch(error){
       if(error?.status===409&&error?.data?.code==='DAILY_REVIEW_CONFLICT'){
         // Reload after this write settles; awaiting it here would wait on self.
@@ -264,6 +289,7 @@
     const wasOpen=!drawer.hidden;
     if(open&&!wasOpen)drawerPreviousFocus=document.activeElement;
     state.drawer=open?view:null;
+    if(view!=='summary'){summaryRevision+=1;summaryChapterRevision+=1;summaryController?.abort();}
     drawer.querySelectorAll('[data-drawer-view]').forEach(section=>{section.hidden=section.dataset.drawerView!==view});
     drawer.querySelectorAll('[data-drawer-footer]').forEach(footer=>{footer.hidden=footer.dataset.drawerFooter!==view});
     if(open){
@@ -287,7 +313,7 @@
     renderDrawer(view);
     if(view==='generate')prepareGenerate();
     if(view==='remediation')renderRemediationDrawer();
-    if(view==='summary')void summary().catch(error=>{el('daily-type-summary-content').textContent=error.message});
+    if(view==='summary')void summary();
     if(!wasOpen)window.pushHistoryLayer?.('daily-drawer',()=>renderDrawer(false));
   }
   function closeDrawer(){
@@ -304,10 +330,14 @@
     syncModeFields();
   }
   function syncModeFields(){
-    const focused=state.practiceMode==='focused';
+    const focused=state.practiceMode!=='mixed';
+    const method=state.practiceMode==='method';
     el('daily-focused-options').hidden=!focused;
+    el('daily-focus-type-field').hidden=method;
+    el('daily-focus-method-field').hidden=!method;
+    el('daily-focus-method-role-field').hidden=!method;
     const help=el('daily-mode-help');
-    if(help)help.textContent=focused?'集中练同一题型，适合刚发现的薄弱点。':'从全库按轮次均衡抽题，覆盖所有未掌握题目。';
+    if(help)help.textContent=method?'集中练需要同一解题方法的题目，可限定主要方法或包含辅助方法。':focused?'集中练同一题型，适合刚发现的薄弱点。':'从全库按轮次抽取未删除的错题，包含已掌握题目。';
   }
   function trapDrawerFocus(event){
     const drawer=el('daily-drawer');
@@ -333,7 +363,10 @@
   }
 
   /* ---------- data loading ---------- */
-  async function loadTypes(){types=(await api('/api/v2/question-types')).items;await viewOptions();await focusOptions();renderChrome();}
+  async function loadTypes(){
+    const [typeData,methodData]=await Promise.all([api('/api/v2/question-types'),api('/api/v2/solution-methods')]);
+    types=typeData.items;methods=methodData.items;await viewOptions();await focusOptions();renderChrome();
+  }
   async function viewOptions(){
     const selected=state.subjectId;
     const subject=subjects.find(s=>String(s.id)===selected);
@@ -341,6 +374,7 @@
     if(selected!==state.subjectId)return;
     setOptions('daily-view-chapter',chapters.map(c=>[c.id,c.name]),'全部章节');
     setOptions('daily-view-type',types.filter(t=>!subject||t.subject===subject.name).map(t=>[t.code,(subject?'':t.subject+' · ')+t.name]),'全部题型');
+    setOptions('daily-view-method',methods.filter(item=>!subject||item.subjects.includes(subject.name)).map(item=>[item.code,item.name]),'全部方法');
   }
   async function focusOptions(){
     const id=el('daily-focus-subject')?.value;
@@ -348,18 +382,57 @@
     const chapters=id?await api('/api/chapters?subject_id='+id):[];
     if(id!==el('daily-focus-subject')?.value)return;
     setOptions('daily-focus-type',types.filter(t=>t.subject===subject?.name).map(t=>[t.code,t.name]),'请选择题型');
+    setOptions('daily-focus-method',methods.filter(item=>item.subjects.includes(subject?.name)).map(item=>[item.code,item.name]),'请选择方法');
+    updateMethodDefinition();
     setOptions('daily-focus-chapter',chapters.map(c=>[c.id,c.name]),'全部章节');
   }
+  function updateMethodDefinition(){el('daily-focus-method-definition').textContent=methods.find(item=>item.code===el('daily-focus-method').value)?.definition||'';}
   async function summary(){
     const root=el('daily-type-summary-content');
     if(!root)return;
+    const revision=++summaryRevision;
+    summaryController?.abort();
+    summaryController=new AbortController();
+    const method=radioValue('daily-summary-dimension','type')==='method';
+    const filters=el('daily-summary-filters');
+    if(filters)filters.hidden=!method;
+    setOptions('daily-summary-subject',subjects.map(subject=>[subject.id,subject.name]),'全部科目');
     const batch=radioValue('daily-summary-scope','batch')==='batch';
     const id=state.session?.id;
+    const subject=subjects.find(item=>String(item.id)===el('daily-summary-subject')?.value);
+    el('daily-drawer-subtitle').textContent=(batch?'本批':'近 30 天')+(method?' · '+(subject?.name||'全部科目'):' · 题型表现');
     if(batch&&!id){root.innerHTML='<p class="daily-drawer-help">尚无复习批次。</p>';return;}
-    root.innerHTML=`<p class="daily-drawer-help">${icon('loader','icon-spin')} 正在读取…</p>`;
-    const result=await api('/api/v2/daily-review/type-summary'+(batch?'?session_id='+id:''));
-    if(batch&&id!==state.session?.id)return;
-    root.innerHTML=render().summaryTable(result.items||[]);
+    root.innerHTML=`<p class="daily-summary-loading" role="status">正在读取${method?'方法':'题型'}表现…</p>`;
+    const params=new URLSearchParams();
+    if(batch)params.set('session_id',id);
+    if(method){
+      if(el('daily-summary-subject')?.value)params.set('subject_id',el('daily-summary-subject').value);
+      if(el('daily-summary-chapter')?.value)params.set('chapter_id',el('daily-summary-chapter').value);
+    }
+    try{
+      const result=await api(`/api/v2/daily-review/${method?'method':'type'}-summary?${params}`,{signal:summaryController.signal});
+      if(revision!==summaryRevision||state.drawer!=='summary'||(batch&&id!==state.session?.id))return;
+      root.innerHTML=method?render().methodSummary(result):render().summaryTable(result.items||[]);
+    }catch(error){
+      if(error.name!=='AbortError'&&revision===summaryRevision&&state.drawer==='summary')root.innerHTML=`<div class="daily-summary-error" role="alert"><strong>${icon('circleAlert')}统计读取失败</strong><span>${escapeHTML(error.message)}，筛选条件已保留。</span><button type="button" class="btn btn-out btn-sm daily-summary-retry">重试</button></div>`;
+    }
+  }
+  async function summaryChapters(){
+    const revision=++summaryChapterRevision;
+    const id=el('daily-summary-subject').value;
+    el('daily-summary-chapter').value='';
+    el('daily-summary-chapter').disabled=true;
+    setOptions('daily-summary-chapter',[],id?'正在读取章节…':'请先选择科目');
+    void summary();
+    try{
+      const chapters=id?await api('/api/chapters?subject_id='+id):[];
+      if(revision===summaryChapterRevision&&state.drawer==='summary'){
+        el('daily-summary-chapter').disabled=!id;
+        setOptions('daily-summary-chapter',chapters.map(chapter=>[chapter.id,chapter.name]),id?'全部章节':'请先选择科目');
+      }
+    }catch(error){
+      if(revision===summaryChapterRevision&&state.drawer==='summary')el('daily-type-summary-content').textContent='章节读取失败：'+error.message;
+    }
   }
   async function remediation(revision=state.requestRevision){
     const payload=await api('/api/v2/daily-review/remediation');
@@ -590,8 +663,9 @@
     setStatus('正在生成每日自主复习 PDF…');
     try{
       await flushQueued();
-      const selection=override||(state.practiceMode==='focused'?{
-        practice_mode:'focused',subject_id:el('daily-focus-subject').value,primary_type_code:el('daily-focus-type').value,
+      const selection=override||(state.practiceMode!=='mixed'?{
+        practice_mode:'focused',subject_id:el('daily-focus-subject').value,
+        ...(state.practiceMode==='method'?{method_code:el('daily-focus-method').value,method_role:el('daily-focus-method-role').value}:{primary_type_code:el('daily-focus-type').value}),
         chapter_id:el('daily-focus-chapter').value,count:Number(el('daily-focus-count').value),include_mastered:el('daily-focus-mastered').checked
       }:{practice_mode:'mixed'});
       selection.pdf_purpose=radioValue('daily-pdf-purpose','self_test');
@@ -637,8 +711,8 @@
       }
       select?.addEventListener('change',()=>{
         state.subjectId=select.value;
-        delete state.filters.chapter_id;delete state.filters.primary_type_code;
-        el('daily-view-chapter').value='';el('daily-view-type').value='';
+        delete state.filters.chapter_id;delete state.filters.primary_type_code;delete state.filters.method_code;
+        el('daily-view-chapter').value='';el('daily-view-type').value='';el('daily-view-method').value='';
         window.Cuoti.reviewPage?.navigate?.('daily',{replace:true});
       });
       state.toolbarInitialized=true;
@@ -657,6 +731,20 @@
     return true;
   }
 
+  async function prefillMethod(code,subjectId){
+    const method=methods.find(item=>item.code===code);
+    const subject=subjects.find(item=>String(item.id)===String(subjectId));
+    if(!method||!subject||!method.subjects.includes(subject.name))return false;
+    el('daily-focus-subject').value=String(subject.id);syncCustomSelect(el('daily-focus-subject'));
+    await focusOptions();
+    el('daily-focus-method').value=code;syncCustomSelect(el('daily-focus-method'));
+    el('daily-focus-method-role').value='primary';syncCustomSelect(el('daily-focus-method-role'));
+    el('daily-focus-chapter').value='';syncCustomSelect(el('daily-focus-chapter'));
+    updateMethodDefinition();
+    state.practiceMode='method';setRadio('daily-practice-mode','method');syncModeFields();
+    return true;
+  }
+
   async function applyRouteFilter(params){
     await initToolbar();
     const select=document.getElementById('daily-review-subject');
@@ -668,6 +756,8 @@
     if(chapter&&optionExists(el('daily-view-chapter'),chapter)){state.filters.chapter_id=chapter;el('daily-view-chapter').value=chapter;syncCustomSelect(el('daily-view-chapter'))}
     const type=params?.get?.('primary_type_code');
     if(type&&types.some(item=>item.code===type)&&await prefillFocused(type))return 'generate';
+    const method=params?.get?.('method_code');
+    if(method&&await prefillMethod(method,requested))return 'generate';
     if(params?.get?.('remediation')==='1')return 'remediation';
     return null;
   }
@@ -713,7 +803,7 @@
     root.dataset.dailyReviewBound='true';
     ['daily-drawer','daily-drawer-scrim','daily-undo'].forEach(relocate);
     const prefs=readPrefs();
-    if(prefs.mode==='focused'||prefs.mode==='mixed'){state.practiceMode=prefs.mode;setRadio('daily-practice-mode',prefs.mode)}
+    if(['focused','mixed','method'].includes(prefs.mode)){state.practiceMode=prefs.mode;setRadio('daily-practice-mode',prefs.mode)}
     if(prefs.purpose)setRadio('daily-pdf-purpose',prefs.purpose);
     if(prefs.layout)setRadio('daily-pdf-layout',prefs.layout);
     syncModeFields();
@@ -766,10 +856,18 @@
     el('daily-drawer-scrim')?.addEventListener('click',closeDrawer);
     drawer?.addEventListener('click',event=>{
       if(event.target.closest('[data-drawer-close]')){closeDrawer();return}
+      if(event.target.closest('.daily-summary-retry')){void summary();return}
       const step=event.target.closest('[data-step]');
       if(step){const input=el('daily-focus-count');input.value=String(Math.max(5,Math.min(10,(Number(input.value)||5)+Number(step.dataset.step))));return}
       const reopen=event.target.closest('[data-remediation-reopen]');
       if(reopen){reopenRemediation(reopen.dataset.remediationReopen);return}
+      const methodLink=event.target.closest('[data-practice-method]');
+      if(methodLink){
+        event.preventDefault();
+        const revision=state.mountRevision;
+        void prefillMethod(methodLink.dataset.practiceMethod,methodLink.dataset.subjectId).then(ok=>{if(ok&&revision===state.mountRevision&&drawerOpen())openDrawer('generate')});
+        return;
+      }
       const link=event.target.closest('a[href*="primary_type_code="]');
       if(link){
         event.preventDefault();
@@ -781,7 +879,8 @@
       const target=event.target;
       if(target.name==='daily-practice-mode'){state.practiceMode=target.value;syncModeFields();savePrefs();}
       else if(target.name==='daily-pdf-purpose'||target.name==='daily-pdf-layout')savePrefs();
-      else if(target.name==='daily-summary-scope')void summary().catch(error=>{el('daily-type-summary-content').textContent=error.message});
+      else if(['daily-summary-scope','daily-summary-dimension'].includes(target.name)||target.id==='daily-summary-chapter')void summary();
+      else if(target.id==='daily-summary-subject')void summaryChapters();
       else if(target.matches('[data-remediation-id]'))updateRemediationSelection();
       else if(target.id==='daily-focus-count'){target.value=String(Math.max(5,Math.min(10,Number(target.value)||5)));}
     });
@@ -792,6 +891,7 @@
       await generate({practice_mode:'focused',practice_kind:'remediation',source_item_ids:ids});
     }));
     el('daily-focus-subject').addEventListener('change',guarded(focusOptions));
+    el('daily-focus-method').addEventListener('change',updateMethodDefinition);
     el('daily-undo-button')?.addEventListener('click',undo);
     document.addEventListener('keydown',onKeydown);
     window.addEventListener('pagehide',()=>{void flushQueued()});

@@ -33,11 +33,8 @@ def test_every_literal_icon_name_is_registered():
     for path in sorted(TEMPLATES.rglob("*.html")):
         for name in re.findall(r'data-icon="([A-Za-z0-9]+)"', read(path)):
             used.setdefault(name, set()).add(str(path.relative_to(ROOT)))
-    stats = read(JS / "stats.js")
-    for name in re.findall(r"statsEmptyHTML\('[^']*',(?:true|false),'([A-Za-z0-9]+)'\)", stats):
-        used.setdefault(name, set()).add("cuoti_app/static/js/stats.js")
-    for name in re.findall(r"^\s*[a-z]+:\['([A-Za-z0-9]+)','", stats, re.MULTILINE):
-        used.setdefault(name, set()).add("cuoti_app/static/js/stats.js")
+    for name in re.findall(r"statsEmptyHTML\('[^']*','([A-Za-z0-9]+)'", stats_source()):
+        used.setdefault(name, set()).add("cuoti_app/static/js/stats/render.js")
     missing = {name: sorted(files) for name, files in used.items() if name not in icons}
     assert not missing, f"icons used but not defined in icons.js: {missing}"
     for name in ("arrowRight", "circleAlert", "shieldCheck"):
@@ -57,42 +54,39 @@ if(!context.window.icon('arrowRight').includes('M5 12h14'))throw new Error('arro
     subprocess.run(["node", "-e", script], check=True)
 
 
-def test_statistics_metric_cards_use_semantic_tones_and_icons():
-    stats = read(JS / "stats.js")
+def stats_source() -> str:
+    return "\n".join(read(path) for path in [JS / "stats.js", *sorted((JS / "stats").glob("*.js"))])
+
+
+def test_statistics_ledger_and_review_journey_use_registered_icons():
+    stats = stats_source()
     css = read(STATIC / "css" / "pages" / "stats.css")
-    metrics = stats[stats.index("const metrics=[") : stats.index("const reviewScope=")]
-    assert "tone:'good',visual:statsRingHTML(s.current_mastery_rate),label:'当前掌握率'" in metrics
-    assert "tone:'accent',visual:icon('refresh'),label:'今日间隔复习'" in metrics
-    assert "tone:'warn',visual:icon('rotateCcw'),label:'再次答错率'" in metrics
-    assert "circleHelp" not in metrics
-    assert 'class="stat stat-action stat-tone-${item.tone}" data-action="open-spaced-review"' in stats
-    assert "<span class=\"stat-go\" aria-hidden=\"true\">${icon('arrowRight')}</span>" in stats
-    assert "function statsRingHTML(rate)" in stats
-    assert "if(!Number.isFinite(value))return icon('check')" in stats
-    assert ".stat.stat-tone-good{color:var(--green)}" in css
-    assert ".stat.stat-tone-accent{color:var(--accent)}" in css
-    assert ".stat.stat-tone-warn{color:var(--orange)}" in css
+    assert "${icon('rotateCcw')}本期 <b>${count(cycle.reset_mistakes)}</b> 道答错后回到第1轮" in stats
+    assert "${icon('repeat')}开始间隔复习" in stats
+    assert "${icon(table?'chart':'table')}" in stats
+    assert "table:'<rect" in read(JS / "icons.js")
+    assert "答错就回到" not in stats
+    assert ".stats-pipe-foot .icon{display:inline-block;width:14px;height:14px" in css
 
 
 def test_statistics_headers_empty_states_and_insights_use_matching_icons():
     template = read(TEMPLATES / "partials" / "pages" / "stats.html")
-    stats = read(JS / "stats.js")
+    stats = stats_source()
     render = read(JS / "ui" / "render.js")
-    assert '<span data-icon="barsHorizontal"></span>章节掌握分布' in template
-    assert '<span data-icon="pie"></span>错因构成' in template
-    assert '<span data-icon="lightbulb"></span>学习洞察与提醒' in template
+    assert '<span data-icon="calendar"></span>学习节奏' in template
+    assert '<span data-icon="barsHorizontal"></span>章节进度' in template
+    assert '<span data-icon="pie"></span>错因' in template
+    assert '<span data-icon="lightbulb"></span>需要留意' in template
     assert 'data-icon="sparkles"' not in template
-    empty_icons = set(re.findall(r"statsEmptyHTML\('[^']*',(?:true|false),'([A-Za-z0-9]+)'\)", stats))
-    assert empty_icons == {"barsHorizontal", "pie", "calendar", "fileText"}
+    empty_icons = set(re.findall(r"statsEmptyHTML\('[^']*','([A-Za-z0-9]+)'", stats))
+    assert empty_icons == {"barsHorizontal", "pie", "calendar", "examPaper", "history", "lightbulb"}
     allowed = render[render.index("EMPTY_STATE_ICON_NAMES=new Set([") :]
     allowed = allowed[: allowed.index("]);")]
     for name in empty_icons | {"chart"}:
         assert f"'{name}'" in allowed
-    assert "triggered:['circleAlert','需要关注']" in stats
-    assert "normal:['circleCheck','状态正常']" in stats
-    assert "insufficient:['circleDashed','样本不足']" in stats
-    assert "${statsInsightStatusHTML(item.status)}" in stats
-    assert "${icon('bell')}${safeInteger(reminder.due_count)} 道" in stats
+    assert "<article class=\"insight triggered\">${icon('circleAlert')}" in stats
+    assert "calm(normal,'normal','circleCheck','状态正常'+againNote)" in stats
+    assert "calm(insufficient,'insufficient','circleDashed','样本不足，暂不判断')" in stats
 
 
 def test_statistics_icons_follow_three_size_tokens():
@@ -100,7 +94,5 @@ def test_statistics_icons_follow_three_size_tokens():
     css = read(STATIC / "css" / "pages" / "stats.css")
     assert "--icon-sm:16px;--icon-md:18px;--icon-lg:20px;" in tokens
     assert ".chart-card-header h4 .icon{width:var(--icon-md);height:var(--icon-md)" in css
-    assert "#stat-box .stat-icon>.icon{width:var(--icon-lg);height:var(--icon-lg)}" in css
     assert "#p-stats .empty-state-icon .icon{width:var(--icon-lg);height:var(--icon-lg)}" in css
-    assert "#p-stats .insight-status .icon{width:var(--icon-sm);height:var(--icon-sm)}" in css
     assert "#p-stats .btn .icon{width:var(--icon-sm);height:var(--icon-sm)}" in css

@@ -1,7 +1,7 @@
     <div class="panel" id="p-review">
       <div class="tabs review-mode-tabs" role="tablist" aria-label="复习方式">
-        <button type="button" class="tab on" id="review-tab-spaced" role="tab" aria-label="间隔复习" aria-selected="true" aria-controls="review-spaced-panel" data-review-mode="spaced"><span class="tb-icon" data-icon="calendar"></span>间隔复习</button>
-        <button type="button" class="tab" id="review-tab-daily" role="tab" aria-label="每日自主复习" aria-selected="false" aria-controls="review-daily-panel" data-review-mode="daily" tabindex="-1"><span class="tb-icon" data-icon="sparkles"></span>每日自主复习</button>
+        <button type="button" class="tab on" id="review-tab-spaced" role="tab" aria-label="间隔复习" aria-selected="true" aria-controls="review-spaced-panel" data-review-mode="spaced"><span class="tb-icon" data-icon="calendarClock"></span>间隔复习</button>
+        <button type="button" class="tab" id="review-tab-daily" role="tab" aria-label="每日自主复习" aria-selected="false" aria-controls="review-daily-panel" data-review-mode="daily" tabindex="-1"><span class="tb-icon" data-icon="sun"></span>每日自主复习</button>
       </div>
       <section id="review-spaced-panel" class="review-mode-panel" role="tabpanel" aria-labelledby="review-tab-spaced">
         <div class="review-toolbar card compact">
@@ -15,6 +15,7 @@
           <button type="button" class="btn btn-p btn-sm" id="spaced-review-export-pdf" aria-label="导出待复习 PDF"><span data-icon="download"></span>导出待复习 PDF</button>
         </div>
         <div class="stats-row" id="spaced-review-stats"></div>
+        <div class="spaced-review-progress" id="spaced-review-progress" hidden></div>
         <div class="card"><div id="spaced-review-list"></div><div class="load-more-row"><button type="button" class="btn btn-out btn-sm" id="spaced-review-load-more" hidden>加载更多</button><span id="spaced-review-total" class="list-total"></span><span id="spaced-review-status" class="sr-only" role="status" aria-live="polite"></span></div></div>
       </section>
       <section id="review-daily-panel" class="review-mode-panel" role="tabpanel" aria-labelledby="review-tab-daily" hidden>
@@ -30,8 +31,8 @@
                 <button type="button" class="btn btn-out btn-sm" id="daily-more-toggle" aria-haspopup="menu" aria-expanded="false" aria-controls="daily-more-menu"><span data-icon="more"></span><span>更多</span></button>
                 <div class="daily-more-menu" id="daily-more-menu" role="menu" aria-labelledby="daily-more-toggle" hidden>
                   <button type="button" role="menuitem" id="daily-review-history"><span data-icon="history"></span><span>批次历史</span></button>
-                  <button type="button" role="menuitem" id="daily-open-summary"><span data-icon="chart"></span><span>题型表现</span></button>
-                  <button type="button" role="menuitem" id="daily-classification-manage"><span data-icon="listChecks"></span><span>分类管理</span></button>
+                  <button type="button" role="menuitem" id="daily-open-summary"><span data-icon="chart"></span><span>练习表现</span></button>
+                  <button type="button" role="menuitem" id="daily-classification-manage"><span data-icon="tag"></span><span>分类管理</span></button>
                 </div>
               </div>
               <button type="button" class="btn btn-p btn-sm" id="daily-open-generate" aria-controls="daily-drawer"><span data-icon="plus"></span><span>新批次</span></button>
@@ -42,7 +43,7 @@
         </div>
         <div class="daily-remediation-banner" id="daily-remediation" hidden>
           <span class="daily-remediation-icon" data-icon="target"></span>
-          <div class="daily-remediation-text"><strong>待巩固 <span id="daily-remediation-count"></span></strong><span>多次答错的题会进入这里，按间隔安排再练</span></div>
+          <div class="daily-remediation-text"><strong>待巩固 <span id="daily-remediation-count"></span></strong><span>再次答错或提示后答对的题会进入这里，跨日独立答对后恢复</span></div>
           <button type="button" class="btn btn-out btn-sm" id="daily-open-remediation" aria-controls="daily-drawer">挑选再练</button>
         </div>
         <div class="daily-list-bar">
@@ -52,13 +53,14 @@
               <label><input type="radio" name="daily-arrange" value="order" checked><span>按顺序</span></label>
               <label><input type="radio" name="daily-arrange" value="type"><span>按题型</span></label>
             </div>
-            <button type="button" class="btn btn-txt btn-sm" id="daily-filter-toggle" aria-expanded="false" aria-controls="daily-filter-panel"><span data-icon="listChecks"></span><span>更多筛选</span><span class="daily-filter-count" id="daily-filter-count" hidden></span></button>
+            <button type="button" class="btn btn-txt btn-sm" id="daily-filter-toggle" aria-expanded="false" aria-controls="daily-filter-panel"><span data-icon="filter"></span><span>更多筛选</span><span class="daily-filter-count" id="daily-filter-count" hidden></span></button>
           </div>
         </div>
         <div id="daily-filter-panel" class="review-view-filters daily-more-filters" hidden>
           <div class="review-field"><label for="daily-review-subject">科目</label><select id="daily-review-subject" class="sel-sm"><option value="">全部科目</option></select></div>
           <div class="review-field"><label for="daily-view-chapter">章节</label><select id="daily-view-chapter" class="sel-sm" data-review-filter="chapter_id"><option value="">全部章节</option></select></div>
           <div class="review-field"><label for="daily-view-type">题型</label><select id="daily-view-type" class="sel-sm" data-review-filter="primary_type_code"><option value="">全部题型</option></select></div>
+          <div class="review-field"><label for="daily-view-method">解题方法</label><select id="daily-view-method" class="sel-sm" data-review-filter="method_code"><option value="">全部方法</option></select></div>
           <div class="review-field"><label for="daily-view-classification">分类状态</label><select id="daily-view-classification" class="sel-sm" data-review-filter="classification_status"><option value="">全部状态</option><option value="unclassified">未分类</option><option value="needs_review">待确认</option><option value="stale">待复核</option><option value="auto">自动分类</option><option value="manual">人工确认</option><option value="historical_unknown">未记录分类</option></select></div>
           <button type="button" class="btn btn-out btn-sm" id="daily-clear-filters"><span data-icon="x"></span><span>清除筛选</span></button>
         </div>
@@ -80,13 +82,16 @@
                 <div class="review-generation-mode daily-drawer-segment" role="radiogroup" aria-labelledby="daily-mode-label">
                   <label><input type="radio" name="daily-practice-mode" value="mixed" checked><span>混合复习</span></label>
                   <label><input type="radio" name="daily-practice-mode" value="focused"><span>题型专项</span></label>
+                  <label><input type="radio" name="daily-practice-mode" value="method"><span>方法专项</span></label>
                 </div>
-                <p class="daily-drawer-help" id="daily-mode-help">从全库按轮次均衡抽题，覆盖所有未掌握题目。</p>
+                <p class="daily-drawer-help" id="daily-mode-help">从全库按轮次抽取未删除的错题，包含已掌握题目。</p>
               </div>
               <div id="daily-focused-options" class="review-focus-fields daily-focus-grid" hidden>
                 <div class="review-field"><label for="daily-focus-subject">科目</label><select id="daily-focus-subject" class="sel-sm"></select></div>
                 <div class="review-field"><label for="daily-focus-chapter">限定章节</label><select id="daily-focus-chapter" class="sel-sm"><option value="">全部章节</option></select></div>
-                <div class="review-field review-field-wide"><label for="daily-focus-type">专项题型</label><select id="daily-focus-type" class="sel-sm"></select></div>
+                <div class="review-field review-field-wide" id="daily-focus-type-field"><label for="daily-focus-type">专项题型</label><select id="daily-focus-type" class="sel-sm"></select></div>
+                <div class="review-field review-field-wide" id="daily-focus-method-field" hidden><label for="daily-focus-method">专项方法</label><select id="daily-focus-method" class="sel-sm"></select><p id="daily-focus-method-definition" class="daily-drawer-help"></p></div>
+                <div class="review-field review-field-wide" id="daily-focus-method-role-field" hidden><label for="daily-focus-method-role">方法范围</label><select id="daily-focus-method-role" class="sel-sm"><option value="primary">仅作为主要方法</option><option value="any">包含辅助方法与未区分标注</option></select></div>
                 <div class="review-field review-field-count"><label for="daily-focus-count">题量</label><div class="daily-stepper"><button type="button" data-step="-1" aria-label="减少题量">−</button><input type="number" min="5" max="10" value="5" id="daily-focus-count"><button type="button" data-step="1" aria-label="增加题量">+</button></div></div>
                 <label class="classification-check daily-focus-mastered"><input type="checkbox" id="daily-focus-mastered">包含已掌握</label>
               </div>
@@ -108,9 +113,19 @@
             </section>
             <section data-drawer-view="remediation" hidden><div id="daily-remediation-content"></div></section>
             <section data-drawer-view="summary" hidden>
-              <div class="review-generation-mode daily-drawer-segment compact" role="radiogroup" aria-label="统计范围">
-                <label><input type="radio" name="daily-summary-scope" value="batch" checked><span>本批</span></label>
-                <label><input type="radio" name="daily-summary-scope" value="30days"><span>近 30 天</span></label>
+              <div class="daily-summary-controls">
+                <div class="review-generation-mode daily-drawer-segment daily-summary-dimension" role="radiogroup" aria-label="表现维度">
+                  <label><input type="radio" name="daily-summary-dimension" value="type" checked><span>题型表现</span></label>
+                  <label><input type="radio" name="daily-summary-dimension" value="method"><span>方法表现</span></label>
+                </div>
+                <div class="review-generation-mode daily-drawer-segment compact" role="radiogroup" aria-label="统计范围">
+                  <label><input type="radio" name="daily-summary-scope" value="batch" checked><span>本批</span></label>
+                  <label><input type="radio" name="daily-summary-scope" value="30days"><span>近 30 天</span></label>
+                </div>
+              </div>
+              <div class="daily-summary-filters" id="daily-summary-filters" role="group" aria-label="方法表现筛选" hidden>
+                <div class="review-field"><label for="daily-summary-subject">科目</label><select id="daily-summary-subject" class="sel-sm"><option value="">全部科目</option></select></div>
+                <div class="review-field"><label for="daily-summary-chapter">章节</label><select id="daily-summary-chapter" class="sel-sm" disabled><option value="">请先选择科目</option></select></div>
               </div>
               <div id="daily-type-summary-content"></div>
             </section>
@@ -123,4 +138,3 @@
       </section>
       <div class="daily" id="daily-box2"></div>
     </div>
-

@@ -1,11 +1,12 @@
 (function initSettingsRender(){
   'use strict';
+  /* 设置页的数据整理与中文标签：接口字段到页面文案的映射都集中在这里，卡片模块只负责摆放。 */
 
   window.Cuoti=window.Cuoti||{};
   window.Cuoti.settings=window.Cuoti.settings||{};
-  const el=id=>document.getElementById(id);
+
   const SEMANTIC_MODE_LABELS=Object.freeze({
-    off:'关闭语义辅助',shadow:'仅观察比较',enforced:'正式参与排序'
+    off:'关闭',shadow:'仅观察比较',enforced:'正式参与排序'
   });
   const SEMANTIC_RUN_LABELS=Object.freeze({
     scanning:'扫描来源',queued:'等待执行',running:'正在更新',retry_wait:'等待重试',
@@ -27,7 +28,8 @@
     home_institution_mismatch:'正式真题来源与本机院校设置不一致',
     snapshot_already_indexed:'该来源快照已经完成索引',
     database_unavailable:'数据库暂时不可用',idempotency_conflict:'任务幂等状态冲突',
-    analysis_profile_unavailable:'语义分析模型配置不可用'
+    analysis_profile_unavailable:'语义分析模型配置不可用',
+    promotion_approval_required:'“正式参与排序”还没通过启用验收，目前按“仅观察比较”运行'
   });
   const AI_PROFILE_TYPE_LABELS=Object.freeze({
     explicit_preference:'明确偏好',inferred_weakness:'薄弱点',
@@ -36,12 +38,54 @@
   const AI_PROFILE_STATUS_LABELS=Object.freeze({
     recent:'近期',stable:'稳定',confirmed:'已确认',rejected:'已否定',suppressed:'已隐藏'
   });
-  const AI_PROFILE_ACTIONS=Object.freeze([
-    Object.freeze({action:'confirm',label:'确认'}),
-    Object.freeze({action:'correct',label:'纠正'}),
-    Object.freeze({action:'reject',label:'否定'}),
-    Object.freeze({action:'suppress',label:'隐藏'})
+  const MEMORY_LABELS=Object.freeze({free:'自由组卷',mistakes:'错题学习',past:'真题组卷'});
+  /* 使用情况：按 AI 调用统计时用任务策略名，按任务结果统计时用后台任务类型 */
+  const POLICY_LABELS=Object.freeze({
+    generic_text:'通用文本',classification_single:'拆题与归类',classification_batch:'批量拆题',
+    classification_object:'拆题与归类',classification_batch_object:'批量拆题',
+    problem_analysis:'错题分析',daily_analysis:'每日分析',exam_generation:'智能组卷',
+    structured_exam:'结构化组卷',past_structure:'真题结构分析',candidate_selection:'候选题挑选',
+    candidate_selection_rubric:'候选题评分',difficulty_review:'难度复核',exam_difficulty_review:'难度复核',
+    exam_quality_review:'试卷质量复核',exam_item_repair:'试题修补',material_analysis:'语义材料卡',
+    material_analysis_shard:'语义材料卡（分片）',material_analysis_summary:'语义材料汇总',
+    semantic_permanent_card:'语义材料卡',document_ocr:'文档识别',connection_test:'连接测试',
+    capability_probe:'能力探测'
+  });
+  const JOB_LABELS=Object.freeze({
+    analysis:'错题分析',classification:'题目录入',ocr:'文档识别','batch-mistakes':'批量标错',
+    'exam-generation':'试卷生成','exam-recompile':'试卷重新编译','data-import':'数据导入',
+    'mistake-export':'错题 PDF 导出','memory-maintenance':'记忆维护','question-bank-rebuild':'题库索引重建'
+  });
+  const PROFILE_ORDER=Object.freeze(['deepseek','soulecho','monetwl','claude','custom']);
+  const PROFILE_META=Object.freeze({
+    deepseek:Object.freeze({short:'DeepSeek',mono:'DS'}),
+    soulecho:Object.freeze({short:'SoulEcho',mono:'GPT'}),
+    monetwl:Object.freeze({short:'Monetwl',mono:'GPT'}),
+    claude:Object.freeze({short:'Claude',mono:'C'}),
+    custom:Object.freeze({short:'其他兼容服务',mono:'+'})
+  });
+  const ROUTING_TASKS=Object.freeze([
+    Object.freeze({key:'classification',label:'拆题与归类',icon:'listChecks',rec:'fast'}),
+    Object.freeze({key:'problem_analysis',label:'错题分析',icon:'lightbulb',rec:'quality'}),
+    Object.freeze({key:'daily_analysis',label:'每日分析',icon:'calendar',rec:'quality'}),
+    Object.freeze({key:'exam_generation',label:'智能组卷',icon:'examPaper',rec:'quality'})
   ]);
+  const TIER_LABELS=Object.freeze({fast:'快速',balanced:'均衡',quality:'高质量'});
+  const DNS_LABELS=Object.freeze({domestic:'国内 DNS 直连',system:'系统 DNS 直连',proxy:'系统代理 / TUN'});
+  const DNS_HELP=Object.freeze({
+    domestic:'用国内 DNS 解析服务商域名后直连，并检查解析结果是否安全。一般保持默认。',
+    system:'用系统 DNS 解析后直连，同样会检查解析结果。',
+    proxy:'开着 Clash 等代理软件（TUN / Fake-IP 模式）却连不上时选它，请求交给系统代理处理。'
+  });
+  const HEALTH_CHECKS=Object.freeze({
+    database:Object.freeze({label:'数据库',icon:'database',advice:'大部分功能会受影响。请重启应用；仍然失败时，从备份恢复前先导出现有数据。'}),
+    job_worker:Object.freeze({label:'后台任务',icon:'activity',advice:'识别、组卷、建索引等耗时工作会一直排队。请重启应用后点“重新诊断”。'}),
+    xelatex:Object.freeze({label:'PDF 编译',icon:'fileText',advice:'安装 TeX Live 或 MiKTeX（或配置 xelatex_command）后，点“重新诊断”。'}),
+    question_bank:Object.freeze({label:'题库',icon:'files',advice:'确认题库文件夹仍然存在；可用后到“普通题库索引”点“后台重建”。'}),
+    ai_configuration:Object.freeze({label:'AI 配置',icon:'sparkles',advice:'到“AI 服务”填写并保存密钥，再点“测试连接”确认。'})
+  });
+  const HEALTH_STATUS_LABELS=Object.freeze({ok:'正常',degraded:'警告',fatal:'失败'});
+
   const semanticReasonLabel=value=>{
     const code=String(value||'').trim();
     if(!code)return '';
@@ -52,11 +96,33 @@
     if(!code)return '无';
     return SEMANTIC_RUN_LABELS[code]||`未知状态（${code}）`;
   };
-  const semanticTimeLabel=value=>{
-    if(!value)return '尚无';
-    const parsed=new Date(String(value));
-    return Number.isNaN(parsed.getTime())?String(value):parsed.toLocaleString('zh-CN');
+  const labelOf=(map,key)=>map[key]||`其他（${String(key||'未知')}）`;
+
+  /* 数字与时间 */
+  const fmt=value=>Math.round(Number(value)||0).toLocaleString('zh-CN');
+  const pct=(value,digits=0)=>`${((Number(value)||0)*100).toFixed(digits)}%`;
+  const kTokens=value=>{
+    const number=Math.max(0,Number(value)||0);
+    return number>=1000?`${(number/1000).toFixed(number>=10000?0:1)}k`:String(Math.round(number));
   };
+  const wanTokens=value=>{
+    const number=Math.max(0,Number(value)||0);
+    return number>=10000?`${(number/10000).toFixed(number>=1000000?0:1)} 万`:fmt(number);
+  };
+  const pad=value=>String(value).padStart(2,'0');
+  function parseTime(value){
+    if(!value)return null;
+    const parsed=new Date(String(value));
+    return Number.isNaN(parsed.getTime())?null:parsed;
+  }
+  function timeLabel(value,fallback='尚无'){
+    const date=parseTime(value);
+    if(!date)return value?String(value):fallback;
+    const clock=`${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    const day=`${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
+    return date.getFullYear()===new Date().getFullYear()?`${day} ${clock}`:`${date.getFullYear()}-${day} ${clock}`;
+  }
+  const clockLabel=(date=new Date())=>`${pad(date.getHours())}:${pad(date.getMinutes())}`;
 
   const fields=Object.freeze({
     active_profile:'ai-profile',
@@ -84,7 +150,7 @@
     const dnsServers=provider.dns_servers??payload?.dns_servers??['223.5.5.5','119.29.29.29'];
     return {
       id:selectedId,
-      name:String(provider.name||selectedId),
+      name:String(provider.name||PROFILE_META[selectedId]?.short||selectedId),
       connectionType:String(provider.connection_type||'openai_compatible'),
       profiles:providerMap,
       adapter:String(provider.adapter||provider.provider||payload?.provider||'openai_compatible'),
@@ -119,209 +185,13 @@
     };
   }
 
-  function aiProfileList(items){
-    const root=el('ai-memory-profile-list');
-    if(!root)return 0;
-    root.replaceChildren();
-    const entries=Array.isArray(items)?items:[];
-    entries.forEach(item=>{
-      if(!item||typeof item!=='object')return;
-      const key=String(item.key??'').trim();
-      if(!key)return;
-      const hasCorrection=typeof item.correction==='string'&&item.correction.length>0;
-      const rawValue=hasCorrection?item.effective_value:(item.effective_value??item.value);
-      const value=String(rawValue??'').trim()||'（空值）';
-      const entryType=String(item.entry_type??'');
-      const status=String(item.status??'');
-      const rawConfidence=Number(item.confidence);
-      const confidence=Number.isFinite(rawConfidence)
-        ?Math.round(Math.max(0,Math.min(1,rawConfidence))*100)
-        :0;
+  const environmentSource=source=>['env','environment'].includes(String(source||'').toLowerCase());
+  /* DNS 服务器统一成英文逗号分隔，接口只按英文逗号拆分 */
+  const dnsList=value=>String(value||'').split(/[,，;；\s]+/).map(item=>item.trim()).filter(Boolean);
+  const isIPv4=value=>/^(25[0-5]|2[0-4]\d|1?\d?\d)(\.(25[0-5]|2[0-4]\d|1?\d?\d)){3}$/.test(value);
 
-      const article=document.createElement('article');
-      article.className='health-check ai-profile-entry';
-      article.dataset.key=key;
-      const heading=document.createElement('strong');
-      heading.textContent=`${AI_PROFILE_TYPE_LABELS[entryType]||'画像'} · ${value}`;
-      const details=document.createElement('span');
-      details.textContent=`${AI_PROFILE_STATUS_LABELS[status]||'状态未知'} · 证据 ${Math.max(0,safeInteger(item.evidence_count))} 条 · 置信度 ${confidence}%`;
-      if(hasCorrection){
-        const corrected=document.createElement('span');
-        corrected.className='ai-profile-corrected';
-        corrected.textContent='已采用用户纠正';
-        details.appendChild(corrected);
-      }
-      const actions=document.createElement('div');
-      actions.className='settings-actions';
-      AI_PROFILE_ACTIONS.forEach(command=>{
-        const button=document.createElement('button');
-        button.type='button';
-        button.className=`btn ${command.action==='reject'?'btn-d':'btn-out'} btn-xs`;
-        button.dataset.aiProfileAction=command.action;
-        button.textContent=command.label;
-        button.setAttribute('aria-label',`${command.label}此条画像`);
-        const isCurrent=(command.action==='confirm'&&status==='confirmed')||
-          (command.action==='reject'&&status==='rejected')||
-          (command.action==='suppress'&&status==='suppressed');
-        button.dataset.profileCurrent=String(isCurrent);
-        button.disabled=isCurrent;
-        actions.appendChild(button);
-      });
-      article.append(heading,details,actions);
-      root.appendChild(article);
-    });
-    if(!root.childElementCount){
-      const empty=document.createElement('div');
-      empty.className='settings-message';
-      empty.textContent='当前筛选下没有画像条目';
-      root.appendChild(empty);
-    }
-    return root.querySelectorAll('.ai-profile-entry').length;
-  }
-
-  function questionBankStatus(payload){
-    const state=el('question-bank-state');
-    const details=el('question-bank-details');
-    const message=el('question-bank-message');
-    if(!state||!details||!message)return Boolean(payload?.rebuilding);
-    const label=payload?.rebuilding?'正在重建':(!payload?.available?'尚无可用索引':(payload?.stale?'旧索引可用，等待重建':'索引最新'));
-    state.textContent=label;
-    state.className=`settings-state ${!payload?.available?'health-error':(payload?.stale?'health-warning':'health-ok')}`;
-    details.replaceChildren();
-    const coverage=payload?.coverage||{};
-    const rows=[
-      ['最近可用快照',payload?.last_good_snapshot?String(payload.last_good_snapshot).slice(0,16)+'…':'无'],
-      ['题源覆盖',`${payload?.sources?.available||0}/${payload?.sources?.configured||0} 个文件`],
-      ['有效题目',`${coverage?.total_questions||0} 道`],
-      ['最近成功',payload?.last_success_at||'尚无'],
-    ];
-    rows.forEach(([name,value])=>{
-      const item=document.createElement('div'); item.className='health-check';
-      const strong=document.createElement('strong'); strong.textContent=name;
-      const span=document.createElement('span'); span.textContent=value;
-      item.append(strong,span); details.appendChild(item);
-    });
-    const automatic=payload?.latest_job?.result?.auto_refresh;
-    const automaticText=automatic
-      ?automatic.status==='submitted'?'语义自动更新：已提交新任务'
-      :automatic.status==='replayed'?'语义自动更新：已复用相同来源任务'
-      :automatic.status==='skipped'?`语义自动更新未执行：${semanticReasonLabel(automatic.reason)}`
-      :automatic.status==='deferred'?`语义自动更新暂缓：${semanticReasonLabel(automatic.reason)}`
-      :`语义自动更新：未知状态（${String(automatic.status||'unknown')}）`
-      :'';
-    message.textContent=[payload?.error?`最近失败：${payload.error}`:'',automaticText].filter(Boolean).join('；');
-    message.className=`settings-message${payload?.error||automatic?.status==='deferred'?' error':''}`;
-    const job=payload?.job||payload?.latest_job;
-    if(job?.progress?.message&&payload?.rebuilding){
-      message.textContent=job.progress.message;
-      message.className='settings-message';
-    }
-    return Boolean(payload?.rebuilding);
-  }
-
-  function runtimeHealth(payload){
-    const state=el('runtime-health-state');
-    const list=el('runtime-health-checks');
-    const status=el('runtime-health-status');
-    if(!state||!list||!status)return;
-    const labels={healthy:'运行正常',degraded:'部分功能受限',fatal:'核心服务不可用'};
-    const checkLabels={database:'主数据库',job_worker:'后台任务',xelatex:'PDF 编译',question_bank:'普通题库',ai_configuration:'AI 配置'};
-    const checkStatuses={ok:'正常',degraded:'警告',fatal:'失败'};
-    const tones={healthy:'health-ok',degraded:'health-warning',fatal:'health-error'};
-    state.textContent=labels[payload?.overall_status]||'状态未知';
-    state.className=`settings-state ${tones[payload?.overall_status]||''}`.trim();
-    list.replaceChildren();
-    (Array.isArray(payload?.checks)?payload.checks:[]).forEach(check=>{
-      const item=document.createElement('div');
-      item.className=`health-check health-${String(check?.status||'degraded')}`;
-      const name=document.createElement('strong');
-      const checkId=String(check?.check_id||'unknown');
-      const checkStatus=String(check?.status||'unknown');
-      name.textContent=`${checkLabels[checkId]||`未知检查（${checkId}）`} · ${checkStatuses[checkStatus]||`未知状态（${checkStatus}）`}`;
-      const message=document.createElement('span');
-      message.textContent=String(check?.message||'未提供诊断信息');
-      item.append(name,message);
-      list.appendChild(item);
-    });
-    const checked=new Date(String(payload?.checked_at||''));
-    status.textContent=Number.isNaN(checked.getTime())?'诊断已完成':`检查时间：${checked.toLocaleTimeString('zh-CN')}`;
-  }
-
-  function semanticIndexStatus(payload){
-    const state=el('semantic-index-state');
-    const details=el('semantic-index-details');
-    const message=el('semantic-index-message');
-    if(!state||!details||!message)return payload;
-    const snapshot=payload?.semantic_snapshot||{};
-    const coverage=payload?.coverage||{};
-    const counts=payload?.counts||{};
-    const tokens=payload?.tokens||{};
-    const stop=payload?.stop||{};
-    const labels={complete:'完整快照',partial:'部分快照',missing:'无快照'};
-    const mode=String(payload?.settings?.recall_mode||'shadow');
-    state.textContent=`${SEMANTIC_MODE_LABELS[mode]||`未知模式（${mode}）`} · ${labels[snapshot.status]||`未知快照（${snapshot.status||'unknown'}）`}`;
-    state.className=`settings-state ${snapshot.status==='complete'?'health-ok':(snapshot.status==='partial'?'health-warning':'health-error')}`;
-    const percent=Math.max(0,Math.min(100,Number(coverage.ratio||0)*100)).toFixed(1);
-    const rows=[
-      ['覆盖率',`${percent}% · ${counts.valid||0}/${counts.eligible||0}`],
-      ['卡片状态',`过期 ${counts.stale||0} · 缺失 ${counts.missing||0} · 排除 ${counts.excluded||0}`],
-      ['最近任务',payload?.latest_run?`${payload.latest_run.id} · ${semanticRunLabel(payload.latest_run.status)}`:'无'],
-      ['任务计数',`完成 ${counts.completed||0} · 失败 ${counts.failed||0} · 待重试 ${counts.retry_pending||0} · 弃用 ${counts.abandoned||0}`],
-      ['投影版本',payload?.projection?.id?`${payload.projection.schema||'unknown'} · ${payload.projection.version||'unknown'}`:'无'],
-      ['Token',`已用 ${tokens.consumed||0} · 预留 ${tokens.reserved||0} · 未核验 ${tokens.unverified||0}`],
-      ['并发',`${payload?.concurrency?.effective||0}/${payload?.concurrency?.configured||1}`],
-      ['最近更新',semanticTimeLabel(snapshot.published_at)],
-    ];
-    details.replaceChildren();
-    rows.forEach(([name,value])=>{
-      const item=document.createElement('div');item.className='health-check';
-      const strong=document.createElement('strong');strong.textContent=name;
-      const span=document.createElement('span');span.textContent=String(value);
-      item.append(strong,span);details.appendChild(item);
-    });
-    const errors=[];
-    if(stop.reason)errors.push(`暂停或降级：${semanticReasonLabel(stop.reason)}`);
-    if(payload?.last_error?.message)errors.push(`最近错误：${payload.last_error.message}`);
-    message.textContent=errors.join('；');
-    message.className=`settings-message${errors.length?' error':''}`;
-    el('semantic-recall-mode').value=payload?.settings?.recall_mode||'shadow';
-    el('semantic-max-concurrency').value=String(payload?.settings?.max_concurrency||1);
-    el('semantic-candidate-multiplier').value=String(payload?.settings?.candidate_multiplier||4);
-    el('semantic-auto-refresh').checked=Boolean(payload?.settings_state?.effective?.auto_refresh_enabled);
-    el('semantic-allow-partial').checked=Boolean(payload?.settings_state?.effective?.allow_partial_cache);
-    const provider=payload?.settings_state?.provider||{};
-    const reasons=payload?.settings_state?.reasons||{};
-    const providerInput=el('semantic-provider-enabled');
-    providerInput.checked=Boolean(provider.requested);
-    providerInput.disabled=Boolean(provider.managed)||(!provider.credential_configured&&!provider.requested);
-    providerInput.setAttribute('aria-disabled',String(providerInput.disabled));
-    const providerHint=el('semantic-provider-hint');
-    providerHint.textContent=provider.requested&&!provider.credential_configured
-      ?`已启用但尚不可用：请先在上方 AI 服务中保存可用密钥和模型${provider.managed?'；该开关由环境或启动配置管理':''}。`
-      :provider.managed
-      ?`由${provider.source==='environment'?'环境变量':'启动配置'}管理，页面不能修改。`
-      :(!provider.credential_configured?'请先在上方 AI 服务中保存可用密钥和模型。':semanticReasonLabel(reasons.provider_enabled));
-    const autoHint=el('semantic-auto-refresh-hint');
-    autoHint.textContent=Boolean(payload?.settings?.auto_refresh_enabled)&&!Boolean(payload?.settings_state?.effective?.auto_refresh_enabled)
-      ?semanticReasonLabel(reasons.auto_refresh_enabled):'';
-    const partialHint=el('semantic-partial-hint');
-    partialHint.textContent=Boolean(payload?.settings?.allow_partial_cache)&&!Boolean(payload?.settings_state?.effective?.allow_partial_cache)
-      ?semanticReasonLabel(reasons.allow_partial_cache):'';
-    const activationMessages=[];
-    if(reasons.provider_enabled)activationMessages.push(`语义分析：${semanticReasonLabel(reasons.provider_enabled)}`);
-    if(reasons.auto_refresh_enabled)activationMessages.push(`自动更新：${semanticReasonLabel(reasons.auto_refresh_enabled)}`);
-    if(reasons.allow_partial_cache)activationMessages.push(`部分结果：${semanticReasonLabel(reasons.allow_partial_cache)}`);
-    if(activationMessages.length)message.textContent=[message.textContent, ...activationMessages].filter(Boolean).join('；');
-    ['refresh','pause','resume','rebuild'].forEach(action=>{
-      const button=el(`semantic-action-${action}`);
-      const capability=payload?.capabilities?.[action];
-      if(!button)return;
-      button.disabled=!capability?.enabled;
-      button.title=capability?.enabled?'':(semanticReasonLabel(capability?.reason)||'当前不可用');
-    });
-    window.Cuoti.ui.selects?.syncAll(el('p-settings'));
-    return payload;
-  }
-
-  window.Cuoti.settings.render=Object.freeze({fields,normalize,snapshot,aiProfileList,questionBankStatus,runtimeHealth,semanticIndexStatus,semanticReasonLabel,semanticRunLabel});
+  window.Cuoti.settings.render=Object.freeze({fields,normalize,snapshot,semanticReasonLabel,semanticRunLabel,labelOf,
+    SEMANTIC_MODE_LABELS,AI_PROFILE_TYPE_LABELS,AI_PROFILE_STATUS_LABELS,MEMORY_LABELS,POLICY_LABELS,JOB_LABELS,
+    PROFILE_ORDER,PROFILE_META,ROUTING_TASKS,TIER_LABELS,DNS_LABELS,DNS_HELP,HEALTH_CHECKS,HEALTH_STATUS_LABELS,
+    fmt,pct,kTokens,wanTokens,timeLabel,clockLabel,parseTime,environmentSource,dnsList,isIPv4});
 })();

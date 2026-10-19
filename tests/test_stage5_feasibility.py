@@ -111,5 +111,6 @@ def test_cancellation_from_parent_guard_propagates():
 def test_solver_keeps_builtin_any_when_module_name_is_polluted(monkeypatch):
     """A stray module-level ``any`` must not break production feasibility."""
     base = _base(3)
-    monkeypatch.setattr(solver, "any", {"polluted": 0}.items(), raising=False)
+    from cuoti_app.services.exams.selection import solver as implementation
+    monkeypatch.setattr(implementation, "any", {"polluted": 0}.items(), raising=False)
     assert solver.locate_candidate_graph_deficit(base.constraint, base.graph) is None

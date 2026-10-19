@@ -14,7 +14,7 @@ from .transactions import immediate_transaction
 from .validation import mistake_fingerprint
 
 
-DB_SCHEMA_VERSION = 63
+DB_SCHEMA_VERSION = 65
 SCHEMA_VERSION = DB_SCHEMA_VERSION  # Compatibility import for older tools/tests.
 REQUIRED_TABLE_COLUMNS = {
     "daily_review_rounds": {
@@ -785,10 +785,12 @@ def _ensure_optional_fts(db: sqlite3.Connection) -> bool:
 
 def _run_migration_step(db: sqlite3.Connection, version: int) -> int:
     """Run one registered upgrade as a single explicit transaction."""
+    from .services.runtime_diagnostics import diagnostic_event
     migration = MIGRATIONS.get(version)
     if migration is None:
         raise DatabaseSchemaError(f"缺少从数据库版本 {version} 开始的迁移")
     target, function = migration
+    diagnostic_event("migration_start", from_version=version, to_version=target)
     foreign_keys_off = bool(getattr(function, "requires_foreign_keys_off", False))
     if foreign_keys_off:
         db.execute("PRAGMA foreign_keys=OFF")
@@ -818,6 +820,7 @@ def _run_migration_step(db: sqlite3.Connection, version: int) -> int:
     finally:
         if foreign_keys_off:
             db.execute("PRAGMA foreign_keys=ON")
+    diagnostic_event("migration_end", from_version=version, to_version=target)
     return target
 
 
@@ -893,10 +896,6 @@ def init_db():
         # sqlite3.executescript(), whose implicit commit breaks step atomicity.
         try:
             _run_migrations(db)
-            db.execute(
-                "UPDATE mistakes SET correct_streak=3 "
-                "WHERE status='已掌握' AND COALESCE(correct_streak,0)<3"
-            )
             db.execute(
                 "UPDATE mistakes SET correct_streak=0 "
                 "WHERE status='未掌握' AND correct_streak IS NULL"
@@ -1092,11 +1091,12 @@ def init_db():
             "ALTER TABLE exams ADD COLUMN artifact_status TEXT NOT NULL DEFAULT 'published'"
         )
 
-    # Existing mastered records retain that meaning without inventing review history.
-    db.execute(
-        "UPDATE mistakes SET correct_streak=3 "
-        "WHERE status='已掌握' AND COALESCE(correct_streak,0)<3"
-    )
+    # Only pre-field databases need this legacy conversion; zero is valid for
+    # a current manually-mastered mistake and must survive subsequent starts.
+    if "correct_streak" not in columns:
+        db.execute(
+            "UPDATE mistakes SET correct_streak=3 WHERE status='已掌握'"
+        )
     db.execute(
         "UPDATE mistakes SET correct_streak=0 "
         "WHERE status='未掌握' AND correct_streak IS NULL"

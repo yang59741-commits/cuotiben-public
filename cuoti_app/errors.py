@@ -6,6 +6,7 @@ import re
 import uuid
 
 from flask import g, request
+from .services.runtime_diagnostics import diagnostic_event
 
 
 _WINDOWS_PATH = re.compile(r"(?i)\b[a-z]:\\[^\r\n\t\"']+")
@@ -34,10 +35,14 @@ def init_error_contract(app) -> None:
             if re.fullmatch(r"[A-Za-z0-9_-]{8,64}", incoming)
             else uuid.uuid4().hex
         )
+        diagnostic_event("request_start", method=request.method,
+                         route=request.url_rule.rule if request.url_rule else "(unmatched)",
+                         correlation_id=g.correlation_id)
 
     @app.after_request
     def normalize_v2_error(response):
         correlation_id = getattr(g, "correlation_id", uuid.uuid4().hex)
+        diagnostic_event("request_end", status=response.status_code, correlation_id=correlation_id)
         response.headers["X-Correlation-ID"] = correlation_id
         if not request.path.startswith("/api/v2/") or response.status_code < 400:
             return response

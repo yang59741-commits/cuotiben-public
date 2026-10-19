@@ -1,5 +1,5 @@
         <div class="panel" id="p-list">
-      <div class="card compact" style="padding:8px 16px">
+      <div class="card compact card-toolbar">
         <div class="list-toolbar">
           <div class="list-view-tabs" role="tablist" aria-label="错题列表视图">
             <button type="button" class="tab on" id="mistake-view-current" role="tab" aria-selected="true">当前</button>
@@ -8,24 +8,37 @@
           <div class="subject-chips" id="subject-chips" role="group" aria-label="按科目筛选"></div>
           <label class="sr-only" for="f-chapter">按章节筛选</label><select id="f-chapter" class="sel-sm" disabled><option value="">请先选择科目</option></select>
           <label class="sr-only" for="f-status">按掌握状态筛选</label><select id="f-status" class="sel-sm"><option value="未掌握">未掌握</option><option value="全部">全部</option><option value="已掌握">已掌握</option></select>
-          <div class="search-wrap" style="max-width:260px"><label class="sr-only" for="f-search">搜索题目或内容</label><span class="search-icon" data-icon="search"></span><input id="f-search" class="search-input" placeholder="搜索题目/内容..." autocomplete="off"><span class="search-spinner" id="search-spinner" aria-hidden="true" hidden></span></div>
+          <div class="search-wrap search-wrap-md"><label class="sr-only" for="f-search">搜索题目或内容</label><span class="search-icon" data-icon="search"></span><input id="f-search" class="search-input" placeholder="搜索题目/内容..." autocomplete="off"><span class="search-spinner" id="search-spinner" aria-hidden="true" hidden></span></div>
         </div>
-        <div class="list-status" id="mistake-list-status" role="status" aria-live="polite"></div>
-        <div class="mistake-export-bar" id="mistake-export-bar">
-          <div class="mistake-export-selection" aria-live="polite">
-            <span data-icon="listChecks"></span>
-            <strong id="mistake-selected-count">已选 0 道</strong>
-            <span class="mistake-export-status" id="mistake-export-status"></span>
+        <div class="list-meta-row">
+          <div class="list-status" id="mistake-list-status" role="status" aria-live="polite"></div>
+          <div class="list-meta-actions" id="mistake-list-meta-actions">
+            <button type="button" class="btn btn-txt btn-xs" id="mistake-select-loaded"><span data-icon="listChecks"></span>全选已加载</button>
+            <button type="button" class="btn btn-txt btn-xs" id="mistake-export-history"><span data-icon="history"></span>导出历史</button>
           </div>
-          <div class="mistake-export-actions">
-            <button type="button" class="btn btn-txt btn-xs" id="mistake-select-loaded">全选已加载</button>
-            <button type="button" class="btn btn-txt btn-xs" id="mistake-clear-selection" disabled>清空</button>
-            <button type="button" class="btn btn-out btn-xs" id="mistake-export-history"><span data-icon="history"></span>导出历史</button>
-            <button type="button" class="btn btn-out btn-xs" id="mistake-bulk-manage" disabled><span data-icon="listChecks"></span>批量管理</button>
-            <button type="button" class="btn btn-p btn-xs" id="mistake-export-pdf" disabled><span data-icon="download"></span>导出 PDF</button>
-          </div>
+        </div>
+        <div class="mistake-attention-bar" id="mistake-attention-bar" aria-label="全库待处理概览">
+          <span class="attention-caption">全库待处理</span>
+          <button type="button" class="attention-chip" data-attention-filter="analysis_missing" aria-pressed="false">未生成分析 <b data-attention-count="analysis_missing">—</b></button>
+          <button type="button" class="attention-chip" data-attention-filter="methods_missing" aria-pressed="false">未标注方法 <b data-attention-count="methods_missing">—</b></button>
+          <button type="button" class="attention-chip attention-confirm" data-attention-filter="confirmation" aria-pressed="false">待确认 <b data-attention-count="confirmation">—</b></button>
+          <button type="button" class="btn btn-txt btn-xs" id="mistake-attention-clear" hidden>清除关注筛选</button>
+          <span class="attention-help" id="mistake-attention-status" role="status">各项可重叠 · 不自动生成</span>
         </div>
       </div>
-      <div class="card compact" style="margin-top:8px"><div id="mistake-list" aria-busy="false"></div><div class="load-more-row"><button type="button" class="btn btn-out btn-sm" id="mistake-load-more" hidden>加载更多</button><span id="mistake-total" class="list-total"></span></div></div>
+      <div class="card compact card-gap-sm"><div id="mistake-list" aria-busy="false"></div><div class="load-more-row"><button type="button" class="btn btn-out btn-sm" id="mistake-load-more" hidden>加载更多</button><span id="mistake-total" class="list-total"></span></div></div>
+      <div class="mistake-export-bar" id="mistake-export-bar" role="region" aria-label="已选错题操作" hidden>
+        <div class="mistake-export-selection" aria-live="polite">
+          <span data-icon="listChecks"></span>
+          <strong id="mistake-selected-count">已选 0 道</strong>
+          <span class="mistake-export-status" id="mistake-export-status"></span>
+        </div>
+        <div class="mistake-export-actions">
+          <button type="button" class="btn btn-txt btn-sm" id="mistake-clear-selection" disabled>清空</button>
+          <button type="button" class="btn btn-out btn-sm" id="mistake-bulk-manage" disabled><span data-icon="listChecks"></span>批量管理</button>
+          <button type="button" class="btn btn-out btn-sm" id="mistake-accept-suggestions" disabled><span data-icon="check"></span>采纳所选 AI 建议</button>
+          <button type="button" class="btn btn-p btn-sm" id="mistake-export-pdf" disabled><span data-icon="download"></span>导出 PDF</button>
+        </div>
+      </div>
     </div>
 

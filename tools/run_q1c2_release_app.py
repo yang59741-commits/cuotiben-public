@@ -28,8 +28,12 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from cuoti_app import create_app
-from cuoti_app.services.formal_runtime import FormalRuntimeError, database_service_guard
-from cuoti_app.services.job_handlers import stop_job_worker
+from cuoti_app.services.runtime_diagnostics import diagnostic_session, terminate_after_shutdown_timeout
+from cuoti_app.services.process_temp import configure_process_temp
+from cuoti_app.services.formal_runtime import (
+    FormalRuntimeError, FormalRuntimePaths, database_service_guard, runtime_identity,
+)
+from cuoti_app.services.job_handlers import WorkerShutdownTimeout, stop_job_worker
 from cuoti_app.services.release_workers import (
     ReleaseJobCoordinator as _ReleaseJobCoordinator,
     run_release_worker as _run_release_worker,
@@ -133,7 +137,8 @@ def _runtime_initialized(runtime_root: Path) -> bool:
     )
 
 
-def _inspect_release_port(port: int, *, timeout: float = RELEASE_PORT_PROBE_TIMEOUT) -> str:
+def _inspect_release_port(port: int, *, expected_identity: dict[str, str] | None = None,
+                          timeout: float = RELEASE_PORT_PROBE_TIMEOUT) -> str:
     """Return free, same_release, or occupied without trusting arbitrary HTTP."""
 
     try:
@@ -170,6 +175,17 @@ def _inspect_release_port(port: int, *, timeout: float = RELEASE_PORT_PROBE_TIME
         and payload.get("overall_status") in {"healthy", "degraded", "fatal"}
         and payload.get("service_instance_id") == RELEASE_INSTANCE_ID
     ):
+        identity = payload.get("runtime_identity")
+        if not expected_identity or not isinstance(identity, dict) or not all(
+            isinstance(identity.get(key), str) and Path(identity[key]).is_absolute()
+            for key in ("database", "runtime_root")
+        ):
+            return "identity_unavailable"
+        identity = runtime_identity(identity["database"], identity["runtime_root"])
+        if identity["database"] != expected_identity["database"]:
+            return "occupied"
+        if identity["runtime_root"] != expected_identity["runtime_root"]:
+            return "runtime_mismatch"
         return "same_release"
     return "occupied"
 
@@ -178,19 +194,24 @@ def _select_release_port(
     requested_port: int,
     *,
     scan_count: int = RELEASE_PORT_SCAN_COUNT,
-    inspector=_inspect_release_port,
+    expected_identity: dict[str, str] | None = None,
+    inspector=None,
 ) -> tuple[str, int]:
     """Prefer an existing release instance, otherwise the first free port."""
 
     if type(scan_count) is not int or scan_count < 1:
         raise ValueError("scan_count must be a positive integer")
     first_free = None
+    if inspector is None:
+        inspector = lambda port: _inspect_release_port(port, expected_identity=expected_identity)
     uncertain_ports = []
     last_port = min(65535, requested_port + scan_count - 1)
     for port in range(requested_port, last_port + 1):
         state = inspector(port)
         if state == "same_release":
             return state, port
+        if state == "runtime_mismatch":
+            raise ReleaseAppStartupError("release_runtime_mismatch", {"port": port})
         if state == "free" and first_free is None:
             first_free = port
             if port == requested_port:
@@ -275,28 +296,16 @@ def _prepare_runtime(args: argparse.Namespace) -> tuple[Any, dict[str, Any]]:
         "catalog": _copy_seed_once(args.source_catalog, catalog_path),
     }
     selected_profile = _select_runtime_profile(settings_path, args.profile)
-    app = create_app(
-        {
-            "TESTING": False,
-            "DATABASE": str(database),
-            "PDF_DIR": str(directories["pdfs"]),
-            "ATTACHMENT_DIR": str(directories["attachments"]),
-            "AI_MEMORY_DIR": str(directories["memory"]),
-            "JOB_INPUT_DIR": str(directories["job_inputs"]),
-            "PAST_EXAM_PROFILE_DIR": str(directories["past_exam_profiles"]),
-            "AI_USAGE_PATH": str(runtime_root / "ai-usage.jsonl"),
-            "SETTINGS_PATH": str(settings_path),
-            "CATALOG_PATH": str(catalog_path),
-            "QUESTION_BANK_DATABASE": str(args.question_bank.resolve(strict=True)),
-            "SEMANTIC_FORMAL_ARTIFACT": str(
-                args.formal_artifact.resolve(strict=True)
-            ),
-            "SEMANTIC_HOME_INSTITUTION": args.home_institution,
-            "SEMANTIC_RECALL_ALGORITHM_VERSION": args.recall_algorithm,
-            "JOB_WORKER_ENABLED": True,
-            "SERVICE_INSTANCE_ID": RELEASE_INSTANCE_ID,
-        }
+    paths = FormalRuntimePaths(
+        project_root=PROJECT_ROOT, database=database, runtime_root=runtime_root,
+        question_bank=args.question_bank.resolve(strict=True),
+        formal_artifact=args.formal_artifact.resolve(strict=True),
     )
+    overrides = paths.overrides(
+        home_institution=args.home_institution, recall_algorithm=args.recall_algorithm,
+    )
+    overrides.update(TESTING=False, SERVICE_INSTANCE_ID=RELEASE_INSTANCE_ID)
+    app = create_app(overrides)
     return app, {
         "database": str(database),
         "runtime_root": str(runtime_root),
@@ -309,7 +318,12 @@ def _prepare_runtime(args: argparse.Namespace) -> tuple[Any, dict[str, Any]]:
 
 
 def run(args: argparse.Namespace) -> int:
-    port_state, selected_port = _select_release_port(args.port)
+    configure_process_temp(args.runtime_root)
+    if not args.database.is_file():
+        raise ReleaseAppStartupError("formal_database_missing", {"database": str(args.database)})
+    port_state, selected_port = _select_release_port(
+        args.port, expected_identity=runtime_identity(args.database, args.runtime_root)
+    )
     url = f"http://127.0.0.1:{selected_port}"
     if port_state == "same_release":
         print(
@@ -324,7 +338,11 @@ def run(args: argparse.Namespace) -> int:
         return 0
 
     with database_service_guard(args.database):
-        return _run_locked(args, selected_port, url)
+        with diagnostic_session(args.runtime_root / "diagnostics", "source-cmd"):
+            try:
+                return _run_locked(args, selected_port, url)
+            except WorkerShutdownTimeout as error:
+                terminate_after_shutdown_timeout(error)
 
 
 def _run_locked(args: argparse.Namespace, selected_port: int, url: str) -> int:

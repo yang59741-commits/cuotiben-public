@@ -6,7 +6,7 @@ import uuid
 import zipfile
 import tempfile
 from datetime import datetime, timezone
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -146,6 +146,60 @@ def test_classification_failure_preserves_valid_analysis(db):
     assert result['items'][0]['classification']['status'] == 'needs_review'
 
 
+def test_daily_analysis_commits_each_question_and_resumes_after_network_failure(db):
+    from cuoti_app.database import connect_database
+    from contextlib import closing
+
+    rows = [add(db, content=f'证明第{i}个数列收敛。') for i in range(3)]
+    database = db.execute('PRAGMA database_list').fetchone()[2]
+    calls = []
+
+    def ai(messages, **kwargs):
+        assert messages[1]['content'].count('题目索引：') == 1
+        assert not db.in_transaction
+        with closing(connect_database(database)) as observer:
+            # A different connection must see the previous commit before this request.
+            count = observer.execute('SELECT COUNT(*) FROM daily_analysis_items').fetchone()[0]
+        calls.append(count)
+        if len(calls) == 2:
+            raise RuntimeError('network interrupted')
+        return json.dumps({'items': [{'index': 1, 'note_assessment': '无备注',
+            'correction': '', 'hint': '逐题保存', 'exam_pattern': '', 'classification': value(db)}]})
+
+    with pytest.raises(RuntimeError, match='network interrupted'):
+        generate_daily_analysis(db, raw_date='2026-09-16', job_id='interrupted', ai_call=ai)
+    assert calls == [0, 1]
+    assert db.execute('SELECT mistake_id FROM daily_analysis_items').fetchone()[0] == rows[-1]['id']
+    assert db.execute('SELECT COUNT(*) FROM daily_analysis_leases').fetchone()[0] == 0
+    cached = query_daily_analysis(db, raw_date='2026-09-16')
+    assert len(cached['items']) == 1 and cached['missing_count'] == 2
+    resumed = generate_daily_analysis(db, raw_date='2026-09-16', job_id='resume', ai_call=ai)
+    assert calls == [0, 1, 1, 2]
+    assert resumed['generated_count'] == 2 and resumed['missing_count'] == 0
+    assert {item['analysis']['hint'] for item in resumed['items']} == {'逐题保存'}
+
+
+def test_daily_analysis_refreshes_pending_leases_between_questions(db):
+    from datetime import timedelta
+
+    add(db)
+    add(db)
+    clock = daily_analysis._now()
+    times = []
+
+    def ai(messages, **kwargs):
+        nonlocal clock
+        assert {row[0] for row in db.execute('SELECT claimed_at FROM daily_analysis_leases')} == {clock.isoformat(timespec='seconds')}
+        times.append(clock)
+        clock += timedelta(minutes=10)
+        return json.dumps({'items': [{'index': 1, 'note_assessment': '无备注',
+            'correction': '', 'hint': '保存', 'exam_pattern': '', 'classification': value(db)}]})
+
+    with patch.object(daily_analysis, '_now', side_effect=lambda: clock):
+        result = generate_daily_analysis(db, raw_date='2026-09-16', job_id='long-day', ai_call=ai)
+    assert result['generated_count'] == len(times) == 2
+
+
 def test_old_analysis_classification_only_batches_preserve_text(db):
     template = add(db)
     db.executemany(
@@ -162,14 +216,19 @@ def test_old_analysis_classification_only_batches_preserve_text(db):
     )
     db.commit()
 
+    calls = []
+
     def ai(messages, **kwargs):
         rows = json.loads(messages[-1]['content'].split('\n题目：')[1])
+        assert len(rows) == 1
+        calls.append(rows[0]['content'])
         return json.dumps({'items': [{'index': row['index'], 'classification': value(db)} for row in rows]})
 
     result = generate_daily_analysis(db, raw_date='2026-09-16', job_id='old-cache', ai_call=ai)
     assert result['generated_count'] == 0
     assert result['classification_missing_count'] == 0
     assert len(result['items']) == 201
+    assert len(calls) == 201
     assert all(item['analysis']['hint'] == '保留原分析' and item['prompt_version'] == 2 for item in result['items'])
     assert all(item['classification']['status'] == 'auto' for item in result['items'])
 

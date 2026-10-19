@@ -9,6 +9,8 @@ param(
     [string]$BuildIdOverride = "",
     [ValidatePattern("^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")]
     [string]$CandidateLabel = "default",
+    [ValidateSet("git-delta", "full")]
+    [string]$SourceArchiveMode = "git-delta",
     [switch]$AllowDirtyCandidate,
     [string]$ExpectedSourceProvenanceSha256 = "",
     [string]$ReleaseBundlePath = "",
@@ -123,7 +125,8 @@ try {
             --root $projectRoot `
             --manifest $provenanceManifest `
             --patch-output $provenancePatch `
-            --archive-output $provenanceArchive
+            --archive-output $provenanceArchive `
+            --archive-mode $SourceArchiveMode
         if ($LASTEXITCODE -ne 0) {
             throw "Source provenance capture failed with exit code $LASTEXITCODE"
         }

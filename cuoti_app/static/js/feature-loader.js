@@ -38,28 +38,48 @@
       '/static/js/review/controller.js',
       '/static/js/daily-review/state.js',
       '/static/js/daily-review/api.js',
-      '/static/js/daily-review/render.js',
-      '/static/js/daily-review/controller.js',
+      '/static/js/daily-review/render.js?bundle=practice-feedback-v1',
+      '/static/js/daily-review/controller.js?bundle=practice-feedback-v1',
       '/static/js/daily-review.js',
       '/static/js/review.js'
     ]),
     exam:Object.freeze([
-      '/static/js/exam/state.js',
-      '/static/js/exam/api.js',
-      '/static/js/exam/selection.js',
-      '/static/js/exam/history.js',
-      '/static/js/exam/preview.js',
-      '/static/js/exam/attempts.js',
-      '/static/js/exam/controller.js',
-      '/static/js/exam.js?bundle=exam-modules-v1'
+      '/static/js/exam/state.js?bundle=practice-feedback-v1',
+      '/static/js/exam/api.js?bundle=practice-feedback-v1',
+      '/static/js/exam/selection-free.js?bundle=practice-feedback-v1',
+      '/static/js/exam/selection-past.js?bundle=practice-feedback-v1',
+      '/static/js/exam/selection-mistakes.js?bundle=practice-feedback-v1',
+      '/static/js/exam/selection.js?bundle=practice-feedback-v1',
+      '/static/js/exam/history.js?bundle=practice-feedback-v1',
+      '/static/js/exam/issues.js?bundle=practice-feedback-v1',
+      '/static/js/exam/preview.js?bundle=practice-feedback-v1',
+      '/static/js/exam/attempts.js?bundle=practice-feedback-v1',
+      '/static/js/exam/controller.js?bundle=practice-feedback-v1',
+      '/static/js/exam.js?bundle=practice-feedback-v1'
     ]),
-    stats:Object.freeze(['/static/js/stats.js']),
+    stats:Object.freeze([
+      '/static/js/stats/format.js?bundle=stats-redesign-v1',
+      '/static/js/stats/charts.js?bundle=stats-redesign-v1',
+      '/static/js/stats/render.js?bundle=stats-redesign-v1',
+      '/static/js/stats/controller.js?bundle=stats-redesign-v1',
+      '/static/js/stats.js?bundle=stats-redesign-v1'
+    ]),
     settings:Object.freeze([
-      '/static/js/ui/async.js',
-      '/static/js/settings/state.js',
-      '/static/js/settings/api.js',
-      '/static/js/settings/render.js',
-      '/static/js/settings.js'
+      '/static/js/ui/async.js?bundle=settings-redesign-v1',
+      '/static/js/settings/state.js?bundle=settings-redesign-v1',
+      '/static/js/settings/api.js?bundle=settings-redesign-v1',
+      '/static/js/settings/ui.js?bundle=settings-redesign-v1',
+      '/static/js/settings/render.js?bundle=settings-redesign-v1',
+      '/static/js/settings/connection.js?bundle=settings-redesign-v1',
+      '/static/js/settings/routing.js?bundle=settings-redesign-v1',
+      '/static/js/settings/memory.js?bundle=settings-redesign-v1',
+      '/static/js/settings/diagnostics.js?bundle=settings-redesign-v1',
+      '/static/js/settings/maintenance.js?bundle=settings-redesign-v1',
+      '/static/js/settings/explainer-scripts.js?bundle=settings-redesign-v1',
+      '/static/js/settings/explainer-player.js?bundle=settings-redesign-v1',
+      '/static/js/settings/shell.js?bundle=settings-redesign-v1',
+      '/static/js/settings/controller.js?bundle=settings-redesign-v1',
+      '/static/js/settings.js?bundle=settings-redesign-v1'
     ]),
     data:Object.freeze(['/static/js/data.js'])
   });
@@ -204,22 +224,29 @@
     state.status.replaceChildren(message,retry);
   }
 
-  async function deactivate(){
+  async function unmountActive(){
     if(!activeRoute)return;
     const previous=contracts.get(activeRoute);
     activeRoute='';
     try{await previous?.unmount?.()}catch(error){console.warn('Feature unmount failed:',error.message)}
   }
 
+  async function deactivate(){
+    activationRevision+=1;
+    await unmountActive();
+  }
+
   async function activate(route,context={}){
     if(!routeNames.has(route))return false;
     const revision=++activationRevision;
     const sameRoute=activeRoute===route;
-    if(!sameRoute)await deactivate();
+    if(!sameRoute)await unmountActive();
     setLoading(route,true);
     try{
       const contract=await load(route,{retry:Boolean(context.retry)});
       if(revision!==activationRevision||!document.getElementById(`p-${route}`)?.classList.contains('on'))return false;
+      // Ownership starts before mount awaits data, so navigation can unmount it.
+      activeRoute=route;
       await contract[sameRoute?'refresh':'mount']({...context,route});
       if(revision!==activationRevision)return false;
       activeRoute=route;
@@ -228,7 +255,7 @@
       window.dispatchEvent(new CustomEvent('cuoti:route-active',{detail:Object.freeze({route,revision})}));
       return true;
     }catch(error){
-      if(revision===activationRevision)showFailure(route,error);
+      if(revision===activationRevision){await unmountActive();if(revision===activationRevision)showFailure(route,error)}
       console.error('Feature activation failed:',error);
       return false;
     }

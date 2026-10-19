@@ -24,6 +24,7 @@ from ..services.mistake_exports import (
     build_export_document,
     cleanup_exports,
     create_mistake_export,
+    daily_review_download_stem,
     MistakeExportError,
     export_expiry,
     serialize_batch as serialize_batch_service,
@@ -67,6 +68,8 @@ def _export_prefix(row) -> str:
 
 
 def _download_name(row) -> str:
+    if row["export_context"] == "daily_review":
+        return f"{daily_review_download_stem(row)}_第{int(row['volume_index'])}册.pdf"
     day = str(row["created_at"] or "")[:10].replace("-", "") or "export"
     return f"{_export_prefix(row)}_{day}_{int(row['id'])}.pdf"
 
@@ -438,6 +441,8 @@ def download_mistake_export_batch(batch_id: int):
         "ORDER BY volume_index", (batch_id,)
     ).fetchall()
     prefix = _export_prefix(batch)
+    payload = _serialize_batch(db, batch)
+    download_names = {volume["id"]: volume["download_name"] for volume in payload["volumes"]}
     handle = tempfile.NamedTemporaryFile(suffix=".zip", delete=False)
     output_path = Path(handle.name)
     handle.close()
@@ -446,14 +451,16 @@ def download_mistake_export_batch(batch_id: int):
             path = artifact_path(current_app.config["PDF_DIR"], int(volume["id"]))
             if not path.is_file():
                 abort(404)
-            archive.write(path, f"{prefix}_第{int(volume['volume_index'])}册.pdf")
+            name = (download_names[int(volume["id"])] if batch["export_context"] == "daily_review"
+                    else f"{prefix}_第{int(volume['volume_index'])}册.pdf")
+            archive.write(path, name)
         archive.writestr(
             "manifest.json",
-            json.dumps(_serialize_batch(db, batch), ensure_ascii=False, indent=2),
+            json.dumps(payload, ensure_ascii=False, indent=2),
         )
     response = send_file(
         output_path, mimetype="application/zip", as_attachment=True,
-        download_name=f"{prefix}批次_{batch_id}.zip",
+        download_name=payload["download_name"],
     )
     response.call_on_close(lambda: output_path.unlink(missing_ok=True))
     return response

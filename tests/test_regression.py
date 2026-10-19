@@ -26,6 +26,7 @@ EXPECTED_ROUTES = {
     ('GET', '/api/v2/daily-review/remediation'),
     ('POST', '/api/v2/mistakes/<public_id>/reopen'),
     ('GET', '/api/v2/question-types'),
+    ('GET', '/api/v2/solution-methods'),
     ('POST', '/api/v2/question-types'),
     ('PUT', '/api/v2/question-types/<code>'),
     ('GET', '/api/v2/mistakes/<public_id>/classification'),
@@ -35,6 +36,10 @@ EXPECTED_ROUTES = {
     ('POST', '/api/v2/mistake-classifications/backfill/preview'),
     ('POST', '/api/v2/mistake-classifications/backfill'),
     ('GET', '/api/v2/daily-review/type-summary'),
+    ('GET', '/api/v2/daily-review/method-summary'),
+    ('POST', '/api/v2/exams/<int:eid>/question-issues'),
+    ('GET', '/api/v2/question-issues'),
+    ('PATCH', '/api/v2/question-issues/<public_id>'),
     ("GET", "/manifest.webmanifest"),
     ("GET", "/sw.js"),
     ("GET", "/"),
@@ -129,6 +134,7 @@ EXPECTED_ROUTES = {
     ("POST", "/api/v2/jobs/<job_id>/cancel"),
     ("POST", "/api/v2/jobs/<job_id>/retry"),
     ("GET", "/api/v2/mistakes"),
+    ("GET", "/api/v2/mistakes/attention"),
     ("POST", "/api/v2/mistakes"),
     ("POST", "/api/v2/mistakes/<public_id>/review"),
     ("PUT", "/api/v2/mistakes/<public_id>/review"),
@@ -890,6 +896,11 @@ ORDINARY-BANK-HIGH-THREE 求给定对角矩阵的全部特征值。
         finally:
             connection.close()
         self.assertEqual(saved, [("PRE_ONE", 1), ("PRE_TWO", 27)])
+        items = self.client.get("/api/v2/mistakes").get_json()["items"]
+        self.assertEqual(
+            {(item["date_added"], item["next_review"]) for item in items},
+            {("2026-07-26", "2026-07-29")},
+        )
 
     @patch("cuoti_app.routes.library.deepseek_api_call")
     def test_batch_mark_four_questions_classifies_in_two_parallel_calls(self, deepseek):
@@ -997,12 +1008,18 @@ ORDINARY-BANK-HIGH-THREE 求给定对角矩阵的全部特征值。
             json={
                 "content": "\n".join(
                     f"{index}. THREE_{index}" for index in range(1, 4)
-                )
+                ),
+                "date_added": "2026-12-30",
             },
         )
         self.assertEqual(response.status_code, 200, response.get_json())
         self.assertEqual(response.get_json()["count"], 3)
         self.assertEqual(deepseek.call_count, 1)
+        items = self.client.get("/api/v2/mistakes").get_json()["items"]
+        self.assertEqual(
+            {(item["date_added"], item["next_review"]) for item in items},
+            {("2026-12-30", "2027-01-02")},
+        )
 
     @patch("cuoti_app.routes.library.deepseek_api_call")
     def test_batch_mark_common_stem_subparts_stay_one_problem(self, deepseek):
@@ -1064,6 +1081,17 @@ ORDINARY-BANK-HIGH-THREE 求给定对角矩阵的全部特征值。
         finally:
             connection.close()
         self.assertEqual(saved, [("1", "(1) FIRST"), ("2", "(2) SECOND")])
+        for filters in ({}, {"subject_id": 2}):
+            with self.subTest(filters=filters):
+                items = self.client.get(
+                    "/api/v2/mistakes", query_string=filters
+                ).get_json()["items"]
+                self.assertEqual(len(items), 2)
+                self.assertEqual(
+                    {(item["date_added"], item["next_review"]) for item in items},
+                    {("2026-07-28", "2026-07-31")},
+                )
+
     @patch("cuoti_app.routes.library.deepseek_api_call")
     def test_batch_mark_selected_chapter_still_splits_numbered_input(
         self,

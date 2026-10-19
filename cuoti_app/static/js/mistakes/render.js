@@ -122,12 +122,35 @@
     return groups;
   }
 
+  function analysisAction(item){
+    const attention=item.attention||{};
+    return {
+      pending:Boolean(attention.needs_confirmation),
+      label:attention.needs_confirmation?'方法待确认，点击核对':
+        attention.analysis==='cached'?'查看本题分析':attention.analysis==='stale'?'查看需更新的本题分析':'生成本题分析'
+    };
+  }
+
+  function learningState(item){
+    const state=item.attention;
+    if(!state||state.analysis==='unavailable')return '';
+    const analysis={missing:'未生成分析',cached:'分析已缓存',stale:'分析需更新'}[state.analysis]||'';
+    const methods={missing:'未标注方法',annotated:'方法已标注',pending:'方法待确认'}[state.methods]||'';
+    const names=(state.method_annotations||[]).map(method=>`${method.role==='primary'?'主要':method.role==='auxiliary'?'辅助':'待归类'}：${method.name}`).join('；');
+    return `<span class="mc-analysis-state${state.analysis==='stale'?' stale':''}">${escapeHTML(analysis)}</span><button type="button" class="mc-method-state js-open-methods${state.needs_confirmation?' needs-decision':''}" data-id="${safeInteger(item.id)}" data-public-id="${escapeHTML(item.public_id)}" title="${escapeHTML(names||'打开方法标注')}">${state.needs_confirmation?icon('circleHelp','inline-icon'):''}${escapeHTML(methods)}${state.methods_stale?' · 待复核':''}${icon('arrowRight','inline-icon')}</button>`;
+  }
+
+  function dateAnalysis(summary){
+    return summary?`整日 ${safeInteger(summary.total)} 题 · ${safeInteger(summary.missing)} 未分析`:'';
+  }
+
   function card(item,{selectedPublicIds,reasonOptions}){
     const done=item.status==='已掌握';
     const mistakeId=safeInteger(item.id);
     const selected=selectedPublicIds.has(String(item.public_id||''));
     const itemReasons=reasons(item.reasons);
     const reasonSet=new Set(itemReasons);
+    const analysis=analysisAction(item);
     return `<div class="mistake-card${done?' done':''}${selected?' selected':''}" data-mistake-id="${mistakeId}">
       <div class="mc-header">
         <label class="mistake-select-control" title="选择此错题">
@@ -161,6 +184,7 @@
         <div class="mc-reason-save-status" aria-live="polite"></div>
       </div>
       <div class="mc-content">${item.content?problemPreviewHTML(truncate(item.content),'problem-preview-card'):'<span class="mc-content-empty">--</span>'}</div>
+      <div class="mc-learning-state">${learningState(item)}</div>
       <div class="mc-note-editor" id="mistake-note-editor-${mistakeId}" hidden>
         <label for="mistake-note-input-${mistakeId}">${icon('edit','inline-icon')}备注</label>
         <textarea id="mistake-note-input-${mistakeId}" maxlength="20000" rows="4">${escapeHTML(item.note||'')}</textarea>
@@ -180,11 +204,15 @@
         <span class="mc-reasons" id="mistake-reason-badges-${mistakeId}">${itemReasons.map(reason=>`<span class="badge badge-r">${escapeHTML(reason)}</span>`).join('')}</span>
         <span class="mc-note" id="mistake-note-display-${mistakeId}"${item.note?'':' hidden'}>${icon('message','inline-icon')}<span class="mc-note-text math">${escapeHTML(item.note||'')}</span></span>
         <span class="mc-actions">
+          <span class="mc-action-group">
           <button type="button" class="btn btn-out btn-xs js-attachments-toggle" data-id="${mistakeId}" aria-expanded="false" aria-controls="mistake-attachments-${mistakeId}" title="附件" aria-label="附件">${icon('paperclip')}</button>
-          <button type="button" class="btn btn-out btn-xs js-open-daily-analysis" data-id="${mistakeId}" data-date="${escapeHTML(item.date_added||'')}" data-public-id="${escapeHTML(item.public_id||'')}" title="单题每日分析" aria-label="单题每日分析">${icon('sparkles')}</button>
+          <button type="button" class="btn btn-out btn-xs js-open-daily-analysis mc-analysis-button${analysis.pending?' needs-decision':''}" data-id="${mistakeId}" data-date="${escapeHTML(item.date_added||'')}" data-public-id="${escapeHTML(item.public_id||'')}" title="${escapeHTML(analysis.label)}" aria-label="${escapeHTML(analysis.label)}">${icon('sparkle')}</button>
           <button type="button" class="btn btn-out btn-xs js-note-toggle" data-id="${mistakeId}" aria-expanded="false" aria-controls="mistake-note-editor-${mistakeId}" title="${item.note?'编辑备注':'添加备注'}" aria-label="${item.note?'编辑备注':'添加备注'}">${icon('edit')}</button>
-          <button class="btn btn-xs ${done?'btn-o':'btn-s'} js-toggle-mistake" data-id="${mistakeId}" title="${done?'重新练习':'标记掌握'}" aria-label="${done?'重新练习':'标记掌握'}">${icon(done?'undo':'check')}</button>
-          <button class="btn btn-d btn-xs js-delete-mistake" data-id="${mistakeId}" title="删除" aria-label="删除">${icon('x')}</button>
+          <button class="btn btn-dout btn-xs js-delete-mistake" data-id="${mistakeId}" title="删除" aria-label="删除">${icon('trash')}</button>
+          </span>
+          <span class="mc-action-group">
+          <button class="btn btn-xs ${done?'btn-o':'btn-s'} js-toggle-mistake" data-id="${mistakeId}" title="${done?'重新练习':'标记掌握'}" aria-label="${done?'重新练习':'标记掌握'}">${icon(done?'undo':'check')}${done?'重练':'掌握'}</button>
+          </span>
         </span>
       </div>
       <div class="mc-attachments" id="mistake-attachments-${mistakeId}" hidden>
@@ -213,7 +241,7 @@
 
   function trashCard(item){
     const id=safeInteger(item.id);
-    return `<div class="mistake-card trash-card">
+    return `<div class="mistake-card trash-card" data-mistake-id="${id}">
       <div class="mc-header"><span class="mc-chapter">${escapeHTML(item.subject||'其他')} · ${escapeHTML(item.chapter||'--')}</span><span class="mc-qnum">${escapeHTML(item.qnum||'')}</span></div>
       <div class="mc-content">${item.content?problemPreviewHTML(truncate(item.content),'problem-preview-card'):'--'}</div>
       <div class="mc-footer"><span class="mc-note">删除时间：${escapeHTML(item.deleted_at||'未知')}${item.has_daily_analysis?' · 每日分析已保留':''}</span><span class="mc-actions">
@@ -231,9 +259,15 @@
 
   function list(data,options={}){
     const items=Array.isArray(data)?data:[];
+    if(!items.length&&options.filtered){
+      return emptyStateHTML('没有符合条件的错题',{
+        icon:'filter',description:'当前筛选下没有错题，可放宽条件或更换关键词。',
+        actionLabel:'显示全部错题',emptyAction:'clear-list-filters'
+      });
+    }
     if(!items.length){
       return emptyStateHTML('还没有错题记录',{
-        icon:'bookOpen',description:'标记后会在这里按日期和科目归档。',
+        icon:'notebook',description:'标记后会在这里按日期和科目归档。',
         actionLabel:'去标记错题',page:'add'
       });
     }
@@ -248,7 +282,8 @@
       html+=`<div class="date-group" data-date="${escapeHTML(date)}"><div class="date-header">
         <span class="date-label">${icon('calendar','inline-icon')}${escapeHTML(date)}</span>
         <span class="date-stat">${dayMistakes.length}题 · ${unmastered}未掌握</span>
-        <button class="btn btn-xs btn-o js-analyze-day" data-date="${escapeHTML(date)}" title="AI分析当日错题">${icon('sparkles')}分析当日</button>
+        <span class="date-analysis-status">${dateAnalysis(options.analysisDates?.[date])}</span>
+        <button class="btn btn-xs btn-o js-analyze-day" data-date="${escapeHTML(date)}" title="分析这个日期的全部科目，包含未加载的题目">${icon('sparkles')}分析当日</button>
       </div>`;
       for(const subject of Object.keys(groups[date])){
         const subjectItems=groups[date][subject];
@@ -262,6 +297,7 @@
   }
 
   window.Cuoti.mistakes.render=Object.freeze({
-    truncate,tokenize,reasons,groupByDateAndSubject,card,list,attachmentList,trashCard,trashList
+    truncate,tokenize,reasons,groupByDateAndSubject,card,list,attachmentList,trashCard,trashList,
+    learningState,analysisAction,dateAnalysis
   });
 })();

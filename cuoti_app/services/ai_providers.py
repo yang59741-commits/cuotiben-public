@@ -44,6 +44,15 @@ ANTHROPIC_PRESET = {
     "dns_servers": ["223.5.5.5", "119.29.29.29"],
 }
 
+# Monetwl's gateway is Cloudflare-fronted and rejects non-browser clients, so
+# its requests carry a Chrome User-Agent.  Match the exact hostname so
+# lookalikes such as ``notgateway-two.example`` are never affected.
+MONETWL_HOST = "gateway-two.example"
+MONETWL_BROWSER_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+)
+
 DNS_MODES = {"domestic", "system", "proxy"}
 WIRE_APIS = {"chat_completions", "responses", "messages"}
 DEFAULT_DOMESTIC_DNS_SERVERS = ("223.5.5.5", "119.29.29.29")
@@ -862,9 +871,21 @@ class OpenAICompatibleProvider:
                 "CONFIGURATION", "AI 响应长度上限无效"
             )
         self._max_response_bytes = max_response_bytes
+        self._browser_user_agent = (
+            MONETWL_BROWSER_USER_AGENT
+            if urlsplit(self.base_url).hostname.casefold() == MONETWL_HOST
+            else None
+        )
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(base_url={self.base_url!r}, api_key='[hidden]')"
+
+    def _request_headers(self, headers: dict[str, str]) -> dict[str, str]:
+        """Attach a browser User-Agent for gateways that reject other clients."""
+
+        if self._browser_user_agent:
+            return {**headers, "User-Agent": self._browser_user_agent}
+        return headers
 
     @staticmethod
     def _cancelled(cancellation: CancellationToken | None) -> bool:
@@ -873,10 +894,12 @@ class OpenAICompatibleProvider:
     def list_models(self, *, timeout: float = 30) -> list[dict]:
         request = urllib.request.Request(
             self._models_url,
-            headers={
-                "Accept": "application/json",
-                "Authorization": f"Bearer {self._api_key}",
-            },
+            headers=self._request_headers(
+                {
+                    "Accept": "application/json",
+                    "Authorization": f"Bearer {self._api_key}",
+                }
+            ),
             method="GET",
         )
         response = None
@@ -973,11 +996,13 @@ class OpenAICompatibleProvider:
         request = urllib.request.Request(
             openai_responses_input_tokens_url(self.base_url),
             data=payload,
-            headers={
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self._api_key}",
-            },
+            headers=self._request_headers(
+                {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {self._api_key}",
+                }
+            ),
             method="POST",
         )
         response = None
@@ -1140,11 +1165,13 @@ class OpenAICompatibleProvider:
             if response_format is not None:
                 request_body["response_format"] = response_format
         payload = json.dumps(request_body, ensure_ascii=False).encode("utf-8")
-        headers = {
-            "Accept": "text/event-stream",
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self._api_key}",
-        }
+        headers = self._request_headers(
+            {
+                "Accept": "text/event-stream",
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self._api_key}",
+            }
+        )
         started = time.monotonic()
 
         def elapsed_ms() -> int:
@@ -1514,10 +1541,12 @@ class OpenAICompatibleProvider:
             request_body,
             ensure_ascii=False,
         ).encode("utf-8")
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self._api_key}",
-        }
+        headers = self._request_headers(
+            {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self._api_key}",
+            }
+        )
 
         started = time.monotonic()
 

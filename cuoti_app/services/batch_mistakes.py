@@ -466,8 +466,8 @@ def _problem_rows(db, problems, default_reasons, note, date_added, chapter_map=N
                 content,
                 problem_reasons,
                 note,
-                initial_review_date(date_added),
                 date_added,
+                initial_review_date(date_added),
                 mistake_fingerprint(subject_name, chapter_name, qnum, content, date_added),
             )
         )

@@ -11,7 +11,12 @@ from datetime import date, datetime, timezone
 from typing import Mapping, Sequence
 
 from ..transactions import immediate_transaction
-from .tex import UnsafeLatexError, validate_latex_body
+from .tex import (
+    UnsafeLatexError,
+    _LATEX_ENVIRONMENT,
+    _MATH_ENVIRONMENTS,
+    validate_latex_body,
+)
 
 
 MAX_DAILY_TIP_LENGTH = 2_000
@@ -42,6 +47,17 @@ class DailyTipError(RuntimeError):
         self.details = dict(details or {})
 
 
+def _structural_scan_text(text: str) -> str:
+    """Blank known math-environment markers so only structure commands remain."""
+
+    def _blank(match: re.Match[str]) -> str:
+        if match.group("name") in _MATH_ENVIRONMENTS:
+            return " " * len(match.group(0))
+        return match.group(0)
+
+    return _LATEX_ENVIRONMENT.sub(_blank, text)
+
+
 def normalize_daily_tip(content: object) -> str:
     if not isinstance(content, str):
         raise DailyTipError("VALIDATION", "每日提示必须是文本", status_code=400)
@@ -62,7 +78,7 @@ def normalize_daily_tip(content: object) -> str:
         )
     except UnsafeLatexError as exc:
         raise DailyTipError("VALIDATION", str(exc), status_code=400) from exc
-    if _STRUCTURAL_COMMAND.search(normalized):
+    if _STRUCTURAL_COMMAND.search(_structural_scan_text(normalized)):
         raise DailyTipError(
             "VALIDATION",
             "每日提示不能包含章节、列表或分页等结构命令",

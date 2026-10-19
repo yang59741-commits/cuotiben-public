@@ -27,7 +27,7 @@
       ${field('解题提示',analysis.hint,'hint')}
       ${field('题型与命题模式',analysis.exam_pattern,'pattern')}
       ${window.Cuoti.classification?.inline(item)||''}
-      <div class="analysis-learning-actions">${['auto','manual'].includes(item?.classification?.status)&&item.classification.primary_type_code?`<a class="btn btn-out btn-xs js-analysis-practice-type" href="#/review?mode=daily&primary_type_code=${encodeURIComponent(item.classification.primary_type_code)}">${icon('refresh')}练此题型</a>`:''}<input class="settings-input analysis-self-check" type="text" maxlength="200" aria-label="下次自查事项" placeholder="下次自查事项"><button type="button" class="btn btn-out btn-xs js-analysis-self-check">${icon('check')}记录自查</button></div>
+      <div class="analysis-learning-actions">${['auto','manual'].includes(item?.classification?.status)&&item.classification.primary_type_code?`<a class="btn btn-out btn-xs js-analysis-practice-type" href="#/review?mode=daily&primary_type_code=${encodeURIComponent(item.classification.primary_type_code)}">${icon('target')}练此题型</a>`:''}<input class="settings-input analysis-self-check" type="text" maxlength="200" aria-label="下次自查事项" placeholder="下次自查事项"><button type="button" class="btn btn-out btn-xs js-analysis-self-check">${icon('check')}记录自查</button></div>
       <footer>生成于 ${escapeHTML(formatDailyAnalysisTime(item?.generated_at))}</footer>
     </article>`;
   }
@@ -38,7 +38,7 @@
     if(payload?.stale_count)summary.push(`${safeInteger(payload.stale_count)} 项内容已变化`);
     if(payload?.missing_count)summary.push(`${safeInteger(payload.missing_count)} 项尚未生成`);
     const notice=summary.length
-      ?`<div class="daily-analysis-notice">${icon('circleHelp')}${escapeHTML(summary.join(' · '))}</div>`:'';
+      ?`<div class="daily-analysis-notice">${icon('info')}${escapeHTML(summary.join(' · '))}</div>`:'';
     if(!items.length){
       return notice+emptyStateHTML('暂无可显示的分析',{icon:'sparkles',description:'可以重新生成当前范围的分析。',compact:true});
     }

@@ -15,6 +15,7 @@ from .import_planner import ImportPlanError, build_import_plan, consume_preview,
 from .import_recovery import create_replace_recovery
 from .import_validation import parse_and_validate_import
 from .portable_import import ImportSource, PortableImportError
+from .job_results import load_business_result, store_business_result, validated_job_id
 
 
 def _sync_import_sets(db, mistake_id: int, item: dict) -> None:
@@ -86,7 +87,7 @@ def _rebuild_review_snapshot(db, mistake_id: int, item: dict) -> None:
         )
         return
     rows = db.execute(
-        "SELECT reviewed_at,status_after,correct_streak,lapse_count_after,stage_after,"
+        "SELECT event_type,reviewed_at,status_after,correct_streak,lapse_count_after,stage_after,"
         "cycle_after,next_review_after,schedule_version "
         "FROM review_events WHERE mistake_id=? ORDER BY reviewed_at,id",
         (mistake_id,),
@@ -98,12 +99,14 @@ def _rebuild_review_snapshot(db, mistake_id: int, item: dict) -> None:
         )
         return
     last = rows[-1]
+    reviews = [row for row in rows if row["event_type"] in {"pass", "again", "assisted"}]
     db.execute(
         "UPDATE mistakes SET history_complete=1,history_complete_from=?,review_count=?,"
         "last_review=?,status=?,correct_streak=?,lapse_count=?,review_stage=?,"
         "review_cycle=?,next_review=?,schedule_version=? WHERE id=?",
         (
-            item["history_complete_from"], len(rows), str(last["reviewed_at"])[:10],
+            item["history_complete_from"], len(reviews),
+            str(reviews[-1]["reviewed_at"])[:10] if reviews else None,
             last["status_after"], last["correct_streak"], last["lapse_count_after"],
             last["stage_after"] if last["stage_after"] is not None else item["review_stage"],
             last["cycle_after"] if last["cycle_after"] is not None else item["review_cycle"],
@@ -312,9 +315,14 @@ def commit_portable_import(
     attachment_dir: str | Path,
     recovery_dir: str | Path,
     warn=None,
+    source_job_id: str | None = None,
 ) -> dict[str, object]:
     """Consume one preview and atomically publish its rows and attachments."""
 
+    source_job_id = validated_job_id(source_job_id)
+    replay = load_business_result(db, source_job_id, "data-import")
+    if replay is not None:
+        return {**replay, "idempotency_replayed": True}
     if not isinstance(resolutions, dict):
         raise ValueError("冲突选择格式无效")
     published = []
@@ -339,6 +347,9 @@ def commit_portable_import(
                 )
             ]
         with immediate_transaction(db):
+            replay = load_business_result(db, source_job_id, "data-import")
+            if replay is not None:
+                return {**replay, "idempotency_replayed": True}
             stored_plan = consume_preview(
                 db,
                 token=preview_token,
@@ -390,6 +401,19 @@ def commit_portable_import(
                 parsed.daily_tips,
                 current_plan.get("daily_tips") or {},
             )
+            result = {
+                "ok": True,
+                "inserted": inserted,
+                "merged": merged,
+                "review_events_added": review_events,
+                "daily_analysis_caches_added": analysis_caches,
+                "daily_tips_added": daily_tip_counts["added"],
+                "daily_tips_merged": daily_tip_counts["merged"],
+                "daily_tips_rekeyed": daily_tip_counts["rekeyed"],
+                "input_sha256": parsed.input_sha256,
+                "recovery_backup": str(recovery_path) if recovery_path else None,
+            }
+            store_business_result(db, source_job_id, "data-import", result)
     except Exception:
         for path in published:
             path.unlink(missing_ok=True)
@@ -404,15 +428,4 @@ def commit_portable_import(
                 except OSError:
                     if warn is not None:
                         warn("old imported attachment cleanup failed")
-    return {
-        "ok": True,
-        "inserted": inserted,
-        "merged": merged,
-        "review_events_added": review_events,
-        "daily_analysis_caches_added": analysis_caches,
-        "daily_tips_added": daily_tip_counts["added"],
-        "daily_tips_merged": daily_tip_counts["merged"],
-        "daily_tips_rekeyed": daily_tip_counts["rekeyed"],
-        "input_sha256": parsed.input_sha256,
-        "recovery_backup": str(recovery_path) if recovery_path else None,
-    }
+    return result

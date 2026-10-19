@@ -1,59 +1,80 @@
     <div class="panel" id="p-stats">
-      <div class="card compact stats-filter-card">
-        <div class="stats-filter-row">
-          <label>开始日期<input type="date" id="stats-date-from"></label>
-          <label>结束日期<input type="date" id="stats-date-to"></label>
-          <label>科目<select id="stats-subject"><option value="">全部科目</option></select></label>
-          <label>章节<select id="stats-chapter" disabled><option value="">请先选择科目</option></select></label>
-          <button type="button" class="btn btn-p btn-sm" id="stats-apply">应用范围</button>
+      <div class="stats-scope" id="stats-scope" role="region" aria-label="统计范围">
+        <div class="stats-seg" role="group" aria-label="日期范围">
+          <button type="button" class="stats-preset" data-stats-preset="7d" aria-pressed="false">近7天</button>
+          <button type="button" class="stats-preset" data-stats-preset="30d" aria-pressed="false">近30天</button>
+          <button type="button" class="stats-preset" data-stats-preset="90d" aria-pressed="false">近90天</button>
+          <button type="button" class="stats-preset" data-stats-preset="term" aria-pressed="false">本学期</button>
+          <button type="button" class="stats-preset" data-stats-preset="custom" aria-pressed="false" aria-expanded="false" aria-controls="stats-custom-pop">自定义</button>
         </div>
-        <div class="stats-inline-status" id="stats-inline-status" role="status" hidden></div>
-        <div class="stats-completeness" id="stats-completeness"></div>
+        <label class="stats-scope-field"><span class="sr-only">科目</span><select id="stats-subject"><option value="">全部科目</option></select></label>
+        <label class="stats-scope-field"><span class="sr-only">章节</span><select id="stats-chapter" disabled><option value="">请先选择科目</option></select></label>
+        <span class="stats-drill" id="stats-drill"></span>
+        <div class="stats-scope-meta">
+          <span class="stats-busy" id="stats-busy" hidden><span data-icon="loader"></span><span class="sr-only">正在更新统计</span></span>
+          <span class="stats-range" id="stats-range"></span>
+          <span class="stats-pop-anchor">
+            <button type="button" class="stats-pill" id="stats-completeness" aria-expanded="false" aria-controls="stats-completeness-pop" hidden></button>
+            <div class="stats-pop stats-pop-end" id="stats-completeness-pop" hidden></div>
+          </span>
+        </div>
+        <div class="stats-pop stats-custom-pop" id="stats-custom-pop" role="dialog" aria-label="自定义日期范围" hidden>
+          <h3>自定义范围</h3>
+          <div class="stats-pop-range">
+            <label>开始日期<input type="date" id="stats-date-from"></label>
+            <label>结束日期<input type="date" id="stats-date-to"></label>
+          </div>
+          <p class="stats-pop-note">最长 730 天；超过 90 天按周统计，超过 365 天按月统计。</p>
+          <div class="stats-pop-actions">
+            <button type="button" class="btn btn-txt btn-sm" id="stats-custom-cancel">取消</button>
+            <button type="button" class="btn btn-p btn-sm" id="stats-apply">应用范围</button>
+          </div>
+        </div>
       </div>
+      <div class="stats-inline-status" id="stats-inline-status" role="status" hidden></div>
       <div class="stats-load-error" id="stats-load-error" hidden><span></span><button type="button" class="btn btn-out btn-xs" data-action="load-stats">重新加载</button></div>
-      <div class="stats-row" id="stat-box" aria-label="核心学习指标"></div>
-      <div class="stats-secondary" id="stats-secondary" aria-label="补充学习指标"></div>
-      <section class="learning-next-actions" id="learning-next-actions" aria-label="下一步练习"></section>
-      <div class="charts stats-dashboard">
-        <section class="chart-card chart-card-wide" aria-labelledby="trend-chart-title">
+      <div class="stats-dash" id="stats-dash">
+        <section class="stats-hero" id="stats-hero" aria-labelledby="stats-hero-title"></section>
+        <section class="stats-row stats-ledger" id="stat-box" aria-label="本期学习指标"></section>
+        <section class="chart-card stats-rhythm" aria-labelledby="stats-rhythm-title">
           <div class="chart-card-header">
-            <div><h4 id="trend-chart-title"><span data-icon="chart"></span>复习活动趋势</h4><p>正常复习与手动切换分开统计</p></div>
-            <span class="chart-meta" id="trend-chart-meta"></span>
+            <div><h4 id="stats-rhythm-title"><span data-icon="calendar"></span>学习节奏</h4><p>日历看坚持，柱子看结果；两边悬停会互相点亮</p></div>
+            <div class="chart-tools" id="stats-rhythm-tools"></div>
           </div>
-          <div id="trend-chart"></div>
+          <div id="stats-rhythm"></div>
         </section>
-        <section class="chart-card chart-card-rank" aria-labelledby="chapter-chart-title">
-          <div class="chart-card-header">
-            <div><h4 id="chapter-chart-title"><span data-icon="barsHorizontal"></span>章节掌握分布</h4><p>当前活跃题目口径</p></div>
-            <span class="chart-meta" id="chapter-chart-meta"></span>
+        <div class="stats-grid stats-grid-focus">
+          <section class="chart-card" aria-labelledby="chapter-chart-title">
+            <div class="chart-card-header">
+              <div><h4 id="chapter-chart-title"><span data-icon="barsHorizontal"></span>章节进度</h4><p>条长是题量，绿色是已掌握；点章节可复习或只看本章</p></div>
+              <span class="chart-meta" id="chapter-chart-meta"></span>
+            </div>
+            <div id="chapter-chart"></div>
+          </section>
+          <div class="stats-col">
+            <section class="chart-card" aria-labelledby="reason-chart-title">
+              <div class="chart-card-header">
+                <div><h4 id="reason-chart-title"><span data-icon="pie"></span>错因</h4><p>本期新增错题上的错因标记</p></div>
+                <span class="chart-meta" id="reason-chart-meta"></span>
+              </div>
+              <div id="reason-chart"></div>
+            </section>
+            <section class="chart-card" aria-labelledby="insights-title">
+              <div class="chart-card-header"><div><h4 id="insights-title"><span data-icon="lightbulb"></span>需要留意</h4><p>固定规则判断，每条附范围和样本量</p></div></div>
+              <div id="stats-insights"></div>
+            </section>
           </div>
-          <div id="chapter-chart"></div>
-        </section>
-        <section class="chart-card chart-card-donut" aria-labelledby="reason-chart-title">
-          <div class="chart-card-header">
-            <div><h4 id="reason-chart-title"><span data-icon="pie"></span>错因构成</h4><p>所选日期内新增题目</p></div>
-            <span class="chart-meta" id="reason-chart-meta"></span>
-          </div>
-          <div id="reason-chart"></div>
-        </section>
-        <section class="chart-card" aria-labelledby="heatmap-title">
-          <div class="chart-card-header"><div><h4 id="heatmap-title"><span data-icon="calendar"></span>学习日历</h4><p>每日正常复习量</p></div><span class="chart-meta" id="heatmap-meta"></span></div>
-          <div id="stats-heatmap"></div>
-        </section>
-        <section class="chart-card" aria-labelledby="exam-stats-title">
-          <div class="chart-card-header"><div><h4 id="exam-stats-title"><span data-icon="fileText"></span>试卷表现</h4><p>仅已提交的手工判定记录</p></div><span class="chart-meta" id="exam-stats-meta"></span></div>
-          <div id="exam-stats"></div>
-        </section>
-        <section class="chart-card chart-card-wide" aria-labelledby="insights-title">
-          <div class="chart-card-header"><div><h4 id="insights-title"><span data-icon="lightbulb"></span>学习洞察与提醒</h4><p>确定性规则，每条均附范围和样本量</p></div></div>
-          <div id="stats-insights"></div>
-        </section>
-        <section class="chart-card chart-card-wide recent-card" aria-labelledby="recent-list-title">
-          <div class="chart-card-header">
-            <div><h4 id="recent-list-title"><span data-icon="history"></span>近期学习章节</h4><p>按最近复习时间排列</p></div>
-          </div>
-          <div id="recent-list"></div>
-        </section>
+        </div>
+        <div class="stats-grid stats-grid-even">
+          <section class="chart-card" aria-labelledby="exam-stats-title">
+            <div class="chart-card-header"><div><h4 id="exam-stats-title"><span data-icon="examPaper"></span>试卷表现</h4><p>只统计已提交、手工判定的作答</p></div><span class="chart-meta" id="exam-stats-meta"></span></div>
+            <div id="exam-stats"></div>
+          </section>
+          <section class="chart-card" aria-labelledby="recent-list-title">
+            <div class="chart-card-header"><div><h4 id="recent-list-title"><span data-icon="history"></span>学习足迹</h4><p>最近复习过的章节</p></div></div>
+            <div id="recent-list"></div>
+          </section>
+        </div>
       </div>
       <div class="daily" id="daily-box"></div>
     </div>

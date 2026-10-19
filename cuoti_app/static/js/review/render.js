@@ -21,6 +21,9 @@
       reviewCount:Math.max(0,safeInteger(item?.review_count??item?.reviewCount)),
       reviewStage:Math.max(0,Math.min(3,safeInteger(item?.review_stage??item?.reviewStage))),
       revision:safeInteger(item?.revision),
+      dueDate:String(item?.next_review||item?.dueDate||''),
+      dueStatus:String(item?.due_status||item?.dueStatus||'unknown'),
+      overdueDays:Math.max(0,safeInteger(item?.overdue_days??item?.overdueDays)),
       pending:Boolean(item?.pending)
     });
   }
@@ -51,7 +54,8 @@
     const note=item.note?`<div class="problem-note math">备注: ${escapeHTML(item.note)}</div>`:'';
     const key=`spaced:${item.publicId}:${item.revision}`;
     const progress=reviewProgressText(item);
-    return `<span class="problem-number">${escapeHTML(item.qnum)}</span>${problemPreviewHTML(item.content,'problem-preview-review')}<div class="review-stage-label" data-evidence-progress="${escapeHTML(key)}" data-independent-progress="${escapeHTML(progress)}">${escapeHTML(window.Cuoti.reviewEvidence?.value(key)==='hint'?'提示后完成不升级 · 明天再测':progress)}</div><details data-evidence-hints="${escapeHTML(key)}"><summary>备注与错因</summary>${note}${renderReasonBadges(item)}</details>${window.Cuoti.reviewEvidence?.control(key)||''}`;
+    const due=item.dueStatus==='overdue'?`逾期 ${item.overdueDays} 天 · 原定 ${item.dueDate}`:item.dueStatus==='today'?`今日到期 · ${item.dueDate}`:'待复习 · 未记录到期日期';
+    return `<span class="problem-number">${escapeHTML(item.qnum)}</span><span class="review-due-label${item.dueStatus==='overdue'?' overdue':''}">${escapeHTML(due)}</span>${problemPreviewHTML(item.content,'problem-preview-review')}<div class="review-stage-label" data-evidence-progress="${escapeHTML(key)}" data-independent-progress="${escapeHTML(progress)}">${escapeHTML(window.Cuoti.reviewEvidence?.value(key)==='hint'?'提示后完成不升级 · 明天再测':progress)}</div><details data-evidence-hints="${escapeHTML(key)}"><summary>备注与错因</summary>${note}${renderReasonBadges(item)}</details>${window.Cuoti.reviewEvidence?.control(key)||''}`;
   }
 
   function renderReviewRow(item){
@@ -73,7 +77,7 @@
   }
 
   function renderReviewStats(total,summary={}){
-    return `<div class="stat s1"><div class="stat-icon">${icon('refresh')}</div><div class="stat-info"><div class="n">${Math.max(0,safeInteger(total))}</div><div class="l">今日间隔复习</div></div></div><div class="stat s2"><div class="stat-icon">${icon('circleHelp')}</div><div class="stat-info"><div class="n">${Math.max(0,safeInteger(summary.active))}</div><div class="l">总未掌握</div></div></div><div class="stat s3"><div class="stat-icon">${icon('check')}</div><div class="stat-info"><div class="n">${Math.max(0,safeInteger(summary.mastered))}</div><div class="l">已掌握</div></div></div>`;
+    return `<div class="stat s1"><div class="stat-icon">${icon('repeat')}</div><div class="stat-info"><div class="n">${Math.max(0,safeInteger(total))}</div><div class="l">今日待复习 · 含逾期 ${Math.max(0,safeInteger(summary.overdue))} 道</div></div></div><div class="stat s2"><div class="stat-icon">${icon('circleDashed')}</div><div class="stat-info"><div class="n">${Math.max(0,safeInteger(summary.active))}</div><div class="l">总未掌握</div></div></div><div class="stat s3"><div class="stat-icon">${icon('circleCheck')}</div><div class="stat-info"><div class="n">${Math.max(0,safeInteger(summary.mastered))}</div><div class="l">已掌握</div></div></div>`;
   }
 
   review.render=Object.freeze({

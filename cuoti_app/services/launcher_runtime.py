@@ -40,7 +40,9 @@ class SingleInstanceGuard(AbstractContextManager["SingleInstanceGuard"]):
             return True
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.touch(exist_ok=True)
-        handle = self.path.open("r+b")
+        # Concurrent first writers can lose to a byte lock. Unbuffered I/O
+        # prevents close() from retrying a denied initialization write.
+        handle = self.path.open("r+b", buffering=0)
         try:
             handle.seek(0, os.SEEK_END)
             if handle.tell() == 0:

@@ -63,20 +63,20 @@ def _exact_duplicate_positions(
     exempt = {
         str(value) for value in repetition_exempt_fingerprints if str(value)
     }
-    seen = {
+    prior = {
         question_content_fingerprint(value)
         for value in prior_question_texts
         if str(value or "").strip()
     }
+    seen: set[str] = set()
     duplicates: set[int] = set()
     for position, item in enumerate(items, start=1):
         content = str(item.get("content") or item.get("latex") or "")
         if not content.strip():
             continue
         digest = question_content_fingerprint(content)
-        if digest in exempt:
-            continue
-        if digest in seen:
+        # A prior-paper exemption never permits two identical slots in this paper.
+        if digest in seen or (digest in prior and digest not in exempt):
             duplicates.add(position)
         seen.add(digest)
     return duplicates

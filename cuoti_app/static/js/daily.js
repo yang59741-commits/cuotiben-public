@@ -13,7 +13,7 @@
     const tip=value.tip?escapeHTML(value.tip||''):'尚未录入每日提示';
     return `<div class="dc"><div class="dh">${icon('bookOpen')}每日术语</div><div class="dt">${escapeHTML(value.word||'')}</div><div class="dd">${escapeHTML(value.word_desc||'')}</div></div>
       <div class="dc"><div class="dh">${icon('quote')}每日一句</div><div class="dd daily-quote">${escapeHTML(value.quote||'')}</div></div>
-      <div class="dc"><div class="dh">${icon('target')}每日提示</div><div class="dd${value.tip?' math':' daily-tip-empty'}">${tip}</div></div>`;
+      <div class="dc"><div class="dh">${icon('lightbulb')}每日提示</div><div class="dd${value.tip?' math':' daily-tip-empty'}">${tip}</div></div>`;
   }
 
   function render(){
@@ -61,6 +61,7 @@
     editing=null;
     const {content,save,cancel}=managerElements();
     if(content)content.value='';
+    window.Cuoti.ui.editor?.refreshPreview?.('daily-tip-content');
     if(save)save.innerHTML=`${icon('plus')}<span>保存提示</span>`;
     if(cancel)cancel.hidden=true;
   }
@@ -99,6 +100,7 @@
     editing=item;
     const {content,save,cancel}=managerElements();
     content.value=item.content;
+    window.Cuoti.ui.editor?.refreshPreview?.('daily-tip-content');
     save.innerHTML=`${icon('check')}<span>保存修改</span>`;
     cancel.hidden=false;
     content.focus();
@@ -108,7 +110,7 @@
   async function saveTip(){
     const {content}=managerElements();
     const text=String(content?.value||'').trim();
-    if(!text){showModal('提示','请输入每日提示内容。','info');return}
+    if(!text){showFieldError(content,'请先输入每日提示内容');return}
     setManagerBusy(true,editing?'正在保存修改…':'正在保存…');
     try{
       if(editing){

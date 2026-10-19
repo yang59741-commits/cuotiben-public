@@ -3,12 +3,13 @@
 import re
 import sqlite3
 import uuid
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from flask import Blueprint, jsonify, request
 from ..transactions import begin_immediate
 
 from ..database import get_db
+from ..services import mistake_attention
 from ..pagination import (
     CursorError,
     bounded_limit,
@@ -55,6 +56,12 @@ def _mistake_filters(args):
         where.append("m.status=?")
         params.append(status)
         filters["status"] = status
+    attention = args.get('attention')
+    if attention:
+        if attention not in mistake_attention.PREDICATES:
+            raise ValidationError('关注筛选无效')
+        where.extend(["m.content!=''", mistake_attention.PREDICATES[attention]])
+        filters['attention'] = attention
     search = args.get("search")
     if search:
         search = text_value(search, "搜索词", maximum=200)
@@ -93,6 +100,24 @@ def _v2_mistake(row) -> dict:
     item.pop("solution", None)
     item["reasons"] = _reason_array(item.get("reasons"))
     return item
+
+
+@bp.get('/api/v2/mistakes/attention')
+def api_mistake_attention():
+    try:
+        ids = request.args.getlist('public_id')
+        if len(ids) > 200:
+            raise ValidationError('一次最多读取 200 道题的状态')
+        ids = list(dict.fromkeys(_uuid_value(value, '错题标识') for value in ids))
+    except ValidationError as exc:
+        return jsonify({'error': str(exc), 'code': 'VALIDATION'}), 400
+    db = get_db()
+    rows = [dict(row) for row in db.execute(
+        "SELECT id,public_id,content,date_added FROM mistakes WHERE deleted_at IS NULL AND public_id IN (" +
+        ','.join('?' for _ in ids) + ')', ids)] if ids else []
+    return jsonify({'summary': mistake_attention.summary(db),
+                    'items': mistake_attention.item_states(db, rows),
+                    'dates': mistake_attention.date_summary(db, {row['date_added'] for row in rows})})
 
 
 def _sync_reason_items(db, mistake_id: int, reasons: str) -> None:
@@ -338,6 +363,7 @@ def api_v2_mistakes():
     rows = [_v2_mistake(row) for row in db.execute(sql, page_params).fetchall()]
     has_more = len(rows) > limit
     items = rows[:limit]
+    analysis_dates = mistake_attention.annotate(db, items)
     count_where = base_where + ["m.id<=?"]
     total = db.execute(
         "SELECT COUNT(*) AS n FROM mistakes m WHERE " + " AND ".join(count_where),
@@ -356,6 +382,7 @@ def api_v2_mistakes():
     return jsonify(
         {
             "items": items,
+            "analysis_dates": analysis_dates,
             "next_cursor": next_cursor,
             "has_more": has_more,
             "total": total,
@@ -650,6 +677,7 @@ def api_v2_toggle(public_id):
 
 @bp.put('/api/v2/mistakes/<public_id>/reasons')
 def api_v2_update_reasons(public_id):
+    from ..services.mistakes import update_mistake_reasons, MistakeError
     try:
         public_id = _uuid_value(public_id, '错题标识')
         data = json_object(request)
@@ -657,23 +685,13 @@ def api_v2_update_reasons(public_id):
         reasons = reasons_value(data.get('reasons', []))
     except ValidationError as exc:
         return jsonify({'error': str(exc), 'code': 'VALIDATION'}), 400
-    db = get_db()
-    now = datetime.now().isoformat(timespec='seconds')
-    with db:
-        row = db.execute(
-            "SELECT id,revision FROM mistakes WHERE public_id=? AND deleted_at IS NULL",
-            (public_id,),
-        ).fetchone()
-        if not row:
-            return jsonify({'error': '错题不存在', 'code': 'NOT_FOUND'}), 404
-        if row['revision'] != revision:
-            return jsonify({'error': '错题已被其他操作更新', 'code': 'REVISION_CONFLICT', 'current_revision': row['revision']}), 409
-        db.execute(
-            "UPDATE mistakes SET reasons=?,revision=revision+1,updated_at=? WHERE id=?",
-            (reasons, now, row['id']),
-        )
-        _sync_reason_items(db, row['id'], reasons)
-    return jsonify({'ok': True, 'public_id': public_id, 'revision': revision + 1, 'reasons': _reason_array(reasons)})
+    try:
+        return jsonify(update_mistake_reasons(
+            get_db(), public_id, revision=revision, reasons=reasons,
+            timestamp=datetime.now().isoformat(timespec='seconds'),
+        ))
+    except MistakeError as exc:
+        return jsonify({'error': str(exc), 'code': exc.code, **exc.details}), exc.status_code
 
 
 @bp.patch('/api/v2/mistakes/<public_id>')
@@ -782,13 +800,11 @@ def api_v2_restore(public_id):
 
 @bp.get('/api/v2/trash/mistakes')
 def api_v2_trash():
-    rows = get_db().execute(
-        "SELECT m.*,s.name AS subject,c.name AS chapter FROM mistakes m "
-        "LEFT JOIN subjects s ON s.id=m.subject_id "
-        "LEFT JOIN chapters c ON c.id=m.chapter_id "
-        "WHERE m.deleted_at IS NOT NULL ORDER BY m.deleted_at DESC LIMIT 200"
-    ).fetchall()
-    return jsonify({'items': [_v2_mistake(row) for row in rows]})
+    from ..services.mistake_queries import list_trash
+    try:
+        return jsonify(list_trash(get_db(), request.args))
+    except CursorError as exc:
+        return jsonify({'error': str(exc), 'code': 'INVALID_CURSOR'}), 400
 
 @bp.get('/internal/legacy/stats')
 def api_stats():
@@ -905,11 +921,16 @@ def api_v2_reviews_due():
     counts = db.execute(
         "SELECT SUM(CASE WHEN m.id<=? AND m.status='未掌握' "
         "AND (m.next_review<=? OR m.next_review IS NULL) THEN 1 ELSE 0 END) AS due,"
+        "SUM(CASE WHEN m.id<=? AND m.status='未掌握' AND m.next_review<? THEN 1 ELSE 0 END) AS overdue,"
         "SUM(CASE WHEN m.status='未掌握' THEN 1 ELSE 0 END) AS active,"
         "SUM(CASE WHEN m.status='已掌握' THEN 1 ELSE 0 END) AS mastered "
         "FROM mistakes m WHERE " + " AND ".join(summary_where),
-        (snapshot, today, *summary_params),
+        (snapshot, today, snapshot, today, *summary_params),
     ).fetchone()
+    for item in items:
+        due = item['next_review']
+        item['due_status'] = 'unknown' if not due else ('overdue' if due < today else 'today')
+        item['overdue_days'] = (date.fromisoformat(today) - date.fromisoformat(due)).days if due and due < today else 0
     total = int(counts["due"] or 0)
     next_cursor = None
     if has_more and items:
@@ -925,6 +946,6 @@ def api_v2_reviews_due():
             "next_cursor": next_cursor,
             "has_more": has_more,
             "total": total,
-            "summary": {key: int(counts[key] or 0) for key in ("active", "mastered")},
+            "summary": {key: int(counts[key] or 0) for key in ("active", "mastered", "overdue")},
         }
     )

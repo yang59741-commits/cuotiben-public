@@ -598,6 +598,8 @@ def compile_latex_artifact(
                         "stderr": stderr_file,
                         "timeout": timeout,
                     }
+                    if os.name == "nt":
+                        run_kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
                     if compile_runner is None:
                         raw_result = subprocess.run(args, check=False, **run_kwargs)
                     else:

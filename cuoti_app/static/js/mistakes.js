@@ -26,6 +26,7 @@
     if(/^\d+$/.test(chapter))params.set('chapter',chapter);
     if(status&&status!=='全部')params.set('status',status);
     if(search)params.set('search',search.slice(0,200));
+    if(state.attentionFilter)params.set('attention',state.attentionFilter);
     return params;
   }
 
@@ -49,6 +50,7 @@
     const supplied=[...routeParams.keys()].length
       ?Object.fromEntries(routeParams):readListPreferences();
     state.filtersInitialized=true;
+    state.attentionFilter=['analysis_missing','methods_missing','confirmation'].includes(supplied.attention)?supplied.attention:'';
     state.subjectFilter=/^\d+$/.test(String(supplied.subject||''))
       ?String(supplied.subject):'';
     const status=document.getElementById('f-status');
@@ -114,7 +116,7 @@
     const cid=document.getElementById('s-chapter').value;
     const qnum=document.getElementById('s-qnum').value.trim();
     const content=document.getElementById('s-problem').value.trim();
-    if(!content){showModal('提示','请粘贴题目内容','info');return}
+    if(!content){showFieldError(document.getElementById('s-problem'),'请先粘贴题目内容');return}
     const shouldBatch=!sid||hasMultipleNumberedProblems(content);
     if(shouldBatch){
       const button=document.querySelector('#p-add .btn-p');
@@ -151,7 +153,7 @@
         showModal('分类失败',message,'error');
       }finally{
         clearTimeout(timeoutId);button.disabled=false;
-        button.innerHTML=icon('check')+'标记错题';
+        button.innerHTML=icon('bookmarkPlus')+'标记错题';
       }
       return;
     }
@@ -208,11 +210,25 @@
     return {items:merged,added};
   }
 
+  function listParams(append=false){
+    const params=state.pager.params(append);
+    if(state.subjectFilter)params.set('subject_id',state.subjectFilter);
+    const chapter=document.getElementById('f-chapter').value;
+    const filterStatus=document.getElementById('f-status').value;
+    const search=document.getElementById('f-search').value.trim();
+    if(chapter)params.set('chapter_id',chapter);
+    if(filterStatus!=='全部')params.set('status',filterStatus);
+    if(search)params.set('search',search);
+    if(state.attentionFilter)params.set('attention',state.attentionFilter);
+    return params;
+  }
+
   async function loadMistakes(options={}){
     if(state.view==='trash')return loadTrash();
     const append=Boolean(options.append);
     if(append&&(!state.pager.hasMore||!state.pager.nextCursor))return;
     const revision=++state.requestRevision;
+    state.attentionRevision+=1;
     if(state.requestController)state.requestController.abort();
     state.requestController=new AbortController();
     if(!append)state.pager.reset();
@@ -220,25 +236,19 @@
     setMistakeLoading(true,append);
     if(status)status.textContent=append?'正在加载更多错题...':'正在读取错题...';
     try{
-      const params=state.pager.params(append);
-      if(state.subjectFilter)params.set('subject_id',state.subjectFilter);
-      const chapter=document.getElementById('f-chapter').value;
-      const filterStatus=document.getElementById('f-status').value;
-      const search=document.getElementById('f-search').value.trim();
-      if(chapter)params.set('chapter_id',chapter);
-      if(filterStatus!=='全部')params.set('status',filterStatus);
-      if(search)params.set('search',search);
+      const params=listParams(append);
       const payload=await apiAdapter.list(params,state.requestController.signal);
       if(revision!==state.requestRevision)return;
       const paged=payload&&!Array.isArray(payload)&&Array.isArray(payload.items);
       const data=paged?payload.items:(Array.isArray(payload)?payload:[]);
       const merged=mergeUniqueMistakes(state.items,data,{append});
       state.items=merged.items;
+      state.analysisDates=append?{...state.analysisDates,...payload.analysis_dates}:payload.analysis_dates||{};
       state.pager.nextCursor=paged&&payload.next_cursor!=null?String(payload.next_cursor):null;
       state.pager.hasMore=Boolean(paged&&payload.has_more&&state.pager.nextCursor);
       state.pager.total=Number.isFinite(Number(payload?.total))
         ?Math.max(0,Number(payload.total)):state.items.length;
-      if(!append)void refreshSubjectChips();
+      if(!append){void refreshSubjectChips();void refreshAttention(false)}
       await renderMistakes(append?merged.added:state.items,{append});
       const more=document.getElementById('mistake-load-more');
       const total=document.getElementById('mistake-total');
@@ -266,7 +276,7 @@
         ()=>loadMistakes({append}));
       if(!append&&!state.items.length){
         document.getElementById('mistake-list').innerHTML=emptyStateHTML(
-          '错题读取失败',{icon:'circleHelp',description:'请使用上方重试按钮重新读取。'}
+          '错题读取失败',{icon:'circleAlert',description:'请使用上方重试按钮重新读取。'}
         );
       }
     }finally{
@@ -350,7 +360,9 @@
     if(state.items.length>=state.trashPager.total){
       state.trashPager.hasMore=false;state.trashPager.nextCursor=null;
     }
-    await renderTrashItems();
+    const card=document.querySelector(`#mistake-list .trash-card[data-mistake-id="${safeInteger(id)}"]`);
+    if(card&&state.items.length)await collapseAndRemove(card);
+    else await renderTrashItems();
     if(state.view==='trash')updateTrashSummary();
   }
 
@@ -363,8 +375,11 @@
     for(const id of ['subject-chips','f-chapter','f-status','f-search']){
       const node=document.getElementById(id);if(node)node.hidden=state.view==='trash';
     }
-    const exportBar=document.getElementById('mistake-export-bar');
-    if(exportBar)exportBar.hidden=state.view==='trash';
+    const metaActions=document.getElementById('mistake-list-meta-actions');
+    if(metaActions)metaActions.hidden=state.view==='trash';
+    const attentionBar=document.getElementById('mistake-attention-bar');
+    if(attentionBar)attentionBar.hidden=state.view==='trash';
+    state.attentionRevision+=1;
     state.selectedPublicIds.clear();exportsController.updateBar();
     if(state.view==='trash'){
       state.trashPager.reset();await loadTrash();
@@ -381,6 +396,9 @@
       if(!control||!root.contains(control)||control.disabled)return;
       const id=safeInteger(control.dataset.id);
       if(control.matches('.js-analyze-day'))void window.Cuoti.dailyAnalysis.controller.open(control.dataset.date,'',control);
+      else if(control.matches('.js-open-methods')||(control.matches('.js-open-daily-analysis')&&state.items.find(item=>item.id===id)?.attention?.needs_confirmation)){
+        void window.Cuoti.classification.open(control.dataset.publicId).catch(error=>showModal('方法读取失败',error.message,'error'));
+      }
       else if(control.matches('.js-open-daily-analysis'))void window.Cuoti.dailyAnalysis.controller.open(control.dataset.date,control.dataset.publicId,control);
       else if(control.matches('.js-chapter-toggle'))void editors.toggleChapter(id,control);
       else if(control.matches('.js-chapter-save'))void editors.saveChapter(id);
@@ -430,10 +448,109 @@
     });
   }
 
+  /* Single-card updates keep the loaded pages and scroll position intact;
+     only filter changes re-read the list from the first page. */
+  function mistakeCardNode(id){
+    return document.querySelector(`#mistake-list .mistake-card[data-mistake-id="${safeInteger(id)}"]`);
+  }
+
+  function syncLoadedSummary(){
+    const total=document.getElementById('mistake-total');
+    if(total)total.textContent=state.pager.total
+      ?`已显示 ${state.items.length} / ${state.pager.total} 道`:'';
+    const status=document.getElementById('mistake-list-status');
+    if(status)status.textContent=state.items.length
+      ?`已加载 ${state.items.length} 道错题`:'没有符合条件的错题';
+  }
+
+  function flashCard(card){
+    card.classList.remove('is-updated');
+    void card.offsetWidth;
+    card.classList.add('is-updated');
+    card.addEventListener('animationend',()=>card.classList.remove('is-updated'),{once:true});
+  }
+
+  async function updateItemLocally(id){
+    const item=state.items.find(candidate=>safeInteger(candidate.id)===safeInteger(id));
+    const card=mistakeCardNode(id);
+    if(!item||!card)return loadMistakes();
+    const filterStatus=document.getElementById('f-status')?.value||'全部';
+    if(filterStatus!=='全部'&&item.status!==filterStatus){await removeItemLocally(id);return}
+    const done=item.status==='已掌握';
+    card.classList.toggle('done',done);
+    const badge=card.querySelector('.mc-status .badge');
+    if(badge){badge.className=`badge ${done?'badge-g':'badge-b'}`;badge.textContent=String(item.status||'')}
+    const button=card.querySelector('.js-toggle-mistake');
+    if(button){
+      const label=done?'重新练习':'标记掌握';
+      button.className=`btn btn-xs ${done?'btn-o':'btn-s'} js-toggle-mistake`;
+      button.title=label;button.setAttribute('aria-label',label);
+      button.innerHTML=icon(done?'undo':'check')+(done?'重练':'掌握');
+    }
+    const root=document.getElementById('mistake-list');
+    if(root)refreshMistakeGroupCounts(root);
+    flashCard(card);
+    void refreshSubjectChips();
+  }
+
+  function removalRoot(card){
+    const subject=card.closest('.subject-group');
+    const date=card.closest('.date-group');
+    if(!subject||subject.querySelectorAll(':scope > .mistake-card').length>1)return card;
+    if(date&&date.querySelectorAll(':scope > .subject-group').length===1)return date;
+    return subject;
+  }
+
+  async function removeItemLocally(id){
+    const index=state.items.findIndex(item=>safeInteger(item.id)===safeInteger(id));
+    const snapshot={item:index>=0?state.items[index]:null,index,node:null,parent:null,next:null};
+    if(index>=0){
+      state.items.splice(index,1);
+      state.pager.total=Math.max(0,safeInteger(state.pager.total)-1);
+    }
+    const card=mistakeCardNode(id);
+    if(card){
+      const node=removalRoot(card);
+      Object.assign(snapshot,{node,parent:node.parentNode,next:node.nextSibling});
+      await collapseAndRemove(node);
+    }
+    const root=document.getElementById('mistake-list');
+    if(root){
+      refreshMistakeGroupCounts(root);
+      if(!state.items.length){
+        if(state.pager.hasMore)await loadMistakes();
+        else await renderMistakes([]);
+      }
+    }
+    syncLoadedSummary();
+    exportsController.updateBar();
+    void refreshSubjectChips();void refreshAttention(false);
+    return snapshot;
+  }
+
+  async function restoreItemLocally(snapshot){
+    const root=document.getElementById('mistake-list');
+    const {item,node,parent}=snapshot||{};
+    if(state.view==='trash'||!item||!node||!parent?.isConnected||!root?.contains(parent)){
+      return loadMistakes();
+    }
+    state.items.splice(Math.min(Math.max(0,snapshot.index),state.items.length),0,item);
+    state.pager.total=safeInteger(state.pager.total)+1;
+    if(root.querySelector(':scope > .empty-state')){await renderMistakes(state.items);syncLoadedSummary();return}
+    node.style.overflow='';
+    parent.insertBefore(node,snapshot.next?.parentNode===parent?snapshot.next:null);
+    refreshMistakeGroupCounts(root);
+    const card=mistakeCardNode(item.id);
+    if(card){flashCard(card);card.scrollIntoView({block:'nearest',behavior:'smooth'})}
+    syncLoadedSummary();
+    exportsController.updateBar();
+    void refreshSubjectChips();void refreshAttention(false);
+  }
+
   async function appendMistakes(root,data){
     const template=document.createElement('template');
     template.innerHTML=renderer.list(data,{
-      selectedPublicIds:state.selectedPublicIds,reasonOptions:state.reasonOptions
+      selectedPublicIds:state.selectedPublicIds,reasonOptions:state.reasonOptions,analysisDates:state.analysisDates
     });
     const added=[];
     const incomingDates=[...template.content.children]
@@ -469,7 +586,8 @@
       return;
     }
     root.innerHTML=renderer.list(data,{
-      selectedPublicIds:state.selectedPublicIds,reasonOptions:state.reasonOptions
+      selectedPublicIds:state.selectedPublicIds,reasonOptions:state.reasonOptions,analysisDates:state.analysisDates,
+      filtered:hasActiveListFilter()
     });
     root.querySelectorAll('.mc-note-editor textarea').forEach(input=>
       input.dispatchEvent(new Event('input',{bubbles:true}))
@@ -490,6 +608,112 @@
 
   async function refreshSubjectChips(){
     renderSubjectChips(await loadMistakeCountSummary());
+  }
+
+  async function refreshAttention(includeItems=true){
+    if(state.view==='trash')return;
+    const revision=++state.attentionRevision;
+    const ids=includeItems?state.items.map(item=>item.public_id):[];
+    const batches=ids.length?Array.from({length:Math.ceil(ids.length/200)},(_,i)=>ids.slice(i*200,i*200+200)):[[]];
+    try{
+      for(const batch of batches){
+        const payload=await apiAdapter.attention(batch);
+        if(revision!==state.attentionRevision||state.view==='trash')return;
+        for(const [key,count] of Object.entries(payload.summary)){
+          const node=document.querySelector(`[data-attention-count="${key}"]`);
+          if(node)node.textContent=String(safeInteger(count));
+        }
+        Object.assign(state.analysisDates,payload.dates);
+        for(const item of state.items){
+          if(!payload.items[item.public_id])continue;
+          item.attention=payload.items[item.public_id];
+          const card=document.querySelector(`.mistake-card[data-mistake-id="${safeInteger(item.id)}"]`);
+          const detail=card?.querySelector('.mc-learning-state');
+          if(detail)detail.innerHTML=renderer.learningState(item);
+          const button=card?.querySelector('.js-open-daily-analysis');
+          if(button){
+            const action=renderer.analysisAction(item);
+            button.classList.toggle('needs-decision',action.pending);
+            button.title=action.label;button.setAttribute('aria-label',action.label);
+          }
+        }
+      }
+      document.querySelectorAll('#mistake-list .date-group').forEach(group=>{
+        const node=group.querySelector('.date-analysis-status');
+        if(node)node.textContent=renderer.dateAnalysis(state.analysisDates[group.dataset.date]);
+      });
+      if(includeItems&&state.attentionFilter){
+        const removed=state.items.filter(item=>item.attention?.filters?.[state.attentionFilter]===false);
+        for(const item of removed){
+          const card=document.querySelector(`.mistake-card[data-mistake-id="${safeInteger(item.id)}"]`);
+          if(card){window.MathJax?.typesetClear?.([card]);card.remove()}
+          state.selectedPublicIds.delete(item.public_id);
+        }
+        state.items=state.items.filter(item=>!removed.includes(item));
+        const root=document.getElementById('mistake-list');
+        root.querySelectorAll('.subject-group,.date-group').forEach(group=>{if(!group.querySelector('.mistake-card'))group.remove()});
+        refreshMistakeGroupCounts(root);exportsController.updateBar();
+        const params=listParams();params.set('limit','1');
+        const page=await apiAdapter.list(params);
+        if(revision!==state.attentionRevision)return;
+        if(page.total>state.pager.total||(!state.pager.nextCursor&&state.items.length<page.total)){
+          await loadMistakes();return;
+        }
+        state.pager.total=page.total;
+        if(!state.items.length){await loadMistakes();return}
+        if(state.items.length>=page.total){state.pager.hasMore=false;state.pager.nextCursor=null}
+        const more=document.getElementById('mistake-load-more');
+        if(more)more.hidden=!state.pager.hasMore;
+        const total=document.getElementById('mistake-total');
+        if(total)total.textContent=`已显示 ${state.items.length} / ${page.total} 道`;
+        const loaded=document.getElementById('mistake-list-status');
+        if(loaded)loaded.textContent=`已加载 ${state.items.length} 道错题`;
+      }
+      const status=document.getElementById('mistake-attention-status');
+      if(status)status.textContent='各项可重叠 · 不自动生成';
+    }catch(error){
+      if(revision!==state.attentionRevision)return;
+      const status=document.getElementById('mistake-attention-status');
+      if(status)status.textContent='状态暂不可用，重新进入列表可重试';
+      console.warn('Attention state could not be loaded:',error?.message||error);
+    }
+    syncAttentionFilter();
+  }
+
+  function syncAttentionFilter(){
+    document.querySelectorAll('[data-attention-filter]').forEach(button=>{
+      const active=button.dataset.attentionFilter===state.attentionFilter;
+      button.classList.toggle('on',active);button.setAttribute('aria-pressed',String(active));
+    });
+    const clear=document.getElementById('mistake-attention-clear');
+    if(clear)clear.hidden=!state.attentionFilter;
+  }
+
+  function hasActiveListFilter(){
+    const value=id=>String(document.getElementById(id)?.value||'').trim();
+    const status=value('f-status');
+    return Boolean(state.subjectFilter||value('f-chapter')||value('f-search')||
+      state.attentionFilter||(status&&status!=='全部'));
+  }
+
+  function clearListFilters(){
+    state.subjectFilter='';state.attentionFilter='';resetChapterSelect('f');
+    const status=document.getElementById('f-status');
+    if(status){status.value='全部';syncCustomSelect(status)}
+    const search=document.getElementById('f-search');
+    if(search)search.value='';
+    syncAttentionFilter();syncListNavigation();void loadMistakes();
+  }
+
+  function selectAttention(filter){
+    state.attentionFilter=filter;
+    if(filter){
+      state.subjectFilter='';resetChapterSelect('f');
+      document.getElementById('f-status').value='全部';
+      syncCustomSelect(document.getElementById('f-status'));
+      document.getElementById('f-search').value='';
+    }
+    syncAttentionFilter();syncListNavigation();void loadMistakes();
   }
 
   function renderSubjectChips(summary){
@@ -528,6 +752,9 @@
   bindLengthCounter('s-problem','s-problem-count',100000);
   bindLengthCounter('s-note','s-note-count',20000);
   bindMistakeListEvents(document.getElementById('mistake-list'));
+  document.getElementById('mistake-list')?.addEventListener('click',event=>{
+    if(event.target.closest?.('[data-empty-action="clear-list-filters"]'))clearListFilters();
+  });
   document.getElementById('f-search')?.addEventListener('input',scheduleMistakeSearch);
   document.getElementById('f-chapter')?.addEventListener('change',()=>{
     syncListNavigation();void loadMistakes();
@@ -545,21 +772,34 @@
     exportsController.chooseLayout);
   document.getElementById('mistake-bulk-manage')?.addEventListener('click',
     exportsController.openBulk);
+  document.getElementById('mistake-accept-suggestions')?.addEventListener('click',
+    exportsController.acceptSelectedSuggestions);
   document.getElementById('mistake-export-history')?.addEventListener('click',
     exportsController.openHistory);
   document.getElementById('mistake-view-current')?.addEventListener('click',()=>void setListView('current'));
   document.getElementById('mistake-view-trash')?.addEventListener('click',()=>void setListView('trash'));
   exportsController.updateBar();
 
+  document.querySelectorAll('[data-attention-filter]').forEach(button=>button.addEventListener('click',()=>selectAttention(button.dataset.attentionFilter)));
+  document.getElementById('mistake-attention-clear')?.addEventListener('click',()=>selectAttention(''));
+  for(const event of ['cuoti:classification-changed','cuoti:analysis-changed','cuoti:mistake-attention-changed']){
+    window.addEventListener(event,()=>{
+      if(document.getElementById('p-list')?.classList.contains('on'))void refreshAttention();
+    });
+  }
+
   window.Cuoti.mistakes.controller=Object.freeze({
     add,load:loadMistakes,render:renderMistakes,applyRoute:applyListRoute,
     routeParams:getListRouteParams,filterSubject,loadTrash,discardTrashItem,setListView,
-    mergeUnique:mergeUniqueMistakes
+    mergeUnique:mergeUniqueMistakes,updateItem:updateItemLocally,removeItem:removeItemLocally,
+    restoreItem:restoreItemLocally
   });
   const mountAdd=()=>loadSubjects('s');
   const unmountList=()=>{
     state.requestRevision+=1;
+    state.attentionRevision+=1;
     state.requestController?.abort();
+    window.Cuoti.dailyAnalysis?.controller.cancelPresentation();
   };
   const mountList=({params=new URLSearchParams()}={})=>applyListRoute(params);
   window.Cuoti.features.register('add',Object.freeze({

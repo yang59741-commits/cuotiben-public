@@ -43,8 +43,10 @@ from .job_contracts import (
     utcnow as _utcnow,
 )
 from .job_serialization import deserialize_job, publication_head_state
+from .job_results import load_business_result
 from .job_process import close_process_tree, start_owned_process, terminate_process_tree
 from .job_worker import WorkerStopRequested, execute_next, run_worker_loop
+from .runtime_diagnostics import diagnostic_operation
 from .exam_time_policy import (
     ExamDeadlineExceeded,
     PROGRESS_STAGE_NAMES,
@@ -375,6 +377,7 @@ class JobCoordinator:
         self.aging_seconds = max(1.0, float(aging_seconds))
         self.outcome_observer = outcome_observer
         self._worker_stop_event: threading.Event | None = None
+        self._polling_state = threading.local()
         self.staged_input_roots = tuple(
             Path(root).resolve() for root in staged_input_roots
         )
@@ -402,17 +405,85 @@ class JobCoordinator:
         return connect_database(self.database, role="background", timeout=5)
 
     @contextmanager
-    def _connection(self):
-        db = self._connect()
+    def _polling_session(self):
+        # Only the long-running lane owns this connection. Requests, handlers
+        # and the heartbeat keep their independent connection/transaction scope.
+        state = self._polling_state
+        state.active = True
+        state.connection = None
+        try:
+            yield
+        finally:
+            state.active = False
+            db = state.connection
+            state.connection = None
+            if db is not None:
+                diagnostic_operation("worker_polling", "connection_close",
+                                     worker_id=self.worker_id, lane=self.lane,
+                                     connection_id=hex(id(db)))
+                db.close()
+                diagnostic_operation("worker_polling", "connection_closed",
+                                     worker_id=self.worker_id, lane=self.lane)
+
+    @contextmanager
+    def _connection(self, operation: str | None = None):
+        details = {"worker_id": self.worker_id, "lane": self.lane}
+        polling = (
+            operation in {"recover_stale_jobs", "expire_queued_deadlines", "claim_next"}
+            and getattr(self._polling_state, "active", False)
+        )
+        db = self._polling_state.connection if polling else None
+        if db is None:
+            if operation:
+                diagnostic_operation(operation, "connection_open", **details)
+            db = self._connect()
+            if polling:
+                self._polling_state.connection = db
+        elif operation:
+            diagnostic_operation(operation, "connection_reused", **details)
+        details["connection_id"] = hex(id(db))
+        if operation:
+            diagnostic_operation(operation, "connection_ready", **details)
         try:
             with db:
                 yield db
+                if operation:
+                    diagnostic_operation(operation, "transaction_exit", **details)
         finally:
-            db.close()
+            if operation and not polling:
+                diagnostic_operation(operation, "connection_close", **details)
+            if not polling:
+                db.close()
+            if operation and not polling:
+                diagnostic_operation(operation, "connection_closed", **details)
 
     def _now(self) -> tuple[datetime, str]:
         value = self.clock()
         return value, _timestamp(value)
+
+    @staticmethod
+    def _complete_committed_import(db, row, *, now: str) -> bool:
+        """A transactionally saved import receipt outranks transport failure or cancellation."""
+        if row["kind"] != "data-import" or row["status"] not in ACTIVE_STATUSES:
+            return False
+        result = load_business_result(db, row["id"], "data-import")
+        if result is None:
+            return False
+        result_json = json.dumps({**result, "idempotency_replayed": True}, ensure_ascii=False)
+        db.execute(
+            "UPDATE background_jobs SET status='succeeded',result_json=?,cancel_requested=0,"
+            "error_code=NULL,error_message=NULL,error_category=NULL,error_retryable=NULL,"
+            "error_correlation_id=NULL,error_details_json=NULL,lease_owner=NULL,"
+            "lease_expires_at=NULL,heartbeat_at=NULL,progress_current=COALESCE(progress_total,progress_current),"
+            "updated_at=?,finished_at=? WHERE id=?",
+            (result_json, now, now, row["id"]),
+        )
+        db.execute(
+            "UPDATE job_attempts SET status='succeeded',finished_at=?,error_code=NULL,"
+            "error_correlation_id=NULL WHERE job_id=? AND attempt_number=? AND status='running'",
+            (now, row["id"], row["attempts"]),
+        )
+        return True
 
     @staticmethod
     def _deserialize_job(
@@ -970,6 +1041,7 @@ class JobCoordinator:
             ).fetchone()
             if not row:
                 raise JobNotFound("任务不存在")
+            completed_import = self._complete_committed_import(db, row, now=now)
             # Once the native publication transaction commits, cancellation
             # can no longer describe reality.  Leave both the lease and the
             # durable cancellation fields untouched; the receipt recovery
@@ -979,7 +1051,9 @@ class JobCoordinator:
                 or self._publication_is_committed(db, job_id)
             ):
                 return self._deserialize_job(db, row)
-            if row["status"] in {"queued", "checkpointed"}:
+            if completed_import:
+                pass
+            elif row["status"] in {"queued", "checkpointed"}:
                 db.execute(
                     "UPDATE background_jobs SET status='cancelled',cancel_requested=1,"
                     "error_code=NULL,error_message=NULL,error_category=NULL,"
@@ -997,7 +1071,10 @@ class JobCoordinator:
                 "SELECT * FROM background_jobs WHERE id=?", (job_id,)
             ).fetchone()
             job = self._deserialize_job(db, updated)
-        if job["kind"] == "ocr" and job["status"] == "cancelled":
+        if completed_import:
+            self._notify_terminal(job)
+            self.cleanup_staged_input(job_id)
+        elif job["kind"] == "ocr" and job["status"] == "cancelled":
             self.cleanup_staged_input(job_id)
         return job
 
@@ -1070,9 +1147,12 @@ class JobCoordinator:
     def recover_stale_jobs(self) -> int:
         _now_value, now = self._now()
         recovered = 0
+        committed_import_ids: list[str] = []
         deadline_terminal_ids: list[str] = []
-        with self._connection() as db:
+        with self._connection("recover_stale_jobs") as db:
+            diagnostic_operation("recover_stale_jobs", "begin_immediate")
             begin_immediate(db)
+            diagnostic_operation("recover_stale_jobs", "select_expired_leases")
             rows = db.execute(
                 "SELECT * "
                 "FROM background_jobs WHERE status IN "
@@ -1081,6 +1161,11 @@ class JobCoordinator:
                 (now,),
             ).fetchall()
             for row in rows:
+                diagnostic_operation("recover_stale_jobs", "recover_job", job_id=str(row["id"]))
+                if self._complete_committed_import(db, row, now=now):
+                    committed_import_ids.append(str(row["id"]))
+                    recovered += 1
+                    continue
                 if (
                     row["status"] == "published_pending_receipt"
                     or self._publication_is_committed(db, str(row["id"]))
@@ -1225,6 +1310,9 @@ class JobCoordinator:
                 recovered += 1
         for job_id in deadline_terminal_ids:
             self._notify_terminal(self.get_job(job_id))
+        for job_id in committed_import_ids:
+            self._notify_terminal(self.get_job(job_id))
+            self.cleanup_staged_input(job_id)
         return recovered
 
     def _expire_queued_exam_deadlines(self) -> int:
@@ -1232,7 +1320,8 @@ class JobCoordinator:
 
         _now_value, now = self._now()
         expired_ids: list[str] = []
-        with self._connection() as db:
+        with self._connection("expire_queued_deadlines") as db:
+            diagnostic_operation("expire_queued_deadlines", "begin_immediate")
             begin_immediate(db)
             rows = db.execute(
                 "SELECT * FROM background_jobs WHERE kind='exam-generation' "
@@ -1283,8 +1372,10 @@ class JobCoordinator:
         self._expire_queued_exam_deadlines()
         now_value, now = self._now()
         lease_expires = _timestamp(now_value + timedelta(seconds=self.lease_seconds))
-        with self._connection() as db:
+        with self._connection("claim_next") as db:
+            diagnostic_operation("claim_next", "begin_immediate")
             begin_immediate(db)
+            diagnostic_operation("claim_next", "select_available_job")
             sql = (
                 "SELECT * FROM background_jobs WHERE "
                 "(status='published_pending_receipt' OR "
@@ -1484,6 +1575,8 @@ class JobCoordinator:
             ).fetchone()
             if not row:
                 raise JobLeaseLost("当前 worker attempt 不持有该任务租约")
+            if self._complete_committed_import(db, row, now=now):
+                return
             accumulated, _receipt = self._final_exam_timing(
                 db, row, finished_at=now, attempt_timing=timing
             )
@@ -1561,6 +1654,8 @@ class JobCoordinator:
             ).fetchone()
             if not row:
                 raise JobLeaseLost("当前 worker attempt 不持有该任务租约")
+            if self._complete_committed_import(db, row, now=now):
+                return
             accumulated, _receipt = self._final_exam_timing(
                 db, row, finished_at=now, attempt_timing=timing
             )
@@ -1691,6 +1786,8 @@ class JobCoordinator:
             ).fetchone()
             if not row:
                 raise JobLeaseLost("当前 worker attempt 不持有该任务租约")
+            if self._complete_committed_import(db, row, now=now):
+                return
             accumulated_timing, timing_receipt = self._final_exam_timing(
                 db, row, finished_at=now, attempt_timing=timing
             )
@@ -1962,12 +2059,13 @@ class JobCoordinator:
         previous_stop_event = self._worker_stop_event
         self._worker_stop_event = stop_event
         try:
-            run_worker_loop(
-                self,
-                stop_event,
-                poll_interval=poll_interval,
-                retention_interval=retention_interval,
-            )
+            with self._polling_session():
+                run_worker_loop(
+                    self,
+                    stop_event,
+                    poll_interval=poll_interval,
+                    retention_interval=retention_interval,
+                )
         finally:
             self._worker_stop_event = previous_stop_event
 

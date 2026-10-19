@@ -14,14 +14,22 @@
     return api('/api/v2/mistake-counts'+query);
   }
 
+  function attention(publicIds=[],signal){
+    const params=new URLSearchParams();
+    publicIds.forEach(id=>params.append('public_id',id));
+    return api('/api/v2/mistakes/attention?'+params.toString(),{signal});
+  }
+
   function create(payload){
     return api('/api/v2/mistakes',{method:'POST',body:JSON.stringify(payload)});
   }
 
-  function updateNote(publicId,revision,note){
-    return api('/api/v2/mistakes/'+encodeURIComponent(publicId),{
+  async function updateNote(publicId,revision,note){
+    const result=await api('/api/v2/mistakes/'+encodeURIComponent(publicId),{
       method:'PATCH',body:JSON.stringify({revision,note})
     });
+    window.dispatchEvent(new Event('cuoti:mistake-attention-changed'));
+    return result;
   }
 
   function toggle(publicId,revision){
@@ -30,10 +38,12 @@
     });
   }
 
-  function updateReasons(publicId,revision,reasons){
-    return api('/api/v2/mistakes/'+encodeURIComponent(publicId)+'/reasons',{
+  async function updateReasons(publicId,revision,reasons){
+    const result=await api('/api/v2/mistakes/'+encodeURIComponent(publicId)+'/reasons',{
       method:'PUT',body:JSON.stringify({revision,reasons})
     });
+    window.dispatchEvent(new Event('cuoti:mistake-attention-changed'));
+    return result;
   }
 
   function chapters(subjectId,signal){
@@ -98,7 +108,7 @@
   }
 
   window.Cuoti.mistakes.api=Object.freeze({
-    list,counts,create,updateNote,toggle,updateReasons,chapters,updateChapter,remove,
+    list,counts,attention,create,updateNote,toggle,updateReasons,chapters,updateChapter,remove,
     trash,restore,purge,attachments,uploadAttachment,
     exportHistory,bulkPreview,bulkCommit
   });

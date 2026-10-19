@@ -10,21 +10,135 @@
 @import url('./layout/responsive.css');
 
 /* Current D2 publication, review markers and recoverable exam history. */
-.exam-selection-summary{display:flex;align-items:flex-start;gap:7px;min-height:34px;margin-bottom:8px;padding:8px 10px;border:1px dashed var(--gray-300);border-radius:var(--radius-control);background:var(--gray-100);color:var(--muted);font-size:11px;line-height:1.5}
-.exam-selection-summary.has-selection{border-style:solid;border-color:#b8d8c0;background:#f3faf5;color:var(--text)}
+.exam-selection-summary{display:flex;align-items:flex-start;gap:7px;min-height:34px;margin-bottom:8px;padding:8px 10px;border:1px dashed var(--gray-300);border-radius:var(--radius-control);background:var(--gray-100);color:var(--muted);font-size:var(--fs-sm);line-height:1.5}
+.exam-selection-summary.has-selection{border-style:solid;border-color:var(--success-border);background:var(--success-soft);color:var(--text)}
 .exam-selection-summary-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 15px;width:15px;height:15px;margin-top:1px;color:var(--muted)}
 .exam-selection-summary.has-selection .exam-selection-summary-icon{color:var(--green)}
 .exam-selection-summary-icon .icon{width:14px;height:14px}
 .exam-selection-label{flex:none;color:var(--green);font-weight:700}
-.exam-review-markers{display:grid;gap:8px;margin:0 0 14px;padding:10px 12px;border:1px solid #ead9b1;border-left:3px solid #c28a22;border-radius:8px;background:#fffaf0;color:var(--text);font-size:11px;line-height:1.55}
-.exam-review-markers-title{display:flex;align-items:center;gap:7px;min-width:0}.exam-review-markers-title .icon{width:15px;height:15px;flex:0 0 auto;color:#a56a00}.exam-review-markers-title>span{color:var(--muted);font-weight:400}.exam-review-markers-list{display:grid;gap:5px}.exam-review-marker{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:6px;min-width:0;overflow-wrap:anywhere}.exam-review-marker-position{color:#815700;font-weight:700}.exam-review-marker strong{color:#815700}
+.exam-review-markers{display:grid;gap:8px;margin:0 0 14px;padding:10px 12px;border:1px solid var(--warn-border);border-left:3px solid var(--warn-strong);border-radius:8px;background:var(--warn-soft);color:var(--text);font-size:var(--fs-sm);line-height:1.55}
+.exam-review-markers-title{display:flex;align-items:center;gap:7px;min-width:0}.exam-review-markers-title .icon{width:15px;height:15px;flex:0 0 auto;color:var(--warn-strong)}.exam-review-markers-title>span{color:var(--muted);font-weight:400}.exam-review-markers-list{display:grid;gap:5px}.exam-review-marker{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:6px;min-width:0;overflow-wrap:anywhere}.exam-review-marker-position{color:var(--warn-text);font-weight:700}.exam-review-marker strong{color:var(--warn-text)}
 .exam-selection-explanation{min-width:0;margin:14px 0 4px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .exam-selection-explanation>summary{display:flex;align-items:center;gap:8px;min-height:42px;padding:8px 2px;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;list-style:none}
 .exam-selection-explanation>summary::-webkit-details-marker{display:none}.exam-selection-explanation>summary>.icon{flex:0 0 auto;width:16px;height:16px}.exam-selection-explanation-chevron{margin-left:auto;transition:transform var(--dur-fast)}.exam-selection-explanation[open] .exam-selection-explanation-chevron{transform:rotate(180deg)}
-.exam-selection-explanation-body{display:grid;min-width:0;gap:10px;padding:2px 0 12px;color:var(--text);font-size:11px;line-height:1.65;overflow-wrap:anywhere}.exam-selection-explanation-lead{display:grid;gap:2px}.exam-selection-explanation-lead strong{font-size:12px}.exam-selection-explanation-lead span{color:var(--muted)}
+.exam-selection-explanation-body{display:grid;min-width:0;gap:10px;padding:2px 0 12px;color:var(--text);font-size:var(--fs-sm);line-height:1.65;overflow-wrap:anywhere}.exam-selection-explanation-lead{display:grid;gap:2px}.exam-selection-explanation-lead strong{font-size:12px}.exam-selection-explanation-lead span{color:var(--muted)}
 .exam-selection-explanation-loading{display:flex;align-items:center;gap:7px;color:var(--muted)}.exam-selection-explanation-loading .icon{width:15px;height:15px}.exam-selection-explanation-error{color:var(--red)}
-.exam-selection-explanation-items{display:grid;min-width:0;border-top:1px solid var(--gray-200)}.exam-selection-explanation-item{display:grid;min-width:0;gap:5px;padding:10px 0;border-bottom:1px solid var(--gray-200)}.exam-selection-explanation-item:last-child{border-bottom:0}.exam-selection-explanation-item h4{margin:0;color:var(--text);font-size:12px}.exam-selection-explanation-item p{display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px;margin:0;min-width:0}.exam-selection-explanation-item p>span{color:var(--muted);font-size:10px;font-weight:700}
+.exam-selection-explanation-items{display:grid;min-width:0;border-top:1px solid var(--gray-200)}.exam-selection-explanation-item{display:grid;min-width:0;gap:5px;padding:10px 0;border-bottom:1px solid var(--gray-200)}.exam-selection-explanation-item:last-child{border-bottom:0}.exam-selection-explanation-item h4{margin:0;color:var(--text);font-size:12px}.exam-selection-explanation-item p{display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px;margin:0;min-width:0}.exam-selection-explanation-item p>span{color:var(--muted);font-size:var(--fs-note);font-weight:700}
 .exam-selection-alternative{min-width:0;margin-top:3px;padding-left:70px}.exam-selection-alternative>summary{display:flex;align-items:center;gap:5px;width:max-content;max-width:100%;color:var(--accent);font-weight:700;cursor:pointer;list-style:none;overflow-wrap:anywhere}.exam-selection-alternative>summary::-webkit-details-marker{display:none}.exam-selection-alternative>summary .icon{flex:0 0 auto;width:14px;height:14px;transition:transform var(--dur-fast)}.exam-selection-alternative[open]>summary .icon{transform:rotate(180deg)}.exam-selection-alternative-content{min-width:0;max-width:100%;margin-top:7px;padding:8px 0;border-top:1px dashed var(--border);white-space:pre-wrap;overflow-wrap:anywhere}.exam-selection-alternative-content mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
-.exam-history-item{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,98px) 34px;align-items:center;gap:6px;min-width:0;padding:6px 2px;border-bottom:1px solid var(--gray-200)}.exam-history-item>span{min-width:0;color:var(--muted);font-size:10px}.exam-history-title{min-width:0;padding:2px;border:0;background:transparent;color:var(--accent);font:inherit;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}.exam-history-time{line-height:1.35;overflow-wrap:anywhere;white-space:normal}
-#exam-history{min-width:0;max-width:100%;overflow-x:hidden}.exam-history-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:9px}.exam-history-heading h3{margin:0}.exam-history-tabs{display:inline-flex;flex:0 0 auto;max-width:100%;padding:2px;border:1px solid var(--border);border-radius:7px;background:var(--gray-100)}.exam-history-tabs button{min-height:28px;padding:4px 9px;border:0;border-radius:5px;background:transparent;color:var(--muted);font:inherit;font-size:10px;white-space:nowrap;cursor:pointer}.exam-history-tabs button.on{background:var(--card);color:var(--accent);font-weight:700;box-shadow:0 1px 3px rgba(73,57,45,.1)}.exam-history-item.is-trash>.exam-history-title{cursor:default;color:var(--text);font-size:12px}.exam-history-item .js-restore-exam .icon,.exam-history-item .js-delete-exam .icon{width:14px;height:14px}
+.exam-history-item{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,98px) 34px;align-items:center;gap:6px;min-width:0;padding:6px 2px;border-bottom:1px solid var(--gray-200)}.exam-history-item>span{min-width:0;color:var(--muted);font-size:var(--fs-note)}.exam-history-title{min-width:0;padding:2px;border:0;background:transparent;color:var(--accent);font:inherit;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}.exam-history-time{line-height:1.35;overflow-wrap:anywhere;white-space:normal}
+#exam-history{min-width:0;max-width:100%;overflow-x:hidden}.exam-history-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:9px}.exam-history-heading h3{margin:0}.exam-history-tabs{display:inline-flex;flex:0 0 auto;max-width:100%;padding:2px;border:1px solid var(--border);border-radius:7px;background:var(--gray-100)}.exam-history-tabs button{min-height:28px;padding:4px 9px;border:0;border-radius:5px;background:transparent;color:var(--muted);font:inherit;font-size:var(--fs-note);white-space:nowrap;cursor:pointer}.exam-history-tabs button.on{background:var(--card);color:var(--accent);font-weight:700;box-shadow:0 1px 3px rgba(73,55,42,.1)}.exam-history-item.is-trash>.exam-history-title{cursor:default;color:var(--text);font-size:12px}.exam-history-item .js-restore-exam .icon,.exam-history-item .js-delete-exam .icon{width:14px;height:14px}
 
+
+/* ── 表单布局类（替代模板内联样式）、列表加载骨架 ── */
+.card .card-header.card-header-tight{padding-bottom:2px}
+.card .card-body.card-body-tight{padding-top:4px}
+.card .card-header h3.card-title-flat{margin:0;padding:0;border:0;font-size:var(--fs-lg)}
+.fld-inline.fld-inline-narrow{flex:.5}
+.fld-row.fld-row-top{align-items:flex-start}
+.field-label-top{padding-top:6px}
+.tag-row.tag-row-fill{flex:1;margin:0}
+.input-wrap.input-wrap-fill{flex:1}
+.btn.btn-block{width:100%}
+.toolbar-push-end{margin-left:auto}
+.form-action-row{display:flex;gap:8px}
+.status-note{color:var(--muted);font-size:var(--fs-sm)}
+.status-note.status-note-center{align-self:center}
+.input-count{width:60px}
+.type-chip-row{display:flex;flex-wrap:wrap;gap:8px}
+.row.row-spaced{margin-top:8px}
+.btn.btn-spaced-sm{margin-top:4px}
+.card.card-gap-sm{margin-top:8px}
+.card.card-gap-md{margin-top:12px}
+.card.compact.card-toolbar{padding:8px 16px}
+.search-wrap.search-wrap-md{max-width:260px}
+#mistake-list[aria-busy="true"]:not(:empty){opacity:.6;transition:opacity var(--dur-fast)}
+#mistake-list[aria-busy="true"]:empty{min-height:228px;border-radius:var(--radius-card);background:linear-gradient(100deg,var(--gray-100) 40%,var(--surface) 50%,var(--gray-100) 60%) 0 0/250% 100%;animation:listSkeleton 1.4s ease-in-out infinite}
+@keyframes listSkeleton{from{background-position:100% 0}to{background-position:0 0}}
+@media(prefers-reduced-motion:reduce){#mistake-list[aria-busy="true"]:empty{animation:none}}
+
+/* ── 交互反馈：提示操作、内联校验、局部更新 ── */
+.toast{animation:toastIn .2s var(--ease-out) both}
+.toast.is-leaving{animation:toastOut .16s ease-in both}
+.toast.has-action{grid-template-columns:18px minmax(0,1fr) auto 28px}
+.toast-action{align-self:center;min-height:28px;padding:4px 11px;border:1px solid var(--accent-light);border-radius:999px;background:var(--accent-soft);color:var(--accent-strong);font:inherit;font-size:var(--fs-sm);font-weight:700;white-space:nowrap;cursor:pointer;transition:background var(--dur-fast),color var(--dur-fast)}
+.toast-action:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+@keyframes toastIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateX(14px)}}
+input.is-invalid,select.is-invalid,textarea.is-invalid{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(164,71,62,.12)!important}
+.select-control.is-invalid .select-trigger{border-color:var(--red);box-shadow:0 0 0 3px rgba(164,71,62,.12)}
+.type-chip-row.is-invalid,.exam-chapter-picker.is-invalid,.exam-mistake-list.is-invalid{border-radius:var(--radius-control);outline:1px dashed var(--red);outline-offset:4px}
+.field-inline-error{display:flex;align-items:center;gap:5px;flex-basis:100%;width:100%;margin-top:5px;color:var(--red);font-size:var(--fs-sm);font-weight:600;animation:fieldErrorIn .16s var(--ease-out)}
+.field-inline-error .icon{width:14px;height:14px;flex:none}
+@keyframes fieldErrorIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+.mistake-card.is-updated{animation:cardUpdated .9s ease-out}
+@keyframes cardUpdated{0%{background:var(--success-soft);box-shadow:inset 3px 0 0 var(--green)}100%{background:transparent;box-shadow:inset 3px 0 0 transparent}}
+
+/* ── 标记错题：日期不被挤压 ── */
+.fld-inline.fld-inline-narrow{flex:0 0 auto}
+.fld-inline-narrow input[type="date"]{flex:none;width:158px;min-width:150px}
+
+/* ── 公式实时预览 ── */
+.math-live-preview{margin-top:6px;border:1px solid var(--border);border-radius:var(--radius-control);background:var(--surface-soft)}
+.math-live-preview>summary{display:flex;align-items:center;gap:6px;min-height:34px;padding:6px 11px;color:var(--accent);font-size:var(--fs-sm);font-weight:700;list-style:none;cursor:pointer;user-select:none}
+.math-live-preview>summary::-webkit-details-marker{display:none}
+.math-live-preview>summary .icon{width:15px;height:15px}
+.math-live-preview>summary small{color:var(--muted);font-size:var(--fs-note);font-weight:400}
+/* 小熊闭眼=未展开，睁眼=实时预览；切换时逐帧睁眼/闭眼（精灵图 7 帧，帧 0 闭眼、帧 6 睁眼） */
+.math-live-preview-bear{flex:none;width:20px;height:20px;background:url('../img/preview-bear.png') 0 0/700% 100% no-repeat}
+.math-live-preview[open] .math-live-preview-bear{background-position:100% 0}
+.math-live-preview-bear[data-motion="wake"]{animation:previewBearWake 420ms steps(6,jump-start) both,previewBearPop 420ms var(--ease-out) both}
+.math-live-preview-bear[data-motion="doze"]{animation:previewBearDoze 280ms steps(6,jump-start) both}
+@keyframes previewBearWake{from{background-position:0 0}to{background-position:100% 0}}
+@keyframes previewBearDoze{from{background-position:100% 0}to{background-position:0 0}}
+@keyframes previewBearPop{0%,60%,100%{transform:none}82%{transform:scale(1.08)}}
+@media(prefers-reduced-motion:reduce){.math-live-preview-bear[data-motion]{animation:none}}
+.math-live-preview-chevron{margin-left:auto;transition:transform var(--dur-fast)}
+.math-live-preview[open]>summary{border-bottom:1px dashed var(--border)}
+.math-live-preview[open] .math-live-preview-chevron{transform:rotate(180deg)}
+.math-live-preview-body{max-height:320px;padding:10px 13px;overflow:auto;color:var(--text);font-size:14px;line-height:1.75;overflow-wrap:anywhere}
+.math-live-preview-plain{white-space:pre-wrap}
+.math-live-preview-empty{color:var(--placeholder);font-size:var(--fs-sm)}
+.math-live-preview-body mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
+.editor-wrap+.math-live-preview{margin-top:8px}
+
+/* ── 错题列表：工具栏减负与吸底选择条 ── */
+.list-meta-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:28px;margin-top:4px}
+.list-meta-row .list-status{margin-top:0}
+.list-meta-actions{display:flex;align-items:center;gap:2px;flex-wrap:wrap}
+#p-list .mistake-export-bar{position:sticky;bottom:14px;z-index:6;max-width:760px;margin:12px auto 0;padding:9px 12px 9px 18px;border:1px solid var(--border);border-radius:999px;background:rgba(255,253,249,.96);box-shadow:var(--shadow-lg);backdrop-filter:blur(8px);animation:selectionBarIn .2s var(--ease-out)}
+#p-list .mistake-export-bar[hidden]{display:none}
+@keyframes selectionBarIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(max-width:680px){#p-list .mistake-export-bar{bottom:10px;border-radius:var(--radius-card);padding:10px 12px}.list-meta-row{align-items:flex-start;flex-direction:column;gap:2px}}
+
+/* ── 间隔复习：待保存状态与进度 ── */
+.review-card,.review-table-scroll tbody tr{transition:opacity var(--dur-med),filter var(--dur-med),background var(--dur-med)}
+.review-card.is-queued,.review-table-scroll tbody tr.is-queued{opacity:.5;filter:saturate(.6);background:var(--surface-soft)}
+.spaced-review-progress{margin:0 0 12px;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-card);background:var(--card);box-shadow:var(--shadow-sm)}
+.spaced-review-progress-text{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px;color:var(--muted);font-size:var(--fs-sm);font-variant-numeric:tabular-nums}
+.spaced-review-progress-text b{color:var(--green);font-size:var(--fs-md)}
+.spaced-review-progress-track{height:7px;overflow:hidden;border-radius:99px;background:var(--surface)}
+.spaced-review-progress-track>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--green),#6f9a7c);transition:width .35s var(--ease-out)}
+details[data-evidence-hints]{margin-top:6px}
+details[data-evidence-hints]>summary{display:inline-flex;align-items:center;gap:6px;padding:3px 9px 3px 7px;border-radius:999px;color:var(--accent);font-size:var(--fs-sm);font-weight:700;list-style:none;cursor:pointer}
+details[data-evidence-hints]>summary::-webkit-details-marker{display:none}
+details[data-evidence-hints]>summary::before{content:"";width:5px;height:5px;margin:0 2px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg);transition:transform var(--dur-fast)}
+details[data-evidence-hints][open]>summary::before{transform:rotate(45deg)}
+details[data-evidence-hints]>summary:hover{background:var(--accent-soft)}
+details[data-evidence-hints]>:not(summary){margin-top:6px}
+
+/* ── 组卷记录标题 ── */
+.card .exam-history-heading h3{margin:0;padding:0;border:0}
+.exam-history-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto}
+
+/* ── 导航：复习数徽标与手机端精简 ── */
+.sb nav .nav-btn .nav-count{margin-left:auto;min-width:22px;padding:1px 7px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font-size:var(--fs-note);font-weight:700;line-height:16px;text-align:center;font-variant-numeric:tabular-nums}
+.sb nav .nav-btn .nav-count[hidden]{display:none}
+@media(max-width:820px){
+  .sb nav .nav-btn{position:relative}
+  .sb nav .nav-btn>.nav-count:not([hidden]){display:block!important;position:absolute;top:3px;left:calc(50% + 3px);margin:0;padding:0 5px;min-width:18px;border:2px solid var(--card);background:var(--red);color:#fff;font-size:10px;line-height:14px}
+}
+@media(max-width:680px){
+  .sb nav .nav-btn-secondary{display:none}
+  .sb nav .nav-btn{font-size:var(--fs-note)}
+  .sb nav .nav-btn>.nav-count:not([hidden]){top:1px}
+}

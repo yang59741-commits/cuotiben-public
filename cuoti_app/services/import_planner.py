@@ -28,6 +28,9 @@ def _now() -> datetime:
 
 def database_revision(db) -> str:
     payload = {
+        "learning_revision": db.execute(
+            "SELECT learning_revision FROM app_revisions WHERE id=1"
+        ).fetchone()[0],
         "classifications": list(db.execute('SELECT COUNT(*),COALESCE(SUM(revision),0) FROM mistake_classifications').fetchone()),
         "question_types": list(db.execute('SELECT COUNT(*),COALESCE(SUM(revision),0) FROM question_types').fetchone()),
         "mistakes": list(db.execute(
@@ -41,7 +44,7 @@ def database_revision(db) -> str:
             "SELECT COUNT(*),COALESCE(MAX(id),0),COALESCE(MAX(created_at),'') FROM attachments"
         ).fetchone()),
         "daily_tips": list(db.execute(
-            "SELECT COUNT(*),COALESCE(MAX(id),0),COALESCE(MAX(revision),0),"
+            "SELECT COUNT(*),COALESCE(MAX(id),0),COALESCE(SUM(revision),0),"
             "COALESCE(MAX(updated_at),'') FROM daily_tips"
         ).fetchone()),
     }

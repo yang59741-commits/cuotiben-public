@@ -6,7 +6,7 @@
 
   const EMPTY_STATE_ROUTE_PAGES=new Set(['add','list','input','review','exam','stats','settings']);
   const EMPTY_STATE_ICON_NAMES=new Set([
-    'archive','barsHorizontal','bookOpen','calendar','chart','circleHelp','fileText','history','lightbulb','pie','sparkles','trash'
+    'activity','archive','barsHorizontal','bookOpen','calendar','chart','circleAlert','circleCheck','circleHelp','examPaper','fileText','filter','history','lightbulb','notebook','pie','search','sparkles','trash','trendLine'
   ]);
 
   function escape(value){
@@ -52,7 +52,9 @@
       :'';
     const action=options.actionLabel&&EMPTY_STATE_ROUTE_PAGES.has(options.page)
       ?`<button type="button" class="btn btn-p btn-sm" data-action="navigate" data-page="${options.page}">${escape(options.actionLabel)}</button>`
-      :'';
+      :(options.actionLabel&&/^[a-z-]+$/.test(String(options.emptyAction||''))
+        ?`<button type="button" class="btn btn-out btn-sm" data-empty-action="${options.emptyAction}">${escape(options.actionLabel)}</button>`
+        :'');
     return `<div class="${classes.join(' ')}"><div class="empty-state-icon">${icon(iconName)}</div><div class="empty-state-copy"><strong>${escape(title)}</strong>${description}</div>${action}</div>`;
   }
 

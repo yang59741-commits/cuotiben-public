@@ -7,9 +7,9 @@ const vm=require('node:vm');
 const root=path.resolve(__dirname,'..','cuoti_app','static','js');
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 
-function fixture({itemCount=1,holdReads=false}={}){
+function fixture({itemCount=1,holdReads=false,holdRemediation=false}={}){
   const nodes=new Map(),documentEvents={},windowEvents={},timers=new Map();
-  const writes=[],reads=[],jobs=[],modals=[];
+  const writes=[],reads=[],jobs=[],modals=[],remediations=[];
   let serial=0,modalOpen=false;
   const session={id:41,round_id:41,selection:{},items:Array.from({length:itemCount},(_,index)=>({
     id:index+1,round_id:41,subject_id:1,chapter_id:2,public_id:`p${index+1}`,
@@ -42,6 +42,7 @@ function fixture({itemCount=1,holdReads=false}={}){
   context.window=context;context.Cuoti={};
   context.addEventListener=(name,fn)=>{windowEvents[name]=fn};
   context.api=(url,options={})=>{
+    if(url.endsWith('/remediation')&&holdRemediation)return new Promise((resolve,reject)=>remediations.push({resolve,reject}));
     if(url.endsWith('/result'))return new Promise((resolve,reject)=>writes.push({url,options,resolve,reject}));
     if(url.includes('/current')){
       const payload=JSON.parse(JSON.stringify(session));
@@ -58,7 +59,7 @@ function fixture({itemCount=1,holdReads=false}={}){
   const feature=context.Cuoti.dailyReview;
   feature.state.session=session;feature.state.items=session.items.map(feature.render.normalize);
   feature.controller.bind();
-  return {feature,context,writes,reads,jobs,modals,element,timers,
+  return {feature,context,writes,reads,jobs,modals,element,timers,remediations,
     showModal:()=>{modalOpen=true},hideModal:()=>{modalOpen=false},
     pagehide:()=>windowEvents.pagehide(),keydown:event=>documentEvents.keydown(event),
     fireUndo(){const [id,fn]=[...timers.entries()].at(-1);timers.delete(id);fn()},
@@ -73,6 +74,38 @@ function fixture({itemCount=1,holdReads=false}={}){
 }
 
 async function run(){
+  // Hinted success adds a follow-up; independent cross-day success can remove it.
+  for(const choice of ['hint','solo','incomplete']){
+    const f=fixture({holdRemediation:true});
+    f.feature.state.remediationItems=[{source_item_id:1}];
+    f.feature.controller.submit(1,choice);f.fireUndo();f.commit(0,choice==='incomplete'?'incomplete':'correct');
+    await tick();
+    assert.equal(f.remediations.length,1);
+    const items=choice==='solo'?[]:[{source_item_id:1}];
+    f.remediations[0].resolve({items});await tick();
+    assert.equal(f.feature.state.remediationItems.length,items.length);
+  }
+  // Concurrent saves share a refresh. A failed auxiliary read never undoes them.
+  {
+    const f=fixture({itemCount:2,holdRemediation:true});
+    f.feature.controller.submit(1,'solo');f.fireUndo();
+    f.feature.controller.submit(2,'hint');f.fireUndo();
+    f.commit(0);await tick();assert.equal(f.remediations.length,0);
+    f.commit(1);await tick();assert.equal(f.remediations.length,1);
+    f.remediations[0].reject(new Error('offline'));await tick();
+    assert.deepEqual(Array.from(f.feature.state.items,item=>item.result),['correct','correct']);
+    assert.ok(f.element('daily-review-export-status').textContent.includes('作答已保存'));
+  }
+  // A response from before a session refresh cannot restore stale follow-ups.
+  {
+    const f=fixture({holdRemediation:true});
+    f.feature.controller.submit(1,'solo');f.fireUndo();f.commit();await tick();
+    const loaded=f.feature.controller.load();await tick();
+    assert.equal(f.remediations.length,2);
+    f.remediations[1].resolve({items:[]});await loaded;
+    f.remediations[0].resolve({items:[{source_item_id:99}]});await tick();
+    assert.equal(f.feature.state.remediationItems.length,0);
+  }
   // Keep the visual interaction: no request during the undo window, undo cancels it.
   {
     const f=fixture();f.feature.controller.submit(1,'solo');
@@ -131,6 +164,23 @@ async function run(){
     f.jobs[0].resolve({item_count:1});await first;
     assert.equal(f.jobs.length,1);assert.equal(f.feature.state.generationInFlight,false);
   }
+  // Method focus reaches the existing export job without accidentally adding a type filter.
+  {
+    const f=fixture();f.feature.state.practiceMode='method';
+    f.element('daily-focus-subject').value='1';
+    f.element('daily-focus-method').value='integration_by_parts';
+    f.element('daily-focus-method-role').value='any';
+    f.element('daily-focus-count').value='5';
+    f.element('daily-focus-mastered').checked=false;
+    const work=f.feature.controller.generate();await tick();
+    const selection=f.jobs[0].input.selection;
+    assert.equal(selection.practice_mode,'focused');
+    assert.equal(selection.method_code,'integration_by_parts');
+    assert.equal(selection.method_role,'any');
+    assert.equal(selection.subject_id,'1');
+    assert.equal(Object.hasOwn(selection,'primary_type_code'),false);
+    f.jobs[0].resolve({item_count:1});await work;
+  }
   // Generation failure still releases the lock and preserves the existing retry identity.
   {
     const f=fixture();const first=f.feature.controller.generate();await tick();
@@ -170,7 +220,7 @@ async function run(){
     f.feature.controller.submit(1,'solo');f.pagehide();
     assert.equal(f.writes.length,0);assert.equal(f.feature.state.queued,null);
   }
-  console.log('DAILY_REVIEW_ASYNC_CONTRACT_OK scenarios=12');
+  console.log('DAILY_REVIEW_ASYNC_CONTRACT_OK scenarios=18');
 }
 
 const watchdog=setTimeout(()=>{console.error('Daily review async contract timed out');process.exit(1)},5000);

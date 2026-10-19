@@ -12,16 +12,16 @@ let modalReturnFocus=null;
 let toastSequence=0;
 window.navigationRevision=window.navigationRevision||0;
 const TOAST_META=Object.freeze({
-  info:{type:'info',title:'提示',icon:'circleHelp'},
-  success:{type:'success',title:'已完成',icon:'check'},
-  warning:{type:'warning',title:'请注意',icon:'lightbulb'},
-  error:{type:'error',title:'操作失败',icon:'x'}
+  info:{type:'info',title:'提示',icon:'info'},
+  success:{type:'success',title:'已完成',icon:'circleCheck'},
+  warning:{type:'warning',title:'请注意',icon:'triangleAlert'},
+  error:{type:'error',title:'操作失败',icon:'circleX'}
 });
 const MODAL_META=Object.freeze({
-  info:{type:'info',icon:'circleHelp'},
-  success:{type:'success',icon:'check'},
-  warning:{type:'warning',icon:'lightbulb'},
-  error:{type:'error',icon:'x'}
+  info:{type:'info',icon:'info'},
+  success:{type:'success',icon:'circleCheck'},
+  warning:{type:'warning',icon:'triangleAlert'},
+  error:{type:'error',icon:'circleX'}
 });
 const historyLayers=[];
 let ignoredLayerPopstates=0;
@@ -327,7 +327,7 @@ function showToast(message,type='info',options={}){
   content.className='toast-content';
   const title=document.createElement('strong');
   title.className='toast-title';
-  title.textContent=meta.title;
+  title.textContent=options.title?String(options.title):meta.title;
   const text=document.createElement('span');
   text.className='toast-message';
   text.textContent=String(message??'');
@@ -337,12 +337,31 @@ function showToast(message,type='info',options={}){
   close.className='toast-close';
   close.setAttribute('aria-label','关闭提示');
   close.innerHTML=icon('x');
-  toast.append(iconSlot,content,close);
+  toast.append(iconSlot,content);
+  let dismiss=()=>{};
+  if(options.actionLabel&&typeof options.onAction==='function'){
+    const action=document.createElement('button');
+    action.type='button';
+    action.className='toast-action';
+    action.textContent=String(options.actionLabel);
+    action.addEventListener('click',()=>{dismiss();options.onAction()});
+    toast.classList.add('has-action');
+    toast.append(action);
+  }
+  toast.append(close);
   region.appendChild(toast);
   let remaining=Math.max(1500,Number(options.duration)||4500);
   let started=Date.now();
   let timer=null;
-  const dismiss=()=>{if(timer)clearTimeout(timer);toast.remove()};
+  dismiss=()=>{
+    if(timer)clearTimeout(timer);
+    if(!toast.isConnected||toast.classList.contains('is-leaving'))return;
+    toast.classList.add('is-leaving');
+    const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if(reduced){toast.remove();return}
+    toast.addEventListener('animationend',()=>toast.remove(),{once:true});
+    window.setTimeout(()=>toast.remove(),400);
+  };
   const resume=()=>{
     if(options.persistent||!toast.isConnected)return;
     started=Date.now();
@@ -360,6 +379,70 @@ function showToast(message,type='info',options={}){
   toast.addEventListener('focusout',resume);
   resume();
   return toast;
+}
+
+/* Inline field validation: the message sits under the field and clears as
+   soon as the user edits it, so a modal is reserved for server failures. */
+function fieldErrorAnchor(target){
+  if(!target)return null;
+  if(target.tagName==='SELECT')return target.closest('.select-control')||target;
+  return target;
+}
+function clearFieldError(target){
+  const anchor=fieldErrorAnchor(target);
+  if(!anchor)return;
+  anchor.classList.remove('is-invalid');
+  target.removeAttribute('aria-invalid');
+  const id=anchor.dataset.fieldErrorId;
+  if(id){
+    document.getElementById(id)?.remove();
+    const described=String(target.getAttribute('aria-describedby')||'').split(/\s+/).filter(item=>item&&item!==id);
+    if(described.length)target.setAttribute('aria-describedby',described.join(' '));
+    else target.removeAttribute('aria-describedby');
+    delete anchor.dataset.fieldErrorId;
+  }
+}
+function showFieldError(target,message){
+  const anchor=fieldErrorAnchor(target);
+  if(!anchor)return;
+  clearFieldError(target);
+  const node=document.createElement('span');
+  node.className='field-inline-error';
+  node.id='field-error-'+(++toastSequence);
+  node.setAttribute('role','alert');
+  node.innerHTML=icon('circleAlert');
+  node.append(document.createTextNode(String(message??'')));
+  anchor.classList.add('is-invalid');
+  anchor.dataset.fieldErrorId=node.id;
+  anchor.insertAdjacentElement('afterend',node);
+  target.setAttribute('aria-invalid','true');
+  const described=String(target.getAttribute('aria-describedby')||'').split(/\s+/).filter(Boolean);
+  target.setAttribute('aria-describedby',[...described,node.id].join(' '));
+  const focusTarget=target.tagName==='SELECT'?anchor.querySelector('.select-trigger'):
+    (target.matches('input,textarea,button,[tabindex]')?target:target.querySelector('input,button,[tabindex]'));
+  focusTarget?.focus({preventScroll:true});
+  anchor.scrollIntoView({block:'center',behavior:'smooth'});
+  const clear=()=>clearFieldError(target);
+  target.addEventListener('input',clear,{once:true});
+  target.addEventListener('change',clear,{once:true});
+  if(!target.matches('input,textarea,select'))target.addEventListener('click',clear,{once:true});
+}
+
+/* Collapse a list node before removing it, so neighbours slide up instead of
+   jumping.  Resolves after the node has left the DOM. */
+function collapseAndRemove(node){
+  if(!node?.isConnected)return Promise.resolve();
+  const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if(reduced||typeof node.animate!=='function'){node.remove();return Promise.resolve()}
+  const style=getComputedStyle(node);
+  const animation=node.animate([
+    {height:node.offsetHeight+'px',opacity:1,paddingTop:style.paddingTop,paddingBottom:style.paddingBottom},
+    {height:'0px',opacity:0,paddingTop:'0px',paddingBottom:'0px'}
+  ],{duration:180,easing:'ease-out'});
+  node.style.overflow='hidden';
+  // Background tabs may not advance animations; never let removal wait on paint.
+  const timeout=new Promise(resolve=>{setTimeout(resolve,260)});
+  return Promise.race([animation.finished.catch(()=>{}),timeout]).then(()=>{animation.cancel();node.remove()});
 }
 
 function parseHashRoute(){
@@ -417,13 +500,13 @@ function activatePage(n,params=new URLSearchParams()){
     button.setAttribute('aria-current',active?'page':'false');
   });
   const titles={
-    add:['plus','标记错题'],
-    list:['listChecks','错题列表'],
+    add:['bookmarkPlus','标记错题'],
+    list:['notebook','错题列表'],
     stats:['chart','统计分析'],
-    review:['refresh','复习'],
+    review:['repeat','复习'],
     input:['filePlus','录入题目'],
-    exam:['fileText','组卷'],
-    settings:['settings','AI 设置']
+    exam:['examPaper','组卷'],
+    settings:['settings','设置']
   };
   const title=titles[n];
   document.getElementById('page-title').innerHTML=title?icon(title[0])+`<span>${title[1]}</span>`:'';

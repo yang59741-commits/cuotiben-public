@@ -54,14 +54,19 @@ function fixture(){
     insertAdjacentElement(_position,item){this.parentElement?.append(item)}
   }
   function element(id){const node=new Element();node.id=id;return node}
-  for(const id of ['e-subject','e-chapters','e-diff','em-diff','e-diff-stars','em-diff-stars','em-subject','em-chapter','exam-bank-coverage','exam-daily-recommendations','exam-daily-recommendations-refresh','exam-history','exam-history-load-more','exam-history-total','exam-result','exam-content','exam-empty','modal-body','btn-gen','gen-status','gen-progress','e-target','e-count','e-note'])element(id);
+  for(const id of ['e-subject','e-chapters','e-diff','em-diff','e-diff-stars','em-diff-stars','em-subject','em-chapter','exam-bank-coverage','exam-recommendation-status','exam-mistake-list','exam-selected-count','exam-selection-summary','exam-daily-recommendations-refresh','exam-history','exam-history-load-more','exam-history-total','exam-result','exam-content','exam-empty','modal-body','btn-gen','gen-status','gen-progress','e-target','e-count','e-note'])element(id);
   nodes.get('e-subject').replaceChildren(new Element('option'),new Element('option'));
   const tabs=new Element(),historyTabs=new Element();
   const doc={
+    addEventListener:()=>{},
     getElementById:id=>nodes.get(id)||null,
     createElement:tag=>new Element(tag),
     querySelector:selector=>selector==='.tabs'?tabs:selector==='.exam-history-tabs'?historyTabs:null,
-    querySelectorAll:selector=>selector==='#e-types input:checked'?[{value:'证明题'}]:[],
+    querySelectorAll:selector=>{
+      if(selector==='#e-types input:checked'||selector==='#em-types input:checked')return [{value:'证明题'}];
+      if(selector==='#exam-mistake-list input[type=checkbox]')return [...nodes.get('exam-mistake-list').innerHTML.matchAll(/type="checkbox" value="(\d+)"/g)].map(match=>({value:match[1],checked:false}));
+      return [];
+    },
     activeElement:null
   };
   function deferred(list,url,options){
@@ -72,7 +77,7 @@ function fixture(){
     safeInteger:(value,fallback=0)=>Number.isFinite(Number(value))?Number(value):fallback,
     escapeHTML:value=>String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'),
     icon:()=>'',syncCustomSelect:()=>{},renderMath:async()=>true,
-    emptyStateHTML:text=>text,safeLocalURL:value=>value,
+    emptyStateHTML:text=>text,safeLocalURL:value=>value,problemPreviewHTML:String,cleanProblemContent:String,
     api:(url,options={})=>deferred(requests,url,options),
     runJobRequest:(kind,payload)=>deferred(jobs,kind,payload),
     showModal:(title,message,_kind,buttons='')=>{
@@ -86,10 +91,10 @@ function fixture(){
   vm.createContext(context);
   const loader=fs.readFileSync(path.join(root,'cuoti_app/static/js/feature-loader.js'),'utf8');
   const urls=[...loader.match(/exam:Object.freeze\(\[([\s\S]*?)\]\)/)[1].matchAll(/'([^']+)'/g)].map(m=>m[1]);
-  assert.equal(urls.length,8);
-  assert.equal(urls.at(-1),'/static/js/exam.js?bundle=exam-modules-v1');
+  assert.equal(urls.length,12);
+  assert.equal(urls.at(-1),'/static/js/exam.js?bundle=practice-feedback-v1');
   const template=fs.readFileSync(path.join(root,'cuoti_app/templates/index.html'),'utf8');
-  assert.ok(template.includes("filename='js/feature-loader.js', bundle='exam-modules-v1'"));
+  assert.ok(template.includes("filename='js/feature-loader.js', bundle='practice-feedback-v1'"));
   const sw=fs.readFileSync(path.join(root,'cuoti_app/static/sw.js'),'utf8');
   for(const url of urls){
     const pathname=url.split('?')[0];
@@ -100,6 +105,64 @@ function fixture(){
 }
 
 async function run(){
+  const candidate=id=>({id,subject_id:1,chapter_id:2,qnum:String(id),content:`problem-${id}`,reasons:'',date_added:'2026-09-26'});
+  const displayed=f=>[...f.nodes.get('exam-mistake-list').innerHTML.matchAll(/type="checkbox" value="(\d+)"/g)].map(m=>Number(m[1]));
+  // Both arrival orders merge the same list; paging never duplicates or loses picks.
+  for(const recommendationsFirst of [true,false]){
+    const f=fixture();f.page.state.active=true;f.nodes.get('em-subject').value='1';
+    const candidates=f.page.selection.loadExamMistakes();
+    const recommendations=f.page.selection.loadExamDailyRecommendations();
+    const resolveCandidates=()=>f.requests[0].resolve({items:[candidate(40),candidate(39)],total:40,has_more:true,next_cursor:'next'});
+    const resolveRecommendations=()=>f.requests[1].resolve({items:[candidate(3),candidate(40)]});
+    if(recommendationsFirst){resolveRecommendations();await recommendations;resolveCandidates();await candidates;}
+    else{resolveCandidates();await candidates;resolveRecommendations();await recommendations;}
+    assert.deepEqual(displayed(f),[3,40,39]);
+    f.page.selection.toggleMistake({value:'3',checked:true});
+    const more=f.page.selection.loadExamMistakes({append:true});
+    assert.ok(f.requests[2].url.includes('after=next'));
+    f.requests[2].resolve({items:[candidate(3),candidate(38)],total:40,has_more:false});await more;
+    assert.deepEqual(displayed(f),[3,40,39,38]);
+    assert.ok(f.page.state.selectedExamMistakeIds.has(3));
+    const refreshed=f.page.selection.loadExamDailyRecommendations();
+    f.requests[3].resolve({items:[candidate(40)]});await refreshed;
+    assert.deepEqual(displayed(f),[40,39,38,3]);
+    assert.ok(f.page.state.selectedExamMistakeIds.has(3));
+    f.page.selection.selectAllMistakes();assert.equal(f.page.state.selectedExamMistakeIds.size,4);
+    f.page.selection.selectNoMistakes();assert.equal(f.page.state.selectedExamMistakeIds.size,0);
+  }
+  // Recommendation failures do not hide available candidates or bypass the cap.
+  {
+    const f=fixture();f.page.state.active=true;f.nodes.get('em-subject').value='1';
+    const loaded=f.page.selection.loadExamMistakes();
+    f.requests[0].resolve({items:Array.from({length:30},(_,i)=>candidate(i+1)),total:30});await loaded;
+    const recommended=f.page.selection.loadExamDailyRecommendations();
+    f.requests[1].reject(new Error('offline'));await recommended;
+    assert.equal(displayed(f).length,30);
+    assert.ok(f.nodes.get('exam-recommendation-status').textContent.includes('仍可选择'));
+    f.page.selection.selectAllMistakes();assert.equal(f.page.state.selectedExamMistakeIds.size,20);
+    const checkbox={checked:true,value:'1'};f.page.selection.toggleMistake(checkbox);
+    assert.equal(checkbox.checked,false);assert.equal(f.page.state.selectedExamMistakeIds.size,20);
+  }
+  // Changing filters invalidates an older recommendation even if abort is ignored.
+  {
+    const f=fixture();f.page.state.active=true;f.nodes.get('em-subject').value='1';
+    const old=f.page.selection.loadExamDailyRecommendations();
+    f.page.state.selectedExamMistakeIds.add(99);
+    f.nodes.get('em-chapter').value='2';f.page.selection.filterExamMistakesByChapter();
+    assert.equal(f.page.state.selectedExamMistakeIds.size,0);
+    assert.equal(f.requests[0].options.signal.aborted,true);
+    f.requests[1].resolve({items:[candidate(5)],total:1});
+    f.requests[2].resolve({items:[]});await tick();
+    f.requests[0].resolve({items:[candidate(99)]});await old;
+    assert.deepEqual(displayed(f),[5]);
+  }
+  // Without a subject the single picker waits for the existing subject selection.
+  {
+    const f=fixture();await f.page.selection.loadExamDailyRecommendations();
+    assert.equal(f.requests.length,0);
+    assert.ok(f.nodes.get('exam-recommendation-status').textContent.includes('选择科目'));
+  }
+
   // Actual loader order executes all classic modules and preserves public actions.
   {
     const f=fixture();
@@ -117,12 +180,14 @@ async function run(){
     assert.equal(f.requests.length,2);
     f.requests[1].resolve({items:[],has_more:false});f.requests[0].resolve({items:[],has_more:false});
     await Promise.all([first,second]);
+    f.nodes.get('em-subject').value='1';
     f.nodes.get('exam-daily-recommendations-refresh').dispatchEvent(new Event('click'));
     assert.equal(f.requests.length,3);
     f.context.contract.unmount();
     assert.equal(f.requests[2].options.signal.aborted,true);
     f.requests[2].resolve({items:[]});await tick();
     const mounted=f.context.contract.mount();f.requests[3].resolve({items:[]});await mounted;
+    f.nodes.get('em-subject').value='1';
     f.nodes.get('exam-daily-recommendations-refresh').dispatchEvent(new Event('click'));
     assert.equal(f.requests.length,5);
     f.requests[4].resolve({items:[]});await tick();
@@ -240,6 +305,6 @@ async function run(){
     f.requests[1].resolve({public_id:'attempt',status:'submitted',items:[]});await returning;
     assert.equal(f.modals.at(-1).title,'作答记录');
   }
-  console.log('EXAM_LIFECYCLE_CONTRACT_OK groups=10');
+  console.log('EXAM_LIFECYCLE_CONTRACT_OK groups=15');
 }
 run().catch(error=>{console.error(error);process.exitCode=1});

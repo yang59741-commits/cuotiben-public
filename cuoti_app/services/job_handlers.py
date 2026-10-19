@@ -251,6 +251,10 @@ def start_job_worker(app):
     return handle
 
 
+class WorkerShutdownTimeout(RuntimeError):
+    """A server must keep its process lease until the remaining writers die."""
+
+
 def stop_job_worker(app, *, timeout: float = 3.0) -> None:
     handle = app.extensions.get("job_worker")
     if not handle:
@@ -263,7 +267,7 @@ def stop_job_worker(app, *, timeout: float = 3.0) -> None:
             thread.join(timeout=max(0.0, deadline - time.monotonic()))
     alive = [thread.name for thread in threads if thread is not None and thread.is_alive()]
     if alive:
-        raise RuntimeError(
+        raise WorkerShutdownTimeout(
             "后台任务 worker 未在期限内确认停止：" + ", ".join(alive)
         )
     app.extensions.pop("job_worker", None)

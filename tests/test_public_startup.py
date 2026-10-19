@@ -20,7 +20,7 @@ def test_empty_download_initializes_and_preserves_its_own_database(tmp_path, mon
             db.commit()
         response = first.test_client().get("/api/v2/reviews/due?limit=1")
         assert response.status_code == 200
-        assert response.json["summary"] == {"active": 0, "mastered": 0}
+        assert response.json["summary"] == {"active": 0, "mastered": 0, "overdue": 0}
     monkeypatch.setattr(desktop, "_application", None)
     with database_service_guard(path):
         second = desktop.get_application()

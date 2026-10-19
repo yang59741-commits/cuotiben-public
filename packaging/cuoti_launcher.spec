@@ -10,6 +10,7 @@ from PyInstaller.utils.hooks import collect_data_files
 PROJECT_ROOT = Path(SPECPATH).resolve().parent
 STATIC_ROOT = Path(os.environ.get("CUOTI_BUILD_STATIC", PROJECT_ROOT / "cuoti_app" / "static"))
 VERSION_FILE = os.environ.get("CUOTI_VERSION_FILE")
+SQLITE_RUNTIME = runpy.run_path(str(PROJECT_ROOT / "tools" / "sqlite_runtime.py"))["check_runtime"]()
 
 # Validate the actual staged assets even when PyInstaller is invoked directly.
 runpy.run_path(str(PROJECT_ROOT / "tools" / "check_mathjax_assets.py"))[
@@ -44,7 +45,7 @@ excludes = [
 a = Analysis(
     [str(PROJECT_ROOT / "launcher.py")],
     pathex=[str(PROJECT_ROOT)],
-    binaries=[],
+    binaries=[(SQLITE_RUNTIME["dll"], ".")],
     datas=datas,
     hiddenimports=hiddenimports,
     hookspath=[],
@@ -54,6 +55,13 @@ a = Analysis(
     noarchive=False,
     optimize=0,
 )
+# Dependency analysis can prefer Anaconda's Library/bin even though Python's
+# project startup binding loaded the patched DLL. Bind the frozen image too.
+sqlite_entries = [entry for entry in a.binaries if Path(entry[0]).name.lower() == "sqlite3.dll"]
+if len(sqlite_entries) != 1:
+    raise RuntimeError("Expected one SQLite DLL in the frozen dependency graph")
+a.binaries = [(name, SQLITE_RUNTIME["dll"], kind) if Path(name).name.lower() == "sqlite3.dll"
+              else (name, source, kind) for name, source, kind in a.binaries]
 pyz = PYZ(a.pure)
 
 exe = EXE(

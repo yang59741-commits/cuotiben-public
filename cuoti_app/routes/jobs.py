@@ -258,19 +258,14 @@ def jobs_collection():
             limit = bounded_limit(request.args.get("limit"), default=50, maximum=200)
             requested_status = request.args.get("status") or None
             state = request.args.get("state") or None
+            if state and state not in {"active", requested_status}:
+                raise ValueError("任务状态筛选无效")
             jobs = coordinator.list_jobs(
                 status=requested_status,
                 kind=request.args.get("kind") or None,
                 limit=limit,
+                active=state == "active",
             )
-            if state == "active":
-                jobs = [
-                    job
-                    for job in jobs
-                    if job["status"] in {"queued", "running", "cancel_requested"}
-                ]
-            elif state and state != requested_status:
-                raise ValueError("任务状态筛选无效")
         except (CursorError, ValueError, UnknownJobKind) as exc:
             return _error(str(exc), 400, "invalid_request")
         return jsonify({"jobs": jobs})

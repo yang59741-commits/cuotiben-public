@@ -288,6 +288,19 @@ def parse_items(raw: object) -> list[dict]:
     return parsed if isinstance(parsed, list) else []
 
 
+def daily_review_download_stem(row) -> str:
+    try:
+        snapshot = json.loads(row["filter_snapshot_json"] or "{}")
+    except (TypeError, json.JSONDecodeError):
+        snapshot = {}
+    created_at = datetime.fromisoformat(row["created_at"])
+    day = created_at.astimezone(timezone(timedelta(hours=8))).strftime("%Y%m%d")
+    round_number = snapshot.get("daily_review_round_number")
+    round_label = f"_第{int(round_number)}轮" if round_number is not None else ""
+    batch_id = row["batch_id"] if "batch_id" in row.keys() else row["id"]
+    return f"每日自主复习_{day}{round_label}_批次{int(batch_id)}"
+
+
 def serialize_export(row) -> dict:
     day = str(row["created_at"] or "")[:10].replace("-", "") or "export"
     export_id = int(row["id"])
@@ -402,6 +415,11 @@ def serialize_batch(db, row) -> dict:
                     "completed_count": completed,
                 }
             )
+    if export_context == "daily_review":
+        stem = daily_review_download_stem(row)
+        result["download_name"] = f"{stem}.zip"
+        for volume in volumes:
+            volume["download_name"] = f"{stem}_第{volume['volume_index']}册.pdf"
     return result
 
 

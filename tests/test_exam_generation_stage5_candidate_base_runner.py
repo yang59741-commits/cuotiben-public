@@ -52,7 +52,7 @@ def test_scaled_integer_pressure_matches_original_rational_order():
     (80, '6700895189227bc3b1f24b0a74256feccccc11a255b9f637efc8000fa88da306', '911be042286b4809d3e1d1facd522e315a22cf248abbd01dff2e9fc127112eda'),
 ])
 def test_repeated_slot_family_reuses_order_without_changing_frozen_graph(monkeypatch, count, expected_hash, expanded_hash):
-    from cuoti_app.services import exam_generation_stage5_solver as solver
+    from cuoti_app.services.exams.selection import graph as solver
     stage3, stage4 = _payloads()
     stage3['question_count'] = 2
     stage3['slot_demands'].append(dict(stage3['slot_demands'][0], position=2))

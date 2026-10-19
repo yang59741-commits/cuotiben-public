@@ -65,7 +65,7 @@ async function loadExamHistory(options={}){
   if(total)total.textContent=examHistoryTotal?`已显示 ${data.length} / ${examHistoryTotal} 份`:'';
   if(!data.length){
     div.innerHTML=mode==='trash'
-      ?emptyStateHTML('回收站为空',{icon:'archive',compact:true})
+      ?emptyStateHTML('回收站为空',{icon:'trash',compact:true})
       :emptyStateHTML('暂无历史试卷',{icon:'history',description:'生成的试卷会保存在这里。',compact:true});
     return;
   }
@@ -74,7 +74,7 @@ async function loadExamHistory(options={}){
     if(mode==='trash'){
       return `<div class="exam-history-item is-trash"><span class="exam-history-title" title="${escapeHTML(exam.title||'')}">${escapeHTML(exam.title||'')}</span><span class="exam-history-time" title="${escapeHTML(exam.deleted_at||'')}">${escapeHTML(formatExamHistoryDate(exam.deleted_at))}</span><button type="button" class="btn btn-out btn-xs js-restore-exam" data-id="${id}" title="恢复试卷" aria-label="恢复试卷">${icon('undo')}</button></div>`;
     }
-    return `<div class="exam-history-item"><button type="button" class="exam-history-title js-view-exam" data-id="${id}" title="${escapeHTML(exam.title||'')}">${escapeHTML(exam.title||'')}</button><span class="exam-history-time" title="${escapeHTML(exam.created_at||'')}">${escapeHTML(formatExamHistoryDate(exam.created_at))}</span><button type="button" class="btn btn-d btn-xs js-delete-exam" data-id="${id}" title="移入回收站" aria-label="移入回收站">${icon('archive')}</button></div>`;
+    return `<div class="exam-history-item"><button type="button" class="exam-history-title js-view-exam" data-id="${id}" title="${escapeHTML(exam.title||'')}">${escapeHTML(exam.title||'')}</button><span class="exam-history-time" title="${escapeHTML(exam.created_at||'')}">${escapeHTML(formatExamHistoryDate(exam.created_at))}</span><button type="button" class="btn btn-d btn-xs js-delete-exam" data-id="${id}" title="移入回收站" aria-label="移入回收站">${icon('trash')}</button></div>`;
   }).join('');
   div.querySelectorAll('.js-view-exam').forEach(item=>{
     item.addEventListener('click',()=>examPage.preview.viewExam(safeInteger(item.dataset.id)));

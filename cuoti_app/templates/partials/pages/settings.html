@@ -1,158 +1,238 @@
     <div class="panel" id="p-settings">
-      <div class="settings-layout">
-        <section class="settings-section" aria-labelledby="settings-ai-title">
-          <div class="settings-heading">
-            <div><h2 id="settings-ai-title">AI 服务</h2><p>填写 AI 服务商的接口地址、密钥和模型。密钥只保存在这台电脑上，保存后页面不会再显示完整密钥。</p></div>
-            <span class="settings-state" id="settings-source">正在读取...</span>
-          </div>
-          <form id="ai-settings-form" novalidate>
-            <div class="settings-grid">
-              <div class="settings-field"><label for="ai-profile">AI 连接</label><select id="ai-profile" name="active_profile"><option value="deepseek">DeepSeek</option><option value="soulecho">GPT（SoulEcho / NewAPI）</option><option value="claude">Claude（Anthropic）</option><option value="custom">其他 OpenAI 兼容服务</option></select><input id="ai-provider" name="provider" type="hidden" value="openai_compatible"></div>
-              <div class="settings-field"><label for="ai-base-url">接口地址（Base URL）</label><input id="ai-base-url" name="base_url" type="url" autocomplete="url" placeholder="https://api.example.com/v1"><span class="field-hint">服务商提供的地址，通常以 /v1 结尾；也可以直接填写完整的 …/chat/completions 地址。</span><span class="field-error" id="ai-base-url-error"></span></div>
-              <div class="settings-field"><label for="ai-dns-mode">网络连接</label><select id="ai-dns-mode" name="dns_mode"><option value="domestic">国内 DNS 直连</option><option value="system">系统 DNS 直连</option><option value="proxy">系统代理 / TUN（Clash）</option></select><span class="field-hint">一般保持默认。开着 Clash 等代理软件（TUN / Fake-IP 模式）却连不上时，改选“系统代理 / TUN”。直连模式会额外检查域名解析结果，更安全。</span></div>
-              <div class="settings-field"><label for="ai-dns-servers">国内 DNS 服务器</label><input id="ai-dns-servers" name="dns_servers" autocomplete="off" inputmode="decimal" placeholder="223.5.5.5, 119.29.29.29"><span class="field-hint">仅在“国内 DNS 直连”时使用。填写 1–3 个 IPv4 地址，用英文逗号分隔。</span></div>
-              <div class="settings-field settings-field-wide"><label for="ai-api-key">API 密钥</label><div class="secret-input"><input id="ai-api-key" name="api_key" type="password" autocomplete="new-password" placeholder="留空则保持现有密钥"><button type="button" class="icon-btn" id="ai-key-toggle" aria-label="显示当前输入的密钥" aria-pressed="false" title="显示或隐藏当前输入"><span data-icon="eye"></span></button></div><span class="field-hint" id="ai-key-state">尚未读取密钥状态</span></div>
-              <div class="settings-field settings-field-wide ai-model-browser" aria-labelledby="ai-models-label">
-                <div class="ai-model-toolbar"><div><span class="settings-field-label" id="ai-models-label">账号可用模型</span><span class="field-hint">用已保存的密钥向服务商查询能用哪些模型，请先保存密钥</span></div><button type="button" class="btn btn-out btn-sm" id="ai-models-load"><span data-icon="refresh"></span><span>读取模型</span></button></div>
-                <div class="ai-mode-row"><span class="settings-field-label" id="ai-speed-label">速度偏好</span><div class="settings-segments" id="ai-speed-mode" role="group" aria-labelledby="ai-speed-label"><button type="button" data-ai-speed="fast" disabled>速度优先</button><button type="button" data-ai-speed="balanced" disabled>均衡</button><button type="button" data-ai-speed="quality" disabled>质量优先</button></div></div>
-                <div class="settings-message" id="ai-models-status" role="status" aria-live="polite">尚未读取</div>
-                <div class="ai-model-list" id="ai-models-list" aria-live="polite"></div>
+      <div class="set-page">
+        <div class="set-main">
+          <nav class="set-summary" id="set-summary" aria-label="设置状态总览"></nav>
+
+          <div class="set-group-label">AI</div>
+          <section class="set-card" id="card-ai" aria-labelledby="ai-title">
+            <header class="set-card-head">
+              <div class="set-card-title">
+                <h2 id="ai-title"><span data-icon="sparkles"></span>AI 服务</h2>
+                <p>选服务商、填密钥、挑两个模型。保存后对新开始的任务生效；密钥只存在这台电脑上。</p>
               </div>
-              <div class="settings-field"><label for="ai-quality-model">高质量模型</label><input id="ai-quality-model" name="quality_model" autocomplete="off"><span class="field-hint">用于错题分析、组卷等较难的任务</span></div>
-              <div class="settings-field"><label for="ai-fast-model">快速模型</label><input id="ai-fast-model" name="fast_model" autocomplete="off"><span class="field-hint">用于拆题、归类等较简单的任务</span></div>
-              <div class="settings-field settings-field-wide"><span class="settings-field-label" id="ai-reasoning-label">思考程度</span><input id="ai-reasoning-effort" name="reasoning_effort" type="hidden" value=""><div class="settings-segments settings-segments-five" id="ai-reasoning-mode" role="radiogroup" aria-labelledby="ai-reasoning-label"><button type="button" role="radio" aria-checked="true" data-ai-effort="">自动</button><button type="button" role="radio" aria-checked="false" data-ai-effort="low">低</button><button type="button" role="radio" aria-checked="false" data-ai-effort="medium">中</button><button type="button" role="radio" aria-checked="false" data-ai-effort="high">高</button><button type="button" role="radio" aria-checked="false" data-ai-effort="max">极高</button></div><span class="field-hint">越高，AI 想得越仔细，但更慢、用量更多；“自动”使用服务商的默认设置。</span></div>
+              <div class="set-card-tools"><span class="set-state" id="ai-state">正在读取…</span></div>
+            </header>
+            <form id="ai-settings-form" novalidate>
+              <input id="ai-profile" name="active_profile" type="hidden" value="deepseek"><input id="ai-provider" name="provider" type="hidden" value="openai_compatible"><input id="ai-reasoning-effort" name="reasoning_effort" type="hidden" value=""><input id="ai-dns-mode" name="dns_mode" type="hidden" value="domestic">
+              <div class="set-block">
+                <div class="set-block-label" id="ai-provider-label">服务商</div>
+                <div class="ai-providers" id="ai-providers" role="radiogroup" aria-labelledby="ai-provider-label"></div>
+                <p class="set-note" id="ai-provider-note" hidden>需要兼容 OpenAI 接口格式的服务；接口地址和模型名请按服务商文档填写。</p>
+                <p class="set-note" id="ai-legacy-note" hidden><span>旧版配置文件里还存着一份密钥，迁移后改由 Windows 凭据管理器保存。</span><button type="button" class="btn btn-out btn-xs" id="ai-migrate">迁移旧配置</button></p>
+              </div>
+              <div class="set-fields">
+                <div class="set-field">
+                  <label for="ai-base-url">接口地址</label>
+                  <input id="ai-base-url" name="base_url" type="url" autocomplete="url" placeholder="https://api.example.com/v1">
+                  <small class="set-hint">服务商给的地址，通常以 /v1 结尾；也可以填完整的 …/chat/completions</small>
+                </div>
+                <div class="set-field">
+                  <label for="ai-api-key">API 密钥</label>
+                  <div class="secret-input"><input id="ai-api-key" name="api_key" type="password" autocomplete="new-password" placeholder="留空则保持现有密钥"><button type="button" class="icon-btn" id="ai-key-toggle" aria-label="显示当前输入的密钥" aria-pressed="false" title="显示或隐藏当前输入"><span data-icon="eye"></span></button></div>
+                  <small class="set-hint ai-key-state" id="ai-key-state">尚未读取密钥状态</small>
+                </div>
+              </div>
+              <div class="set-block">
+                <div class="set-block-head">
+                  <span class="set-block-label">模型</span>
+                  <span class="set-anchor"><button type="button" class="set-text-btn" id="ai-preset-open" aria-haspopup="menu" aria-expanded="false"><span data-icon="sparkles"></span>推荐搭配</button></span>
+                </div>
+                <div class="ai-slots">
+                  <div class="ai-slot is-fast">
+                    <div class="ai-slot-head"><label class="ai-slot-badge" for="ai-fast-model"><span data-icon="zap"></span>快速模型</label><span class="set-anchor"><button type="button" class="set-text-btn ai-slot-pick" data-pick="fast" aria-haspopup="dialog" aria-expanded="false">从账号模型选择<span data-icon="chevronDown"></span></button></span></div>
+                    <input id="ai-fast-model" name="fast_model" class="ai-slot-input" autocomplete="off" spellcheck="false">
+                    <div class="ai-slot-use" id="ai-fast-use"></div>
+                  </div>
+                  <div class="ai-slot is-quality">
+                    <div class="ai-slot-head"><label class="ai-slot-badge" for="ai-quality-model"><span data-icon="sparkle"></span>高质量模型</label><span class="set-anchor"><button type="button" class="set-text-btn ai-slot-pick" data-pick="quality" aria-haspopup="dialog" aria-expanded="false">从账号模型选择<span data-icon="chevronDown"></span></button></span></div>
+                    <input id="ai-quality-model" name="quality_model" class="ai-slot-input" autocomplete="off" spellcheck="false">
+                    <div class="ai-slot-use" id="ai-quality-use"></div>
+                  </div>
+                </div>
+                <div class="set-inline-row">
+                  <span class="set-block-label" id="ai-effort-label">思考程度</span>
+                  <div class="set-seg" id="ai-effort" role="radiogroup" aria-labelledby="ai-effort-label"><button type="button" role="radio" aria-checked="true" data-value="">自动</button><button type="button" role="radio" aria-checked="false" data-value="low">低</button><button type="button" role="radio" aria-checked="false" data-value="medium">中</button><button type="button" role="radio" aria-checked="false" data-value="high">高</button><button type="button" role="radio" aria-checked="false" data-value="max">极高</button></div>
+                  <small class="set-hint">越高想得越仔细，也更慢、用量更多；“自动”用服务商的默认设置</small>
+                </div>
+              </div>
+              <details class="set-details" id="ai-network">
+                <summary><span data-icon="globe"></span><span>网络连接</span><span class="set-details-value" id="ai-network-value"></span><span class="set-details-chevron" data-icon="chevronDown"></span></summary>
+                <div class="set-details-body">
+                  <div class="set-seg set-seg-wrap" id="ai-dns-seg" role="radiogroup" aria-label="网络连接方式"><button type="button" role="radio" aria-checked="true" data-value="domestic">国内 DNS 直连</button><button type="button" role="radio" aria-checked="false" data-value="system">系统 DNS 直连</button><button type="button" role="radio" aria-checked="false" data-value="proxy">系统代理 / TUN</button></div>
+                  <p class="set-hint" id="ai-dns-help"></p>
+                  <div class="set-field" id="ai-dns-servers-field">
+                    <label for="ai-dns-servers">国内 DNS 服务器</label>
+                    <input id="ai-dns-servers" name="dns_servers" autocomplete="off" inputmode="decimal" placeholder="223.5.5.5, 119.29.29.29">
+                    <small class="set-hint">1–3 个 IPv4 地址，用英文逗号分隔</small>
+                  </div>
+                </div>
+              </details>
+              <footer class="ai-foot" id="ai-foot">
+                <div class="ai-foot-idle">
+                  <button type="button" class="btn btn-out btn-sm" id="ai-test"><span data-icon="activity"></span>测试连接</button>
+                  <span class="set-msg" id="ai-settings-status" role="status" aria-live="polite"></span>
+                  <span class="set-anchor ai-more-anchor"><button type="button" class="set-icon-btn" id="ai-more" aria-haspopup="menu" aria-expanded="false" aria-label="AI 服务：更多操作" title="更多操作"><span data-icon="more"></span></button></span>
+                </div>
+                <div class="ai-foot-dirty">
+                  <span class="ai-dirty-dot" aria-hidden="true"></span>
+                  <span class="ai-dirty-text" id="ai-dirty-text" role="status" aria-live="polite"></span>
+                  <button type="button" class="btn btn-txt btn-sm" id="ai-discard">撤销修改</button>
+                  <button type="submit" class="btn btn-p btn-sm" id="ai-save">保存</button>
+                </div>
+              </footer>
+            </form>
+          </section>
+
+          <section class="set-card" id="card-routing" aria-labelledby="routing-title">
+            <header class="set-card-head">
+              <div class="set-card-title">
+                <h2 id="routing-title"><span data-icon="route"></span>模型分工</h2>
+                <p>每类任务交给哪一档模型。点一下任务卡就换道，立即保存。</p>
+              </div>
+              <div class="set-card-tools"><span class="set-saved" id="routing-saved" aria-live="polite"></span><button type="button" class="xp-trigger" data-explainer-open="routing" hidden></button></div>
+            </header>
+            <div hidden>
+              <select id="ai-route-classification" data-native-select aria-hidden="true" tabindex="-1"><option value="fast">快速模型</option><option value="quality">高质量模型</option></select>
+              <select id="ai-route-analysis" data-native-select aria-hidden="true" tabindex="-1"><option value="quality">高质量模型</option><option value="fast">快速模型</option></select>
+              <select id="ai-route-daily" data-native-select aria-hidden="true" tabindex="-1"><option value="quality">高质量模型</option><option value="fast">快速模型</option></select>
+              <select id="ai-route-exam" data-native-select aria-hidden="true" tabindex="-1"><option value="quality">高质量模型</option><option value="fast">快速模型</option></select>
             </div>
-            <div class="settings-actions">
-              <button type="button" class="btn btn-out btn-sm" id="ai-migrate" hidden>迁移旧配置</button>
-              <button type="button" class="btn btn-out btn-sm" id="ai-test">测试已保存配置</button>
-              <button type="button" class="btn btn-out btn-sm" id="ai-reset">恢复默认</button>
-              <button type="button" class="btn btn-d btn-sm" id="ai-delete-key">删除凭据</button>
-              <button type="submit" class="btn btn-p btn-sm" id="ai-save">保存设置</button>
-              <span id="ai-settings-status" role="status" aria-live="polite"></span>
+            <div class="lanes" id="routing-lanes">
+              <div class="lane is-fast" role="group" aria-labelledby="lane-fast-label">
+                <div class="lane-head"><span class="lane-icon" data-icon="zap"></span><strong id="lane-fast-label">快速</strong><code class="lane-model" id="lane-fast-model"></code><small>回得快 · 用量少</small></div>
+                <div class="lane-body" data-lane-body="fast"></div>
+              </div>
+              <div class="lane is-quality" role="group" aria-labelledby="lane-quality-label">
+                <div class="lane-head"><span class="lane-icon" data-icon="sparkle"></span><strong id="lane-quality-label">高质量</strong><code class="lane-model" id="lane-quality-model"></code><small>想得深 · 更慢更费</small></div>
+                <div class="lane-body" data-lane-body="quality"></div>
+              </div>
             </div>
-          </form>
-        </section>
-        <section class="settings-section" aria-labelledby="ai-usage-title">
-          <div class="settings-heading"><div><h2 id="ai-usage-title">AI 使用情况</h2><p>查看 AI 最近是否稳定、用量是否正常。只记录用量、模型、结束原因和耗时，不保存题目、提示词或密钥。</p></div><div class="settings-heading-tools"><button type="button" class="btn btn-out btn-sm" id="ai-usage-refresh">刷新</button><button type="button" class="btn btn-out btn-sm settings-help-toggle" data-settings-help aria-expanded="false" aria-controls="ai-usage-help"><span data-icon="circleHelp"></span><span>了解此功能</span></button></div></div>
-          <div class="settings-help" id="ai-usage-help" hidden>
-            <div><h3>有什么用</h3><p>看 AI 是否稳定、是否经常失败重试、用量有没有突然变多。这里只保存运行数字，不保存题目、提示词或密钥。</p></div>
-            <div><h3>如何工作</h3><p>这里分两种统计：“调用”是每一次向 AI 服务发出的请求；“任务”是一整件事，比如分析一道错题或生成一份试卷，看最终是否成功。一个任务可能要调用 AI 好几次。</p></div>
-            <div><h3>名词解释</h3><dl><dt>Token</dt><dd>AI 计算用量的单位，大致随文字长度增加，费用通常按它计算。</dd><dt>P50 / P95</dt><dd>把所有调用按用量从少到多排：一半调用不超过 P50，约 95% 的调用不超过 P95。P95 持续变高，说明有少数请求特别长。</dd><dt>截断</dt><dd>AI 的回答写到长度上限被截断，内容可能不完整。</dd><dt>重试</dt><dd>网络或服务临时出错后自动再发一次。经常重试时，请检查网络或 AI 服务商。</dd><dt>两种成功率</dt><dd>调用成功率看单次请求是否成功；任务成功率看你最终有没有拿到结果。</dd></dl></div>
-            <div><h3>怎么用</h3><p>偶尔失败不用处理，刷新后继续观察；如果重试、截断或 P95 连续偏高，再考虑换模型、缩短输入内容或检查网络设置。</p></div>
-            <div><h3>注意</h3><p>复杂任务会调用 AI 多次，所以调用次数不等于完成的任务数。估算费用时，请同时看 Token 用量和任务成功率。</p></div>
-          </div>
-          <div class="settings-grid" id="ai-usage-stats"><div class="settings-message">尚无使用记录</div></div>
-        </section>
-        <section class="settings-section" aria-labelledby="ai-memory-title">
-          <div class="settings-heading"><div><h2 id="ai-memory-title">AI 记忆</h2><p>让 AI 记住你的学习特点（如薄弱点、出题偏好），之后分析和组卷时参考。自由组卷、错题学习、真题组卷三类记忆互相独立；只保存摘要和题目编号，不保存答案、提示词或密钥。</p></div><div class="settings-heading-tools"><button type="button" class="btn btn-out btn-sm" id="ai-memory-refresh">刷新</button><button type="button" class="btn btn-out btn-sm settings-help-toggle" data-settings-help aria-expanded="false" aria-controls="ai-memory-help"><span data-icon="circleHelp"></span><span>了解此功能</span></button></div></div>
-          <div class="settings-help" id="ai-memory-help" hidden>
-            <div><h3>有什么用</h3><p>让 AI 记住已经确认的学习特点，下次分析和组卷时不用从头了解你。自由组卷、错题学习、真题组卷三类记忆严格分开。</p></div>
-            <div><h3>如何工作</h3><p>系统先记下每次学习或生成的记录（“事件”），再把反复出现的规律总结成简短的“画像”。画像只是对长期偏好、薄弱点和使用习惯的总结，不是照片，也不包含完整答案或聊天记录。</p></div>
-            <div><h3>名词解释</h3><dl><dt>事件</dt><dd>一次能查到来源的学习或生成记录。</dd><dt>画像</dt><dd>从多条事件中总结出的稳定特点。</dd><dt>已确认</dt><dd>证据足够、允许之后的任务使用的画像。</dd></dl></div>
-            <div><h3>怎么用</h3><p>“暂停学习”：不再新增记忆，已有的保留。“重建摘要”：根据现有事件重新总结画像。“清空”：永久删除这一类记忆，另外两类不受影响。</p></div>
-            <div><h3>注意</h3><p>三类记忆互相看不到。清空后无法恢复，但不会删除错题、试卷或另外两类记忆。</p></div>
-          </div>
-          <div class="health-check-list" id="ai-memory-list" aria-live="polite"><div class="settings-message">尚未读取</div></div>
-          <div class="ai-profile-browser" id="ai-memory-profile-browser" role="region" aria-labelledby="ai-memory-profile-heading">
-            <h3 id="ai-memory-profile-heading">查看和管理画像</h3>
-            <p class="field-hint">这里只显示去掉细节的摘要。你确认或修改过的条目，AI 之后会以它为准；标记为否定或隐藏的条目，AI 不会再参考。</p>
-            <div class="settings-actions ai-profile-toolbar">
-              <div class="ai-profile-filter"><label for="ai-memory-profile-type">记忆范围</label><select id="ai-memory-profile-type"><option value="free">自由组卷</option><option value="mistakes">错题学习</option><option value="past">真题组卷</option></select></div>
-              <div class="ai-profile-filter"><label for="ai-memory-profile-entry-type">画像类型</label><select id="ai-memory-profile-entry-type"><option value="">全部类型</option><option value="explicit_preference">明确偏好</option><option value="inferred_weakness">薄弱点</option><option value="mastery_signal">掌握信号</option><option value="model_observation">模型观察</option></select></div>
-              <div class="ai-profile-filter"><label for="ai-memory-profile-status">画像状态</label><select id="ai-memory-profile-status"><option value="">全部状态</option><option value="confirmed">已确认</option><option value="stable">稳定</option><option value="recent">近期</option><option value="rejected">已否定</option><option value="suppressed">已隐藏</option></select></div>
-              <button type="button" class="btn btn-out btn-sm" id="ai-memory-profile-refresh">读取画像</button>
+            <div class="set-card-foot"><button type="button" class="set-text-btn" id="routing-reset" hidden><span data-icon="rotateCcw"></span>恢复推荐分工</button><span class="set-msg" id="routing-msg">只影响之后新开始的任务；正在进行的任务不受影响。</span></div>
+          </section>
+
+          <section class="set-card" id="card-usage" aria-labelledby="usage-title">
+            <header class="set-card-head">
+              <div class="set-card-title">
+                <h2 id="usage-title"><span data-icon="gauge"></span>AI 使用情况</h2>
+                <p>AI 最近稳不稳、用得多不多。只记次数和用量，不存题目、提示词和密钥。</p>
+              </div>
+              <div class="set-card-tools"><span class="set-meta" id="usage-meta">最近 5000 条记录</span><button type="button" class="set-icon-btn" id="ai-usage-refresh" aria-label="刷新使用情况" title="刷新"><span data-icon="refresh"></span></button><button type="button" class="xp-trigger" data-explainer-open="usage" hidden></button></div>
+            </header>
+            <div class="usage-kpis" id="usage-kpis"></div>
+            <div class="usage-toolbar">
+              <div class="set-seg" id="usage-view" role="radiogroup" aria-label="统计口径"><button type="button" role="radio" aria-checked="true" data-value="jobs">按任务结果</button><button type="button" role="radio" aria-checked="false" data-value="calls">按 AI 调用</button></div>
+              <span class="set-hint" id="usage-view-hint"></span>
             </div>
-            <div class="settings-message" id="ai-memory-profile-message" role="status" aria-live="polite"></div>
-            <div class="health-check-list" id="ai-memory-profile-list" aria-live="polite" aria-busy="false"><div class="settings-message">选好筛选条件后，点击“读取画像”</div></div>
-            <nav class="settings-actions ai-profile-pagination" aria-label="画像列表分页"><button type="button" class="btn btn-out btn-xs" id="ai-memory-profile-prev" aria-controls="ai-memory-profile-list" disabled>上一页</button><span id="ai-memory-profile-page" role="status" aria-live="polite">第 1 页</span><button type="button" class="btn btn-out btn-xs" id="ai-memory-profile-next" aria-controls="ai-memory-profile-list" disabled>下一页</button></nav>
+            <div class="usage-rows" id="usage-rows" aria-live="polite"><p class="set-loading">正在读取…</p></div>
+          </section>
+
+          <section class="set-card" id="card-memory" aria-labelledby="memory-title">
+            <header class="set-card-head">
+              <div class="set-card-title">
+                <h2 id="memory-title"><span data-icon="brain"></span>AI 记忆</h2>
+                <p>分析成功或试卷发布后自动积累，供之后组卷参考。不存答案、完整提示词和密钥。</p>
+              </div>
+              <div class="set-card-tools"><button type="button" class="set-icon-btn" id="ai-memory-refresh" aria-label="刷新记忆状态" title="刷新"><span data-icon="refresh"></span></button><button type="button" class="xp-trigger" data-explainer-open="memory" hidden></button></div>
+            </header>
+            <div class="mem-spaces" id="mem-spaces" aria-live="polite"><p class="set-loading">正在读取…</p></div>
+            <div class="set-card-foot">
+              <button type="button" class="btn btn-out btn-sm" id="ai-memory-profile-open" aria-haspopup="dialog">查看和管理画像<span data-icon="chevronRight"></span></button>
+              <span class="set-meta" id="mem-meta"></span>
+              <span class="set-msg" id="ai-memory-status" role="status" aria-live="polite"></span>
+            </div>
+          </section>
+
+          <div class="set-group-label">题库</div>
+          <section class="set-card" id="card-bank" aria-labelledby="bank-title">
+            <header class="set-card-head">
+              <div class="set-card-title">
+                <h2 id="bank-title"><span data-icon="files"></span>普通题库索引</h2>
+                <p>题库的“目录”：组卷时直接查目录，不用每次读遍全部 TeX 文件。</p>
+              </div>
+              <div class="set-card-tools"><span class="set-state" id="question-bank-state">尚未检查</span><button type="button" class="set-icon-btn" id="question-bank-refresh" aria-label="刷新题库索引状态" title="刷新状态"><span data-icon="refresh"></span></button><button type="button" class="xp-trigger" data-explainer-open="question-bank" hidden></button></div>
+            </header>
+            <div class="bank-figures" id="bank-figures"></div>
+            <div class="set-action-row">
+              <button type="button" class="btn btn-out btn-sm" id="question-bank-rebuild"><span data-icon="refresh"></span>后台重建</button>
+              <span class="set-msg" id="question-bank-message" role="status" aria-live="polite"></span>
+            </div>
+            <div class="set-progress is-indeterminate" id="bank-progress" hidden><span></span></div>
+            <details class="set-details set-details-quiet">
+              <summary><span>详细信息</span><span class="set-details-chevron" data-icon="chevronDown"></span></summary>
+              <dl class="set-dl" id="question-bank-details"></dl>
+            </details>
+          </section>
+
+          <section class="set-card" id="card-semantic" aria-labelledby="semantic-title">
+            <header class="set-card-head">
+              <div class="set-card-title">
+                <h2 id="semantic-title"><span data-icon="target"></span>语义索引</h2>
+                <p>让 AI 先读懂每道题考什么，组卷时按题意找题，而不只按文字匹配。</p>
+              </div>
+              <div class="set-card-tools"><span class="set-state" id="semantic-index-state">正在读取…</span><button type="button" class="set-icon-btn" id="semantic-index-refresh" aria-label="重新读取语义索引状态" title="重新读取状态"><span data-icon="refresh"></span></button><button type="button" class="xp-trigger" data-explainer-open="semantic" hidden></button></div>
+            </header>
+            <div class="sem-coverage" id="sem-coverage"></div>
+            <div class="set-action-row">
+              <span class="sem-primary" id="sem-primary"></span>
+              <span class="set-msg" id="sem-primary-hint"></span>
+              <span class="set-anchor sem-more-anchor"><button type="button" class="set-icon-btn" id="sem-more" aria-haspopup="menu" aria-expanded="false" aria-label="语义索引：更多操作" title="更多操作"><span data-icon="more"></span></button></span>
+            </div>
+            <p class="set-msg is-error" id="semantic-index-message" role="status" aria-live="polite"></p>
+            <div class="sem-settings">
+              <div class="sem-setting">
+                <span class="set-block-label" id="sem-mode-label">组卷时怎么用</span>
+                <div class="set-seg" id="semantic-recall-mode" role="radiogroup" aria-labelledby="sem-mode-label"><button type="button" role="radio" aria-checked="false" data-value="off">关闭</button><button type="button" role="radio" aria-checked="true" data-value="shadow">仅观察比较</button><button type="button" role="radio" aria-checked="false" data-value="enforced">正式参与排序</button></div>
+                <span class="set-saved" aria-live="polite"></span>
+                <small class="set-hint" id="sem-mode-hint"></small>
+              </div>
+              <div class="set-switch-row">
+                <button type="button" class="set-switch" role="switch" id="semantic-provider-enabled" aria-checked="false"><span class="set-switch-track"><span></span></span><span class="set-switch-text"><strong>启用语义分析</strong><small id="semantic-provider-hint"></small></span></button>
+                <button type="button" class="set-switch" role="switch" id="semantic-auto-refresh" aria-checked="false"><span class="set-switch-track"><span></span></span><span class="set-switch-text"><strong>题库更新后自动更新</strong><small id="semantic-auto-refresh-hint"></small></span></button>
+              </div>
+              <details class="set-details set-details-quiet">
+                <summary><span>高级设置</span><span class="set-details-value" id="sem-adv-value"></span><span class="set-details-chevron" data-icon="chevronDown"></span></summary>
+                <div class="sem-adv">
+                  <div class="sem-adv-item"><span class="set-block-label" id="sem-conc-label">最大并发</span><div class="set-seg" id="semantic-max-concurrency" role="radiogroup" aria-labelledby="sem-conc-label"><button type="button" role="radio" aria-checked="true" data-value="1">1</button><button type="button" role="radio" aria-checked="false" data-value="2">2</button></div><span class="set-saved" aria-live="polite"></span><small class="set-hint">同时分析几道题；调高不一定更快，还可能被限速</small></div>
+                  <div class="sem-adv-item"><span class="set-block-label" id="sem-mult-label">候选池倍数</span><div class="set-stepper" id="semantic-multiplier-stepper" role="group" aria-labelledby="sem-mult-label"><button type="button" data-step="-1" aria-label="候选池倍数减一"><span data-icon="minus"></span></button><output id="semantic-candidate-multiplier" aria-live="polite">4</output><button type="button" data-step="1" aria-label="候选池倍数加一"><span data-icon="plus"></span></button></div><span class="set-saved" aria-live="polite"></span><small class="set-hint">先挑“所需题数 × 倍数”道候选再排序（1–10）</small></div>
+                  <button type="button" class="set-switch set-switch-sm" role="switch" id="semantic-allow-partial" aria-checked="false"><span class="set-switch-track"><span></span></span><span class="set-switch-text"><strong>索引未完成时先用已完成部分</strong><small id="semantic-partial-hint">能更早用上语义辅助，但可能漏掉一些题</small></span></button>
+                </div>
+              </details>
+              <details class="set-details set-details-quiet">
+                <summary><span>运行详情</span><span class="set-details-chevron" data-icon="chevronDown"></span></summary>
+                <dl class="set-dl" id="semantic-index-details"></dl>
+              </details>
+            </div>
+          </section>
+
+          <div class="set-group-label">系统</div>
+          <div class="set-pair">
+            <section class="set-card" id="card-health" aria-labelledby="health-title">
+              <header class="set-card-head">
+                <div class="set-card-title">
+                  <h2 id="health-title"><span data-icon="shieldCheck"></span>运行状态</h2>
+                  <p>检查本机各部分是否正常，不联系 AI 服务。</p>
+                </div>
+                <div class="set-card-tools"><span class="set-state" id="runtime-health-state">尚未检查</span><button type="button" class="xp-trigger" data-explainer-open="health" hidden></button></div>
+              </header>
+              <div class="health-tiles" id="health-tiles" role="list"></div>
+              <div class="health-issues" id="health-issues"></div>
+              <div class="set-card-foot"><button type="button" class="btn btn-out btn-sm" id="runtime-health-refresh"><span data-icon="refresh"></span>重新诊断</button><span class="set-msg" id="runtime-health-status" role="status" aria-live="polite"></span></div>
+            </section>
+            <section class="set-card" id="card-backup" aria-labelledby="backup-title">
+              <header class="set-card-head">
+                <div class="set-card-title">
+                  <h2 id="backup-title"><span data-icon="archive"></span>数据备份</h2>
+                  <p>把全部错题、复习历史和附件打包成 ZIP，或从备份恢复。</p>
+                </div>
+                <div class="set-card-tools"><button type="button" class="xp-trigger" data-explainer-open="backup" hidden></button></div>
+              </header>
+              <div class="backup-actions">
+                <button type="button" class="backup-tile" id="backup-export" data-action="export-data"><span class="backup-tile-icon" data-icon="download"></span><strong>导出备份</strong><small>生成一个可移植 ZIP</small></button>
+                <button type="button" class="backup-tile" id="backup-import" data-action="pick-import"><span class="backup-tile-icon" data-icon="upload"></span><strong>导入备份</strong><small>先预览差异，确认后才写入</small></button>
+              </div>
+            </section>
           </div>
-          <div class="settings-message" id="ai-memory-status" role="status" aria-live="polite"></div>
-        </section>
-        <section class="settings-section" aria-labelledby="settings-routing-title">
-          <div class="settings-heading"><div><h2 id="settings-routing-title">功能分配</h2><p>为每类任务选择使用“快速模型”还是“高质量模型”，改完后点击上方 AI 服务中的“保存设置”生效。</p></div><div class="settings-heading-tools"><button type="button" class="btn btn-out btn-sm settings-help-toggle" data-settings-help aria-expanded="false" aria-controls="settings-routing-help"><span data-icon="circleHelp"></span><span>了解此功能</span></button></div></div>
-          <div class="settings-help" id="settings-routing-help" hidden>
-            <div><h3>有什么用</h3><p>在速度、费用和效果之间取舍：简单的任务用快的模型，难的任务用强的模型。</p></div>
-            <div><h3>如何工作</h3><p>快速模型回复快、用量少；高质量模型更擅长推理、改编题目和处理长文本。这里只选择用哪一类，具体是哪个模型，取决于上方 AI 服务里填写的模型名称。</p></div>
-            <div><h3>怎么用</h3><p>拆题与归类一般用快速模型就够了；错题分析、每日分析和智能组卷建议用高质量模型。修改后要点击上方 AI 服务中的“保存设置”，之后的新任务才会按新设置执行。</p></div>
-            <div><h3>名词解释</h3><dl><dt>快速模型</dt><dd>更快、更省，适合规则明确的拆题、归类。</dd><dt>高质量模型</dt><dd>推理更强、长文本更连贯，但通常更慢、用量更多。</dd></dl></div>
-            <div><h3>注意</h3><p>把所有任务都换成高质量模型，结果不一定每次都更好，但通常会更慢、用量更多。</p></div>
-          </div>
-          <div class="settings-grid compact-settings-grid">
-            <div class="settings-field"><label for="ai-route-classification">拆题与归类</label><select id="ai-route-classification"><option value="fast">快速模型</option><option value="quality">高质量模型</option></select></div>
-            <div class="settings-field"><label for="ai-route-analysis">错题分析</label><select id="ai-route-analysis"><option value="quality">高质量模型</option><option value="fast">快速模型</option></select></div>
-            <div class="settings-field"><label for="ai-route-daily">每日分析</label><select id="ai-route-daily"><option value="quality">高质量模型</option><option value="fast">快速模型</option></select></div>
-            <div class="settings-field"><label for="ai-route-exam">智能组卷</label><select id="ai-route-exam"><option value="quality">高质量模型</option><option value="fast">快速模型</option></select></div>
-          </div>
-        </section>
-        <section class="settings-section" aria-labelledby="runtime-health-title">
-          <div class="settings-heading">
-            <div><h2 id="runtime-health-title">运行状态</h2><p>检查本机程序各部分是否正常：数据库、后台任务、PDF 生成、题库和 AI 配置。检查过程不会联系 AI 服务。</p></div>
-            <div class="settings-heading-tools"><span class="settings-state" id="runtime-health-state">尚未检查</span><button type="button" class="btn btn-out btn-sm settings-help-toggle" data-settings-help aria-expanded="false" aria-controls="runtime-health-help"><span data-icon="circleHelp"></span><span>了解此功能</span></button></div>
-          </div>
-          <div class="settings-help" id="runtime-health-help" hidden>
-            <div><h3>有什么用</h3><p>快速看出程序哪个部分出了问题，以及应该从哪里着手处理。</p></div>
-            <div><h3>如何工作</h3><p>只检查本机的数据库、后台任务、PDF 编译工具、题库路径和 AI 配置是否齐全，不会向 AI 服务发送请求。</p></div>
-            <div><h3>怎么用</h3><p>“正常”：不用处理。“警告”：部分功能可能用不了，按提示检查。“失败”：关键功能不可用，请先解决再使用相关功能。改过配置后点击“重新诊断”。</p></div>
-            <div><h3>名词解释</h3><dl><dt>数据库</dt><dd>保存错题、试卷和任务进度。</dd><dt>后台任务</dt><dd>在后台执行识别、组卷、建索引等耗时工作。</dd><dt>PDF / 题库 / AI 检查</dt><dd>分别确认生成 PDF 的工具、题库索引和本机 AI 配置是否准备好。</dd></dl></div>
-            <div><h3>注意</h3><p>这里显示正常，只说明本机没有问题，不代表一定能连上 AI 服务。要检查网络连接，请点击上方 AI 服务中的“测试已保存配置”。</p></div>
-          </div>
-          <div class="health-check-list" id="runtime-health-checks" aria-live="polite"></div>
-          <div class="settings-actions">
-            <button type="button" class="btn btn-out btn-sm" id="runtime-health-refresh">重新诊断</button>
-            <span class="settings-message" id="runtime-health-status" role="status" aria-live="polite"></span>
-          </div>
-        </section>
-        <section class="settings-section" aria-labelledby="semantic-index-status-title">
-          <div class="settings-heading">
-            <div><h2 id="semantic-index-status-title">语义索引</h2><p>让 AI 提前读懂题库中每道题考什么，组卷时能按题意找到更相关的题目，而不只是按文字匹配。</p></div>
-            <div class="settings-heading-tools"><span class="settings-state" id="semantic-index-state">正在读取…</span><button type="button" class="btn btn-out btn-sm settings-help-toggle" data-settings-help aria-expanded="false" aria-controls="semantic-index-help"><span data-icon="circleHelp"></span><span>了解此功能</span></button></div>
-          </div>
-          <div class="settings-help" id="semantic-index-help" hidden>
-            <div><h3>有什么用</h3><p>普通索引只知道题目在哪里；语义索引还记下每道题的题意、知识点和出处，让组卷能按意思找题，而不只是按文字匹配。</p></div>
-            <div><h3>如何工作</h3><p>系统先记录当前题库的版本（快照），再让 AI 为每道题写一张简短的“材料卡”，记下题意和知识点。材料卡全部或部分完成后发布，并转换成便于快速比较的格式，供组卷排序使用。打开本页只读取状态，不会调用 AI。</p></div>
-            <div><h3>名词解释</h3><dl><dt>覆盖率</dt><dd>已有可用材料卡的题目，占全部需要处理题目的比例。</dd><dt>过期 / 缺失 / 排除</dt><dd>分别指：题目改过、需要重新分析；还没有材料卡；按规则不参与索引。</dd><dt>投影</dt><dd>材料卡转换后的检索格式，用来快速比较题目。</dd><dt>Token</dt><dd>AI 的用量单位。“预留”是为同时进行的分析提前占用的额度；“未核验”表示这次调用的结果还没确认。</dd><dt>并发</dt><dd>同时分析的题目数量。调高不一定更快，还可能更费钱、更容易被服务商限速。</dd><dt>关闭 / 影子 / 正式</dt><dd>分别对应下方的“关闭语义辅助”“仅观察比较”“正式参与排序”。</dd></dl></div>
-            <div><h3>怎么用</h3><p>“仅观察比较”只在后台记录语义结果，不影响组卷；“正式参与排序”会改变候选题目的先后顺序。“候选池倍数”决定组卷时先挑出几倍于所需题数的候选题再排序，数字越大挑选范围越广，但计算更多。题库更新后要自动更新语义索引，需同时勾选“启用语义分析”和“题库更新后自动更新语义索引”。</p></div>
-            <div><h3>按钮说明</h3><p>“立即更新语义索引”：只处理有变化的题目。“暂停 / 继续”：控制正在进行的更新。“完整重建”：从头重新分析，旧结果保留、不会被覆盖。“查看可清理历史”：只列出可清理的旧数据，不会马上删除。勾选“索引未完成时使用已完成部分”能更早用上语义辅助，但可能漏掉一些题目。</p></div>
-            <div><h3>注意</h3><p>打开本页或点击“重新读取状态”都只是查看，不会启动 AI 任务。调高并发、扩大候选池或完整重建，都可能更耗时、用量更多。</p></div>
-          </div>
-          <div class="health-check-list" id="semantic-index-details" aria-live="polite"></div>
-          <div class="settings-grid compact-settings-grid semantic-index-settings">
-            <div class="settings-field"><label for="semantic-recall-mode">组卷时使用方式</label><select id="semantic-recall-mode"><option value="off">关闭语义辅助</option><option value="shadow">仅观察比较</option><option value="enforced">正式参与排序</option></select></div>
-            <div class="settings-field"><label for="semantic-max-concurrency">最大并发</label><select id="semantic-max-concurrency"><option value="1">1</option><option value="2">2</option></select><span class="field-hint">同时分析的题目数量</span></div>
-            <div class="settings-field"><label for="semantic-candidate-multiplier">候选池倍数</label><input id="semantic-candidate-multiplier" type="number" min="1" max="10" step="1"><span class="field-hint">先挑出“所需题数 × 倍数”道候选题再排序（1–10）</span></div>
-            <div class="settings-field"><label class="settings-checkbox"><input id="semantic-provider-enabled" type="checkbox"> 启用语义分析</label><span class="field-hint" id="semantic-provider-hint"></span></div>
-            <div class="settings-field"><label class="settings-checkbox"><input id="semantic-auto-refresh" type="checkbox"> 题库更新后自动更新语义索引</label><span class="field-hint" id="semantic-auto-refresh-hint"></span></div>
-            <div class="settings-field"><label class="settings-checkbox"><input id="semantic-allow-partial" type="checkbox"> 索引未完成时使用已完成部分</label><span class="field-hint" id="semantic-partial-hint"></span></div>
-          </div>
-          <div class="settings-actions">
-            <button type="button" class="btn btn-out btn-sm" id="semantic-index-refresh">重新读取状态</button>
-            <button type="button" class="btn btn-out btn-sm" id="semantic-settings-save">保存设置</button>
-            <button type="button" class="btn btn-p btn-sm" id="semantic-action-refresh">立即更新语义索引</button>
-            <button type="button" class="btn btn-out btn-sm" id="semantic-action-pause">暂停</button>
-            <button type="button" class="btn btn-out btn-sm" id="semantic-action-resume">继续</button>
-            <button type="button" class="btn btn-d btn-sm" id="semantic-action-rebuild">完整重建</button>
-            <button type="button" class="btn btn-out btn-sm" id="semantic-cleanup-preview">查看可清理历史</button>
-            <span class="settings-message" id="semantic-index-message" role="status" aria-live="polite"></span>
-          </div>
-        </section>
-        <section class="settings-section" aria-labelledby="question-bank-status-title">
-          <div class="settings-heading">
-            <div><h2 id="question-bank-status-title">普通题库索引</h2><p>把本地 TeX 题库整理成索引，组卷时不必每次重新扫描全部文件。题库文件改动后，旧索引照常可用，新索引在后台建好并检查通过后才替换。</p></div>
-            <div class="settings-heading-tools"><span class="settings-state" id="question-bank-state">尚未检查</span><button type="button" class="btn btn-out btn-sm settings-help-toggle" data-settings-help aria-expanded="false" aria-controls="question-bank-help"><span data-icon="circleHelp"></span><span>了解此功能</span></button></div>
-          </div>
-          <div class="settings-help" id="question-bank-help" hidden>
-            <div><h3>有什么用</h3><p>把本地 TeX 题库整理成可以快速查找的索引，组卷时不必每次都重新读取全部源文件。</p></div>
-            <div><h3>如何工作</h3><p>系统会对比题库文件和上次建好的索引。文件有改动时，旧索引仍可正常使用；新索引在后台生成并检查无误后才一次性替换，不会出现只建了一半的情况。</p></div>
-            <div><h3>名词解释</h3><dl><dt>最近可用版本（last-good）</dt><dd>最后一次检查通过、可以放心使用的索引。</dd><dt>过期</dt><dd>题库文件改过了，当前索引还能用，但不包含最新内容。</dd><dt>普通索引与语义索引</dt><dd>普通索引记录题目在哪里、是什么结构；语义索引记录题目考什么，用于组卷排序。</dd></dl></div>
-            <div><h3>怎么用</h3><p>状态正常时不用操作；显示“过期”或刚改过题库文件时，点击“后台重建”。重建完成后，如果已开启语义索引自动更新，会接着更新语义索引。</p></div>
-            <div><h3>注意</h3><p>新索引检查通过后才会替换旧索引；重建失败时继续使用旧索引。题库没有变化时重复重建，不会重复创建语义更新任务。</p></div>
-          </div>
-          <div class="health-check-list" id="question-bank-details" aria-live="polite"></div>
-          <div class="settings-actions">
-            <button type="button" class="btn btn-out btn-sm" id="question-bank-refresh">刷新状态</button>
-            <button type="button" class="btn btn-p btn-sm" id="question-bank-rebuild">后台重建</button>
-            <span class="settings-message" id="question-bank-message" role="status" aria-live="polite"></span>
-          </div>
-        </section>
+        </div>
+        <nav class="set-rail" id="set-rail" aria-label="本页目录"></nav>
       </div>
     </div>

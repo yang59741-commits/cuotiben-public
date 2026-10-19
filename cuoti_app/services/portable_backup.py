@@ -93,7 +93,7 @@ def write_portable_backup(db, attachment_root: Path, output) -> dict[str, int]:
             item['classification'] = None
             if typed['revision']:
                 definition = db.execute('SELECT * FROM question_types WHERE code=?', (typed['primary_type_code'],)).fetchone()
-                item['classification'] = {key: typed[key] for key in ('primary_type_code', 'knowledge_points', 'methods', 'source_hash', 'locked')}
+                item['classification'] = {key: typed[key] for key in ('primary_type_code', 'knowledge_points', 'methods', 'method_annotations', 'source_hash', 'locked')}
                 item['classification']['question_type'] = type_dict(definition) if definition else None
             if analysis:
                 item["daily_analysis"] = {

@@ -41,6 +41,8 @@ _PUBLISHED_MODEL_CAPABILITIES: dict[str, tuple[int, int]] = {
     "deepseek-v4-flash": (1_000_000, 384_000),
     "deepseek-v4-pro": (1_000_000, 384_000),
     "gpt-5.6-sol": (1_050_000, 128_000),
+    "gpt-6.1-sol": (1_050_000, 128_000),
+    "gpt-6-luna": (1_050_000, 128_000),
     "claude-opus-5": (1_000_000, 128_000),
     "claude-haiku-4-5-20251001": (200_000, 64_000),
 }

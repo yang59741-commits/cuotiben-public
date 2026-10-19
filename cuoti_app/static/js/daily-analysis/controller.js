@@ -1,3 +1,4 @@
+/* global modalRevision */
 (function initDailyAnalysisController(){
   'use strict';
 
@@ -7,8 +8,12 @@
   function setTrigger(trigger,pending,label='分析当日'){
     if(!trigger?.isConnected)return;
     trigger.disabled=pending;
-    trigger.innerHTML=pending?icon('loader','icon-spin')+'分析中...':icon('sparkles')+label;
+    trigger.setAttribute('aria-busy',String(pending));
+    const compact=trigger.classList.contains('js-open-daily-analysis');
+    trigger.innerHTML=(pending?icon('loader','icon-spin'):icon(compact?'sparkle':'sparkles'))+(compact?'':pending?'分析中...':label);
   }
+
+  function cancelPresentation(){state.requestRevision+=1;state.pending=false;}
 
   async function waitForExternalGeneration(date,mistakePublicId,revision){
     for(let attempt=0;attempt<30;attempt+=1){
@@ -79,24 +84,27 @@
   async function open(date,mistakePublicId='',trigger=null){
     if(state.pending)return;
     const revision=++state.requestRevision;
+    const originHash=window.location.hash,originModal=modalRevision;
     state.pending=true;
     setTrigger(trigger,true,mistakePublicId?'单题分析':'分析当日');
     try{
       const payload=await ensureCache(
         date,mistakePublicId,mistakePublicId?'single':'missing',revision
       );
-      if(payload&&revision===state.requestRevision)present(payload,date,mistakePublicId);
+      if(payload&&revision===state.requestRevision&&originHash===window.location.hash&&originModal===modalRevision)present(payload,date,mistakePublicId);
     }catch(error){
-      if(revision===state.requestRevision)showModal('分析失败',error.message,'error');
+      if(revision===state.requestRevision&&originHash===window.location.hash&&originModal===modalRevision)showModal('分析失败',error.message,'error');
     }finally{
       if(revision===state.requestRevision)state.pending=false;
       setTrigger(trigger,false,mistakePublicId?'单题分析':'分析当日');
+      window.dispatchEvent(new Event('cuoti:analysis-changed'));
     }
   }
 
   async function regenerate(date,mistakePublicId=''){
     if(state.pending)return;
     const revision=++state.requestRevision;
+    const originHash=window.location.hash,originModal=modalRevision;
     const button=document.getElementById('daily-analysis-regenerate');
     state.pending=true;
     if(button){button.disabled=true;button.innerHTML=icon('loader','icon-spin')+'重新生成中...'}
@@ -107,13 +115,14 @@
       if(payload.in_progress){
         payload=await waitForExternalGeneration(date,mistakePublicId,revision);
       }
-      present(payload,date,mistakePublicId);
+      if(payload&&revision===state.requestRevision&&originHash===window.location.hash&&originModal===modalRevision)present(payload,date,mistakePublicId);
     }catch(error){
-      if(revision===state.requestRevision)showModal('重新生成失败',error.message,'error');
+      if(revision===state.requestRevision&&originHash===window.location.hash&&originModal===modalRevision)showModal('重新生成失败',error.message,'error');
     }finally{
       if(revision===state.requestRevision)state.pending=false;
+      window.dispatchEvent(new Event('cuoti:analysis-changed'));
     }
   }
 
-  feature.controller=Object.freeze({open,regenerate,present,ensureCache});
+  feature.controller=Object.freeze({open,regenerate,present,ensureCache,cancelPresentation});
 })();

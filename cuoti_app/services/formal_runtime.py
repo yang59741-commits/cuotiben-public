@@ -5,10 +5,19 @@ from __future__ import annotations
 from dataclasses import dataclass
 from contextlib import contextmanager
 from pathlib import Path
+import os
 
 
 DEFAULT_HOME_INSTITUTION = ""
 DEFAULT_RECALL_ALGORITHM = "semantic-recall-v2"
+
+
+def runtime_identity(database: str | Path, runtime_root: str | Path) -> dict[str, str]:
+    """Compare layouts by resolved paths, independent of spelling or port."""
+    return {
+        "database": os.path.normcase(str(Path(database).resolve())),
+        "runtime_root": os.path.normcase(str(Path(runtime_root).resolve())),
+    }
 
 
 class FormalRuntimeError(RuntimeError):
@@ -54,6 +63,7 @@ class FormalRuntimePaths:
         runtime = self.runtime_root
         return {
             "DATABASE": str(self.database),
+            "RUNTIME_ROOT": str(runtime),
             "PDF_DIR": str(runtime / "pdfs"),
             "ATTACHMENT_DIR": str(runtime / "attachments"),
             "AI_MEMORY_DIR": str(runtime / "memory"),
@@ -137,4 +147,5 @@ __all__ = [
     "build_formal_runtime_overrides",
     "database_service_guard",
     "resolve_formal_runtime",
+    "runtime_identity",
 ]

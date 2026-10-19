@@ -12,6 +12,7 @@ from typing import Iterable, Mapping
 
 from ..transactions import begin_immediate
 from . import mistake_classification as classification
+from . import solution_methods
 from .learning_evidence import assistance_value, evidence, remediation_status
 
 
@@ -267,12 +268,26 @@ def validate_selection(db, value=None):
     if mode not in {'mixed', 'focused'}:
         raise DailyReviewError('复习模式无效')
     if mode == 'mixed':
-        if any(value.get(key) not in (None, '', False) for key in ('primary_type_code', 'chapter_id', 'subject_id', 'include_mastered', 'count')):
+        if any(value.get(key) not in (None, '', False) for key in ('primary_type_code', 'method_code', 'method_role', 'chapter_id', 'subject_id', 'include_mastered', 'count')):
             raise DailyReviewError('混合复习使用全库轮次，不接受专项条件')
         return {'practice_mode': 'mixed', **extra}
     try:
-        kind = classification.resolve_type(db, value.get('primary_type_code'))
-        subject_id = db.execute('SELECT id FROM subjects WHERE name=?', (kind['subject'],)).fetchone()[0]
+        method_code = value.get('method_code')
+        if method_code:
+            if value.get('primary_type_code'):
+                raise ValueError
+            subject_id = int(value.get('subject_id'))
+            subject = db.execute('SELECT name FROM subjects WHERE id=?', (subject_id,)).fetchone()
+            if subject is None:
+                raise ValueError
+            solution_methods.resolve_method(method_code, subject[0])
+            method_role = value.get('method_role', 'primary')
+            if method_role not in {'primary', 'any'}:
+                raise ValueError
+            kind = None
+        else:
+            kind = classification.resolve_type(db, value.get('primary_type_code'))
+            subject_id = db.execute('SELECT id FROM subjects WHERE name=?', (kind['subject'],)).fetchone()[0]
         if value.get('subject_id') and int(value['subject_id']) != subject_id:
             raise ValueError
         chapter_id = int(value['chapter_id']) if value.get('chapter_id') else None
@@ -281,9 +296,11 @@ def validate_selection(db, value=None):
         count = int(value.get('count', 5))
         if not 5 <= count <= 10 or not isinstance(value.get('include_mastered', False), bool):
             raise ValueError
-    except (ValueError, TypeError, classification.ClassificationError) as exc:
-        raise DailyReviewError('请检查题型、章节和题量（5 至 10）') from exc
-    return {'practice_mode': mode, 'primary_type_code': kind['code'], 'subject_id': subject_id,
+    except (ValueError, TypeError, classification.ClassificationError, solution_methods.MethodError) as exc:
+        raise DailyReviewError('请检查专项题型或方法、科目、章节和题量（5 至 10）') from exc
+    target = ({'method_code': method_code, 'method_role': method_role}
+              if method_code else {'primary_type_code': kind['code']})
+    return {'practice_mode': mode, **target, 'subject_id': subject_id,
             'chapter_id': chapter_id, 'count': count, 'include_mastered': value.get('include_mastered', False), **extra}
 
 
@@ -296,8 +313,13 @@ def _focused_candidates(db, selection):
             if item['source_item_id'] in selected:
                 rows.append(classification.mistake_row(db, item['public_id']))
         return rows
-    where = ['m.deleted_at IS NULL', 'mc.primary_type_code=?']
-    params = [selection['primary_type_code']]
+    where = ['m.deleted_at IS NULL']
+    if selection.get('method_code'):
+        where.append('m.subject_id=?')
+        params = [selection['subject_id']]
+    else:
+        where.append('mc.primary_type_code=?')
+        params = [selection['primary_type_code']]
     if not selection['include_mastered']:
         where.append("m.status='未掌握'")
     if selection['chapter_id']:
@@ -305,22 +327,37 @@ def _focused_candidates(db, selection):
         params.append(selection['chapter_id'])
     rows = db.execute("SELECT m.*,s.name AS subject,c.name AS chapter,"
         "(SELECT completion_result FROM daily_review_items WHERE mistake_id=m.id AND completion_result IS NOT NULL ORDER BY completed_at DESC,id DESC LIMIT 1) AS recent_result,"
+        "(SELECT assistance FROM daily_review_items WHERE mistake_id=m.id AND completion_result IS NOT NULL ORDER BY completed_at DESC,id DESC LIMIT 1) AS recent_assistance,"
         "(SELECT MAX(completed_at) FROM daily_review_items WHERE mistake_id=m.id) AS recent_at,"
         "(SELECT COUNT(*) FROM daily_review_items WHERE mistake_id=m.id AND completion_result='again' AND completed_at>=datetime('now','-30 days')) AS again_30 "
         "FROM mistakes m JOIN mistake_classifications mc ON mc.mistake_id=m.id "
         "LEFT JOIN subjects s ON s.id=m.subject_id LEFT JOIN chapters c ON c.id=m.chapter_id WHERE " + ' AND '.join(where), params).fetchall()
-    candidates = [dict(row) for row in rows if classification.get_classification(db, row)['status'] in {'auto', 'manual'}]
-    order = {'again': 0, 'incomplete': 1, None: 2, 'correct': 3}
-    return sorted(candidates, key=lambda row: (order[row['recent_result']], -row['again_30'], row['recent_at'] or '', row['date_added'], row['id']))
+    candidates = []
+    for row in rows:
+        typed = classification.get_classification(db, row)
+        if typed['status'] not in {'auto', 'manual'}:
+            continue
+        if selection.get('method_code') and not solution_methods.matches(
+                typed, selection['method_code'], selection['method_role'], subject=row['subject']):
+            continue
+        candidates.append(dict(row))
+    order = {'again': 0, 'assisted': 1, 'incomplete': 2, None: 3, 'correct': 4}
+    return sorted(candidates, key=lambda row: (
+        order['assisted' if row['recent_result'] == 'correct' and row['recent_assistance'] == 'hint' else row['recent_result']],
+        -row['again_30'], row['recent_at'] or '', row['date_added'], row['id'],
+    ))
 
 
 def _snapshot(db, row):
     result = {key: row.get(key) for key in ('public_id', 'subject_id', 'chapter_id', 'subject', 'chapter', 'qnum', 'content', 'note', 'reasons', 'date_added')}
     typed = classification.get_classification(db, row)
-    result['classification'] = {key: typed.get(key) for key in ('primary_type_code', 'type_name', 'knowledge_points', 'methods', 'status', 'revision')}
+    result['classification'] = {key: typed.get(key) for key in ('primary_type_code', 'type_name', 'knowledge_points', 'methods', 'method_annotations', 'status', 'revision')}
     if typed['status'] not in {'auto', 'manual'}:
         result['classification']['primary_type_code'] = None
         result['classification']['type_name'] = ''
+        result['classification']['knowledge_points'] = []
+        result['classification']['methods'] = []
+        result['classification']['method_annotations'] = []
     result['snapshot_version'] = 1
     return result
 
@@ -535,11 +572,15 @@ def serialize_session(db, session, *, subject_id: int | None = None, filters=Non
             if int(item.get("subject_id") or 0) == int(subject_id)
         ]
     filters = filters or {}
-    for key in ('chapter_id', 'primary_type_code', 'result', 'classification_status'):
+    for key in ('chapter_id', 'primary_type_code', 'method_code', 'result', 'classification_status'):
         selected = filters.get(key)
         if selected in (None, ''):
             continue
         def matches(item):
+            if key == 'method_code':
+                typed = item.get('classification') or {}
+                return typed.get('status') in {'auto', 'manual'} and solution_methods.matches(
+                    typed, selected, subject=item.get('subject'))
             if key == 'primary_type_code':
                 return item.get('classification', {}).get(key) == selected
             if key == 'classification_status':
@@ -659,7 +700,7 @@ def history_page(db, *, limit=20, after=None):
             'next_cursor': str(rows[limit - 1]['id']) if len(rows) > limit else None}
 
 
-def type_summary(db, *, session_id=None, subject_id=None, chapter_id=None):
+def _summary_rows(db, *, session_id=None, subject_id=None, chapter_id=None):
     where = "i.status='published'"
     args = []
     if session_id:
@@ -671,9 +712,15 @@ def type_summary(db, *, session_id=None, subject_id=None, chapter_id=None):
         if value:
             where += f" AND json_extract(i.snapshot_json,'$.{field}')=?"
             args.append(int(value))
-    rows = db.execute("SELECT i.*,r.practice_mode,r.selection_json FROM daily_review_items i "
-                      "JOIN daily_review_rounds r ON r.id=i.round_id WHERE " + where +
+    return db.execute("SELECT i.*,r.practice_mode,r.selection_json,m.content AS current_content "
+                      "FROM daily_review_items i "
+                      "JOIN daily_review_rounds r ON r.id=i.round_id "
+                      "LEFT JOIN mistakes m ON m.id=i.mistake_id WHERE " + where +
                       " ORDER BY i.completed_at,i.id", args).fetchall()
+
+
+def type_summary(db, *, session_id=None, subject_id=None, chapter_id=None, recovery=None):
+    rows = _summary_rows(db, session_id=session_id, subject_id=subject_id, chapter_id=chapter_id)
     groups = {}
     for raw in rows:
         item = dict(raw)
@@ -696,7 +743,8 @@ def type_summary(db, *, session_id=None, subject_id=None, chapter_id=None):
             group['unknown_count'] += item['assistance'] == 'unknown'
             if item['assistance'] == 'none' and item['evidence_version'] == 2:
                 group['_independent'][item['mistake_id']] = result
-    recovery = remediation_status(db)
+    if recovery is None:
+        recovery = remediation_status(db)
     pending_ids = {item['mistake_id'] for item in recovery['items']}
     recovered_ids = set(recovery['recovered_mistake_ids'])
     for group in groups.values():
@@ -711,6 +759,68 @@ def type_summary(db, *, session_id=None, subject_id=None, chapter_id=None):
         group['remediation_count'] = len(ids & pending_ids)
         group['recovered_count'] = len(ids & recovered_ids)
     return sorted(groups.values(), key=lambda row: (row['practice_mode'], row['type_name']))
+
+
+def method_summary(db, *, session_id=None, subject_id=None, chapter_id=None):
+    from .exam_repetition_policy import question_content_fingerprint
+
+    rows = _summary_rows(db, session_id=session_id, subject_id=subject_id, chapter_id=chapter_id)
+    catalog = {method['code']: method for method in solution_methods.list_methods()}
+    groups, unattributed, current_fingerprints = {}, 0, {}
+    recovery = remediation_status(db)
+    pending_ids = {item['mistake_id'] for item in recovery['items']}
+    recovered_ids = set(recovery['recovered_mistake_ids'])
+    for raw in rows:
+        item = dict(raw)
+        snapshot = json.loads(item['snapshot_json'] or '{}')
+        typed = snapshot.get('classification') or {}
+        primary = [annotation for annotation in typed.get('method_annotations') or []
+                   if annotation.get('role') == 'primary' and annotation.get('code') in catalog]
+        if typed.get('status') not in {'auto', 'manual'} or len(primary) != 1:
+            unattributed += 1
+            continue
+        annotation = primary[0]
+        method = catalog[annotation['code']]
+        if snapshot.get('subject') not in method['subjects']:
+            unattributed += 1
+            continue
+        selection = json.loads(item['selection_json'])
+        mode = 'remediation' if selection.get('practice_kind') == 'remediation' else item['practice_mode']
+        key = (snapshot.get('subject_id'), method['code'], mode)
+        group = groups.setdefault(key, {
+            'subject_id': key[0], 'subject': snapshot.get('subject') or '',
+            'method_code': method['code'], 'method_name': annotation.get('name') or method['name'],
+            'practice_mode': mode, 'correct': 0, 'again': 0, 'incomplete': 0, 'pending': 0,
+            'assisted_count': 0, 'unknown_count': 0,
+            '_ids': set(), '_independent': {}, '_current_ids': set(),
+        })
+        result = item['completion_result'] or 'pending'
+        group[result] += 1
+        identity = snapshot.get('public_id') or item['mistake_id']
+        if identity is not None:
+            group['_ids'].add(identity)
+        if result in {'correct', 'again'}:
+            group['assisted_count'] += result == 'correct' and item['assistance'] == 'hint'
+            group['unknown_count'] += item['assistance'] == 'unknown'
+            if identity is not None and item['assistance'] == 'none' and item['evidence_version'] == 2:
+                group['_independent'][identity] = result
+        if item['current_content'] is not None:
+            mid = item['mistake_id']
+            if mid not in current_fingerprints:
+                current_fingerprints[mid] = question_content_fingerprint(item['current_content'])
+            if item['content_fingerprint'] == current_fingerprints[mid]:
+                group['_current_ids'].add(mid)
+    for group in groups.values():
+        ids, independent = group.pop('_ids'), group.pop('_independent')
+        current_ids = group.pop('_current_ids')
+        group['unique_mistake_count'] = len(ids)
+        group['independent_sample_count'] = len(independent)
+        group['independent_accuracy'] = (round(sum(value == 'correct' for value in independent.values()) /
+                                              len(independent), 4) if len(independent) >= 5 else None)
+        group['remediation_count'] = len(current_ids & pending_ids)
+        group['recovered_count'] = len(current_ids & recovered_ids)
+    return {'items': sorted(groups.values(), key=lambda row: (row['subject'], row['method_name'], row['practice_mode'])),
+            'unattributed_count': unattributed}
 
 
 def _normalize_result(value: object) -> str:
@@ -844,34 +954,34 @@ def recommendations(
     chapter_id: int | None = None,
 ) -> dict:
     bounded = max(MIN_ITEMS, min(MAX_ITEMS, int(limit)))
-    where = [
-        "m.deleted_at IS NULL",
-        "m.status='未掌握'",
-        "dri.status='published'",
-        "dri.completion_result='again'",
-        "EXISTS(SELECT 1 FROM daily_review_rounds r WHERE r.id=dri.round_id AND r.practice_mode='mixed')",
-    ]
-    params: list[object] = []
-    if subject_id is not None:
-        where.append("m.subject_id=?")
-        params.append(int(subject_id))
-    if chapter_id is not None:
-        where.append("m.chapter_id=?")
-        params.append(int(chapter_id))
+    pending = [item for item in remediation_status(db)['items']
+               if item['status'] == '未掌握'
+               and (subject_id is None or item['subject_id'] == int(subject_id))
+               and (chapter_id is None or item['chapter_id'] == int(chapter_id))][:bounded]
+    if not pending:
+        return {"items": [], "total": 0, "limit": bounded}
+    marks = ','.join('?' for _ in pending)
     rows = db.execute(
-        "SELECT m.*,s.name AS subject,c.name AS chapter,COUNT(*) AS again_count,"
-        "MAX(dri.completed_at) AS last_again_at "
-        "FROM daily_review_items dri JOIN mistakes m ON m.id=dri.mistake_id "
-        "LEFT JOIN subjects s ON s.id=m.subject_id "
-        "LEFT JOIN chapters c ON c.id=m.chapter_id WHERE "
-        + " AND ".join(where)
-        + " GROUP BY m.id ORDER BY again_count DESC,last_again_at DESC,m.id DESC LIMIT ?",
-        (*params, bounded),
+        "SELECT m.*,s.name AS subject,c.name AS chapter FROM mistakes m "
+        "LEFT JOIN subjects s ON s.id=m.subject_id LEFT JOIN chapters c ON c.id=m.chapter_id "
+        f"WHERE m.id IN ({marks})", [item['mistake_id'] for item in pending],
     ).fetchall()
+    by_id = {row['id']: row for row in rows}
+    # Keep the public counters about actual errors, including focused practice.
+    counts = {row['mistake_id']: row for row in db.execute(
+        "SELECT i.mistake_id,COUNT(*) AS again_count,MAX(i.completed_at) AS last_again_at "
+        "FROM daily_review_items i JOIN daily_review_items latest "
+        "ON latest.mistake_id=i.mistake_id AND latest.content_fingerprint=i.content_fingerprint "
+        f"WHERE latest.id IN ({marks}) AND i.status='published' AND i.evidence_version=2 "
+        "AND i.completion_result='again' GROUP BY i.mistake_id",
+        [item['source_item_id'] for item in pending],
+    )}
     items: list[dict] = []
-    for row in rows:
-        item = _as_dict(row)
-        item["again_count"] = int(item.get("again_count") or 0)
+    for candidate in pending:
+        item = _as_dict(by_id[candidate['mistake_id']])
+        count = counts.get(candidate['mistake_id'])
+        item["again_count"] = int(count['again_count']) if count else 0
+        item["last_again_at"] = count['last_again_at'] if count else None
         item["repeated_again_count"] = item["again_count"]
         item["reasons"] = [
             part.strip()

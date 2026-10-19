@@ -19,6 +19,8 @@
   function submitReview(item,result){
     return api('/api/v2/mistakes/'+encodeURIComponent(item.publicId)+'/review',{
       method:'POST',
+      // The undo window may be flushed by pagehide; keep the small write alive.
+      keepalive:true,
       body:JSON.stringify({
         result,assistance:window.Cuoti.reviewEvidence?.value(`spaced:${item.publicId}:${item.revision}`)||'none',
         revision:safeInteger(item.revision),

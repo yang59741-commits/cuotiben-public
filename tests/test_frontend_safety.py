@@ -1,6 +1,7 @@
 import re
 import unittest
 from pathlib import Path
+from PIL import Image, ImageChops
 from tests.frontend_sources import application_styles, script_source, template_source
 
 
@@ -8,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 STATIC_JS = ROOT / "cuoti_app" / "static" / "js"
 STATIC_CSS = ROOT / "cuoti_app" / "static" / "css" / "app.css"
 LOGO = ROOT / "cuoti_app" / "static" / "img" / "logo.png"
+PREVIEW_BEAR = ROOT / "cuoti_app" / "static" / "img" / "preview-bear.png"
 TEMPLATE = ROOT / "cuoti_app" / "templates" / "index.html"
 
 
@@ -75,21 +77,22 @@ class FrontendSafetySourceTests(unittest.TestCase):
 
     def test_stats_hides_internal_values_and_uses_inline_read_errors(self):
         stats = self.read_js("stats.js")
-        current = stats[stats.index("async function loadStats(){"):]
+        current = stats[stats.index("async function loadStats("):]
         self.assertNotIn("JSON.stringify(item.range", current)
         self.assertNotIn("showModal('统计读取失败'", current)
-        self.assertIn("pass:'本次掌握'", stats)
+        self.assertIn("pass:'本次答对'", stats)
         self.assertIn("again:'需要再练'", stats)
         self.assertIn("day:'按日'", stats)
         self.assertIn("formatInsightRange(item.range)", current)
         self.assertIn("problemPreviewHTML(item.message,'insight-message')", current)
         self.assertIn("stats-load-error", current)
 
-    def test_stats_core_metrics_use_three_two_one_responsive_grid(self):
+    def test_stats_ledger_uses_four_two_two_responsive_grid(self):
         css = application_styles()
-        self.assertIn("#stat-box.stats-row{display:grid;grid-template-columns:repeat(3", css)
+        self.assertIn("#stat-box.stats-row{display:grid;grid-template-columns:repeat(4", css)
         self.assertIn("@media(max-width:1100px){#stat-box.stats-row{grid-template-columns:repeat(2", css)
-        self.assertIn("#stat-box.stats-row{grid-template-columns:1fr", css)
+        mobile = css[css.index("@media(max-width:680px){\n  .stats-scope"):]
+        self.assertIn("#stat-box.stats-row{grid-template-columns:repeat(2", mobile)
 
     def test_import_exposes_merge_and_confirmed_replace(self):
         source = self.read_js("data.js")
@@ -112,6 +115,50 @@ class FrontendSafetySourceTests(unittest.TestCase):
         self.assertIn("filename='img/logo.png'", template)
         self.assertIn('alt="错题本 logo"', template)
         self.assertIn('rel="icon"', template)
+
+    def test_live_previews_show_the_waking_bear_sprite(self):
+        summaries = re.findall(
+            r'<details class="math-live-preview"[^>]*><summary>(.*?)</summary>',
+            template_source(),
+        )
+        css = application_styles()
+        worker = (STATIC_JS.parent / "sw.js").read_text(encoding="utf-8")
+        self.assertEqual(len(summaries), 4)
+        for summary in summaries:
+            self.assertTrue(summary.startswith(
+                '<span class="math-live-preview-bear" aria-hidden="true"></span>'
+            ))
+            self.assertNotIn('data-icon="eye"', summary)
+        self.assertIn(
+            ".math-live-preview-bear{flex:none;width:20px;height:20px;"
+            "background:url('../img/preview-bear.png') 0 0/700% 100% no-repeat}",
+            css,
+        )
+        self.assertIn(".math-live-preview[open] .math-live-preview-bear{background-position:100% 0}", css)
+        self.assertIn('[data-motion="wake"]{animation:previewBearWake 420ms steps(6,jump-start)', css)
+        self.assertIn('[data-motion="doze"]{animation:previewBearDoze 280ms steps(6,jump-start)', css)
+        self.assertIn(
+            "@media(prefers-reduced-motion:reduce){.math-live-preview-bear[data-motion]{animation:none}}",
+            css,
+        )
+        self.assertIn("'/static/img/preview-bear.png'", worker)
+        with Image.open(PREVIEW_BEAR) as sprite:
+            self.assertEqual((sprite.mode, sprite.size), ("RGBA", (7 * 60, 60)))
+            frames = [sprite.crop((index * 60, 0, index * 60 + 60, 60)) for index in range(7)]
+        colours = [frame.convert("RGB") for frame in frames]
+        for frame, colour in zip(frames, colours):
+            alpha = frame.getchannel("A")
+            # Only the rounded tile is opaque; the background around it is cut away.
+            for corner in ((0, 0), (59, 0), (0, 59), (59, 59)):
+                self.assertEqual(alpha.getpixel(corner), 0)
+            self.assertEqual(alpha.getpixel((30, 30)), 255)
+            self.assertIsNone(ImageChops.difference(alpha, frames[0].getchannel("A")).getbbox())
+            # Only the eyes move between frames, so the rest of the bear stays still.
+            changed = ImageChops.difference(colour, colours[0]).getbbox()
+            if changed is not None:
+                self.assertGreaterEqual(changed[1], 15)
+                self.assertLessEqual(changed[3], 45)
+        self.assertIsNotNone(ImageChops.difference(colours[0], colours[6]).getbbox())
 
     def test_warm_brand_tokens_replace_legacy_blue_brand(self):
         css = application_styles().lower()
@@ -206,7 +253,8 @@ class FrontendSafetySourceTests(unittest.TestCase):
         self.assertNotIn("/api/v2/mistakes/", api_source)
         self.assertIn("/api/v2/daily-review/recommendations?", exam)
         self.assertIn("selectedExamMistakeIds.size>=MAX_EXAM_MISTAKE_REFERENCES", exam)
-        self.assertIn('id="exam-daily-recommendations"', template)
+        self.assertIn('id="exam-recommendation-status"', template)
+        self.assertNotIn('id="exam-daily-recommendations"', template)
         self.assertIn("每日自主复习", review_template)
 
     def test_mistake_pdf_export_selection_and_history_contract(self):
@@ -381,7 +429,7 @@ class FrontendSafetySourceTests(unittest.TestCase):
         self.assertIn("/api/v2/exam-candidates?", exams)
         self.assertIn("params=new URLSearchParams({limit:'30',subject_id:subjectId})", exams)
         self.assertIn("params.set('after',examMistakeNextCursor)", exams)
-        self.assertIn("examMistakes=append?[...examMistakes,...data]:data", exams)
+        self.assertIn("mergeExamMistakes(data,{replace:!append})", exams)
         self.assertIn(
             "if(!append){examMistakeNextCursor=null;examMistakeHasMore=false}",
             exams,
@@ -400,12 +448,13 @@ class FrontendSafetySourceTests(unittest.TestCase):
     def test_exam_difficulty_and_target_are_separate(self):
         template = template_source()
         exams = self.read_js("exam.js")
-        for control in ("e-diff", "e-target", "em-diff", "em-target"):
+        for control in ("e-diff", "e-target", "em-diff", "em-training-target"):
             self.assertIn(f'id="{control}"', template)
         self.assertNotIn("<option>考研</option>", template)
         self.assertIn('value="考研训练"', template)
         self.assertIn("target:document.getElementById('e-target').value", exams)
-        self.assertIn("target:document.getElementById('em-target').value", exams)
+        self.assertIn("target:'日常练习'", exams)
+        self.assertNotIn('id="em-target"', template)
 
     def test_exam_attempt_ui_records_no_answers(self):
         exams = self.read_js("exam.js")
@@ -559,7 +608,7 @@ class FrontendSafetySourceTests(unittest.TestCase):
             "--radius-control:10px",
             "--radius-container:14px",
             "--dur-fast:150ms",
-            "--chart-pass:var(--green)",
+            "--chart-pass:#2e7747",
         ):
             self.assertIn(token, css)
         for cold_gray in (
@@ -600,7 +649,7 @@ class FrontendSafetySourceTests(unittest.TestCase):
         stats = self.read_js("stats.js")
         css = application_styles().lower()
         self.assertIn("function heatmapLevel(value,maximum)", stats)
-        self.assertIn('data-level="${heatmapLevel(item.reviews,heatMax)}"', stats)
+        self.assertIn('data-level="${F.heatmapLevel(row?.reviews,max)}"', stats)
         self.assertIn('aria-label="学习强度从少到多"', stats)
         for level in range(5):
             self.assertIn(f'--heat-{level}:', css)

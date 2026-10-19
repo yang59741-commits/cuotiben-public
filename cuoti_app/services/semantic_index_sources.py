@@ -79,10 +79,10 @@ class SemanticSourceBundle:
     slices: tuple[SemanticSourceSlice, ...]
 
 
-def _text(value: Any, field: str, *, maximum: int = 2_048) -> str:
+def _text(value: Any, field: str, *, maximum: int = 2_048, normalize: bool = True) -> str:
     if not isinstance(value, str):
         raise SemanticIndexSourceError("VALIDATION", f"{field} 必须是字符串")
-    rendered = unicodedata.normalize("NFC", value).strip()
+    rendered = (unicodedata.normalize("NFC", value) if normalize else value).strip()
     if not rendered:
         raise SemanticIndexSourceError("VALIDATION", f"{field} 不能为空")
     if len(rendered) > maximum:
@@ -355,7 +355,7 @@ def _artifact_payload(
     }
 
 
-def _write_atomic_json(path: Path, document: Mapping[str, Any]) -> None:
+def _write_atomic_json(path: Path, document: Mapping[str, Any], *, validate=None):
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary: Path | None = None
     try:
@@ -373,15 +373,17 @@ def _write_atomic_json(path: Path, document: Mapping[str, Any]) -> None:
             stream.write("\n")
             stream.flush()
             os.fsync(stream.fileno())
+        validated = validate(temporary) if validate is not None else None
         os.replace(temporary, path)
         temporary = None
+        return validated
     finally:
         if temporary is not None:
             temporary.unlink(missing_ok=True)
 
 
 def _validated_relative_source_file(value: Any) -> str:
-    rendered = _text(value, "source_file", maximum=2_048).replace("\\", "/")
+    rendered = _text(value, "source_file", maximum=2_048, normalize=False).replace("\\", "/")
     path = PurePosixPath(rendered)
     windows_path = PureWindowsPath(rendered)
     if (
@@ -402,11 +404,13 @@ def _record_to_candidate(record: Mapping[str, Any], home_institution: str):
         source_kind = _text(record.get("source_kind"), "source_kind", maximum=64)
         candidate_id = _text(record.get("candidate_id"), "candidate_id", maximum=256)
         institution = normalize_institution_name(
-            _text(record.get("source_institution"), "source_institution", maximum=320)
+            _text(record.get("source_institution"), "source_institution", maximum=320, normalize=False)
         )
-        subject = _text(record.get("subject"), "subject", maximum=320)
+        subject = _text(record.get("subject"), "subject", maximum=320, normalize=False)
         chapter = _text(record.get("chapter"), "chapter", maximum=640)
-        content = _text(record.get("content"), "content", maximum=2_000_000)
+        # PE identities bind the original source text; semantic hashing applies
+        # NFC later. Normalizing here would change existing candidate IDs.
+        content = _text(record.get("content"), "content", maximum=2_000_000, normalize=False)
         source_file = _validated_relative_source_file(record.get("source_file"))
         source_year = int(record.get("source_year"))
         source_number = _text(
@@ -614,12 +618,12 @@ def ensure_formal_past_exam_artifact(
     )
     document = {**payload, "artifact_snapshot": _sha256(payload)}
     try:
-        _write_atomic_json(path, document)
+        artifact = _write_atomic_json(path, document, validate=open_formal_past_exam_artifact)
     except OSError as exc:
         raise SemanticIndexSourceError(
             "ARTIFACT_PUBLISH_FAILED", "正式真题 last-good 工件原子发布失败"
         ) from exc
-    return open_formal_past_exam_artifact(path)
+    return artifact
 
 
 def formal_past_exam_status(

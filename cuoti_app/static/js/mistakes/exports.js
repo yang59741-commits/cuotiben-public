@@ -3,6 +3,7 @@
 
   const state=window.Cuoti.mistakes.state;
   const apiAdapter=window.Cuoti.mistakes.api;
+  let acceptingSuggestions=false;
 
   function updateBar(){
     const count=state.selectedPublicIds.size;
@@ -11,6 +12,7 @@
     const clearButton=document.getElementById('mistake-clear-selection');
     const selectLoadedButton=document.getElementById('mistake-select-loaded');
     const bulkButton=document.getElementById('mistake-bulk-manage');
+    const acceptButton=document.getElementById('mistake-accept-suggestions');
     if(countLabel)countLabel.textContent=`已选 ${count} 道`;
     if(exportButton){
       exportButton.disabled=state.exportInFlight||count===0;
@@ -21,6 +23,39 @@
     if(clearButton)clearButton.disabled=state.exportInFlight||count===0;
     if(selectLoadedButton)selectLoadedButton.disabled=state.exportInFlight||state.items.length===0;
     if(bulkButton)bulkButton.disabled=state.exportInFlight||count===0;
+    if(acceptButton){
+      acceptButton.disabled=acceptingSuggestions||state.exportInFlight||count===0;
+      acceptButton.innerHTML=acceptingSuggestions?icon('loader','icon-spin')+'正在采纳…':icon('check')+'采纳所选 AI 建议';
+    }
+    // The selection bar floats over the list only while it has work to do.
+    const bar=document.getElementById('mistake-export-bar');
+    if(bar)bar.hidden=state.view==='trash'||(count===0&&!state.exportInFlight);
+  }
+
+  async function acceptSelectedSuggestions(){
+    const publicIds=[...state.selectedPublicIds];
+    if(acceptingSuggestions||!publicIds.length)return;
+    acceptingSuggestions=true;updateBar();
+    let saved=0,skipped=0;
+    const errors=[];
+    try{
+      for(const publicId of publicIds){
+        try{
+          const typed=await api(`/api/v2/mistakes/${encodeURIComponent(publicId)}/classification`);
+          const suggestion=typed.suggestion;
+          if(!suggestion?.is_current||!suggestion.payload.primary_type_code){skipped++;continue}
+          await api(`/api/v2/classification-suggestions/${suggestion.id}/resolve`,{
+            method:'POST',body:JSON.stringify({action:'accept',revision:typed.revision,mistake_revision:typed.mistake_revision})
+          });
+          saved++;
+        }catch(error){errors.push(error.message)}
+      }
+      const message=`已采纳 ${saved} 道${skipped?`；跳过 ${skipped} 道（无有效建议或需先创建题型）`:''}${errors.length?`；失败 ${errors.length} 道：${[...new Set(errors)].join('；')}`:''}`;
+      const status=document.getElementById('mistake-export-status');
+      if(status)status.textContent=message;
+      showToast(message,errors.length||skipped?'warning':'success');
+      if(saved)window.dispatchEvent(new Event('cuoti:classification-changed'));
+    }finally{acceptingSuggestions=false;updateBar()}
   }
 
   function openBulk(){
@@ -267,7 +302,7 @@
   }
 
   window.Cuoti.mistakes.exports=Object.freeze({
-    updateBar,openBulk,setSelected,selectAllLoaded,clearSelection,
+    updateBar,openBulk,acceptSelectedSuggestions,setSelected,selectAllLoaded,clearSelection,
     triggerDownload,chooseLayout,exportSelected,formatTime,createHistoryRow,
     renderHistory,loadHistory,openHistory
   });

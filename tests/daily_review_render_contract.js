@@ -68,6 +68,18 @@ assert.match(pendingHTML, /id="daily-hints-11" hidden/);
 assert.match(pendingHTML, /aria-controls="daily-hints-11"/);
 assert.match(pendingHTML, /class="daily-viewed-note" hidden/);
 
+const methodsHTML=render.card({...pending,classification:{status:'manual',methods:['不应重复显示'],method_annotations:[
+  {code:'rolle',name:'罗尔定理法',role:'primary'},
+  {code:'auxiliary_function',name:'构造辅助函数法',role:'auxiliary'},
+  {code:null,name:'<待归类>',role:'unspecified'}
+]}},{hintOpen:true});
+assert.match(methodsHTML,/主要方法/);
+assert.match(methodsHTML,/辅助方法/);
+assert.match(methodsHTML,/未区分 \/ 待归类/);
+assert.match(methodsHTML,/&lt;待归类&gt;/);
+assert.doesNotMatch(methodsHTML,/不应重复显示|<待归类>/);
+assert.match(render.sessionMeta({selection:{method_code:'rolle'},practice_mode:'focused'},'罗尔定理法'),/方法专项 · 罗尔定理法/);
+
 // After hints were viewed, "提示后答对" is suggested instead of silently changing a label.
 const viewedHTML = render.card(pending, {index: 2, current: true, hintOpen: true, hintUsed: true});
 assert.match(viewedHTML, /daily-rec-btn js-daily-review-result is-suggested" data-item-id="11" data-result="hint"/);

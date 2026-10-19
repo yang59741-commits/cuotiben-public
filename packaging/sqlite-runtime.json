@@ -1,0 +1,10 @@
+{
+  "version": "3.53.4",
+  "source_id": "2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc",
+  "url": "https://repo.anaconda.com/pkgs/main/win-64/sqlite-3.53.4-hee5a0db_0.tar.bz2",
+  "archive_sha256": "2ae5d00f4afc817de44fe169e549f9115b46c03cf3329c3e97540fc2eabd1e7c",
+  "dll_sha256": "f2bbb9303b31db2065e4699fa24051c2214a73be44ce72bcda42800f3caed379",
+  "minimum_variable_limit": 250000,
+  "minimum_trigger_depth": 1000,
+  "reason": "Official Anaconda Windows x64 build containing the WAL-reset fix and preserving the previous runtime's SQL limits. Requires vc14_runtime >=14.44.35208 and UCRT >=10.0.20348.0."
+}

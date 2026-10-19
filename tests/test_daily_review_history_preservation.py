@@ -57,7 +57,7 @@ def test_schema63_preserves_rows_indexes_sequence_and_rolls_back_on_failure(lega
     app = create_app(config)
     with app.app_context():
         db = get_db()
-        assert db.execute('PRAGMA user_version').fetchone()[0] == 63
+        assert db.execute('PRAGMA user_version').fetchone()[0] == database.DB_SCHEMA_VERSION
         for table, rows in before.items():
             assert [tuple(r) for r in db.execute(f'SELECT * FROM {table} ORDER BY id')] == rows
         assert [tuple(r) for r in db.execute("SELECT name,sql FROM sqlite_master WHERE type='index' AND tbl_name='daily_review_items' ORDER BY name")] == indexes

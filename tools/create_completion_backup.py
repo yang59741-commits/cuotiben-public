@@ -26,7 +26,6 @@ from cuoti_app.services.formal_runtime import build_formal_runtime_overrides, da
 
 
 SOURCE_DIRECTORIES = (
-    "archive",
     "cuoti_app",
     "docs",
     "launcher_assets",
@@ -956,7 +955,7 @@ def write_description(
 - 内容：{content_line}
 - 恢复单元：{restore_line}
 - 设置：{settings_line}
-- 排除：已有备份、构建缓存、项目内 `错题库/` 与组件材库
+- 排除：已有备份、历史 archive/、构建缓存、项目内 `错题库/` 与组件材库
 - 数据库校验：{database_line}
 - 当前根目录 EXE SHA-256：{executable_line}
 - 完成规则：`SHA256_MANIFEST.csv` 生成并验证后，本目录冻结，不再修改
@@ -1212,7 +1211,11 @@ def create_backup(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=(
+        "Create a complete recovery snapshot, not a per-change backup. "
+        "For explicit file pre-images use create_change_backup.py. "
+        "Private kinds copy the whole database and runtime assets."
+    ))
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--layout", choices=("formal", "legacy"), default="formal",
                         help="formal uses data/cuoti.db and data/runtime; legacy is explicit opt-in")
@@ -1262,9 +1265,9 @@ def main() -> None:
     parser.add_argument(
         "--kind",
         choices=("private-no-secrets", "private-full", "private", "shareable"),
-        default="private-no-secrets",
+        required=True,
         help=(
-            "private-no-secrets is the default; private-full includes local settings; "
+            "choose explicitly: private-no-secrets still copies all runtime data; private-full includes local settings; "
             "private is a legacy alias; shareable is source-only and non-restorable"
         ),
     )

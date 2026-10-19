@@ -118,12 +118,95 @@ function jobStatusHint(status){
   return {checkpointed:'任务已保存进度，后台将继续处理。',published_pending_receipt:'内容已发布，正在确认发布回执，请勿重复提交。'}[status]||'';
 }
 
+// User-facing failure copy is derived only from the structured code/category
+// and job status. Raw backend message/hint/reason text can carry SQL, stack
+// fragments, diagnostic IDs or mis-decoded bytes, so it is never displayed.
+const JOB_ERROR_CODE_COPY=Object.freeze({
+  candidate_pool_insufficient:['可用候选题不足，无法凑满题量。','可以减少题量或放宽章节后重新生成。'],
+  candidate_budget_insufficient:['候选题的数量或分值不满足本次设置。','可以减少题量或放宽章节后重新生成。'],
+  past_candidate_pool_insufficient:['所选题源中的可用真题不足。','可以更换题源或结构年份后重新生成。'],
+  past_candidate_budget_insufficient:['所选题源中的可用真题不足。','可以更换题源或结构年份后重新生成。'],
+  past_selection_constraint:['所选题源与结构年份无法同时满足组卷规则。','可以更换题源或结构年份后重新生成。'],
+  past_difficulty_review_invalid:['真题难度核对未通过，本次没有生成试卷。','可以更换题源或结构年份后重新生成。'],
+  no_usable_chapters:['题库中暂无可用于组卷的章节。','请先重建题库索引。'],
+  hard_constraint_conflict:['组卷条件之间相互冲突，无法同时满足。','请调整题量、章节或题源后重新生成。'],
+  question_bank_building:['题库索引正在重建。','请等待重建完成后再试。'],
+  ocr_file_invalid:['文件无法识别。','请检查文件格式后重新上传。'],
+  ocr_file_missing:['找不到上传的文件。','请重新上传文件。'],
+  import_file_invalid:['导入文件无法读取。','请确认选择的是本应用导出的备份文件。'],
+  invalid_import:['导入文件内容无效。','请确认选择的是本应用导出的备份文件。'],
+  import_preview_required:['导入前需要先完成预览确认。','请重新选择文件并确认预览。'],
+  vision_ocr_configuration:['文档识别服务尚未配置。','请在 AI 设置中完成配置后重试。'],
+  configuration:['AI 或本地组件设置不完整。','请在 AI 设置中检查配置后重试。'],
+  vision_ocr_provider:['文档识别服务暂时没有返回有效结果。','可以稍后重试。'],
+  ai_provider_response:['AI 服务暂时没有返回有效结果。','可以稍后重试；多次失败请检查 AI 设置。'],
+  context_safety_exceeded:['内容过长，超出了 AI 单次可处理的范围。','请减少内容后重新提交。'],
+  material_understanding_incomplete:['材料未能完整识别。','请检查文件清晰度后重试。'],
+  publication_failed:['结果保存未完成。','可以稍后重试。'],
+  receipt_pending:['结果已提交，正在确认保存状态。','请稍候，不要重复提交。'],
+  job_input_hash_mismatch:['任务内容校验未通过。','请重新提交该任务。']
+});
+const JOB_ERROR_CATEGORY_COPY=Object.freeze({
+  input:['提交的内容或文件无效。','请检查后重新提交。'],
+  configuration:['AI 或本地组件设置不完整。','请在 AI 设置中检查配置后重试。'],
+  provider:['AI 服务暂时无法完成请求。','可以稍后重试；多次失败请检查 AI 设置。'],
+  dependency:['所需的本地组件或数据暂时不可用。','可以稍后重试。'],
+  temporary:['服务暂时繁忙。','可以稍后重试。'],
+  business:['当前条件下无法完成该任务。','请调整设置后重试。'],
+  storage:['本地数据读写没有成功。','可以稍后重试；反复出现时请检查磁盘空间或重启应用。'],
+  data:['本地数据读写没有成功。','可以稍后重试；反复出现时请检查磁盘空间或重启应用。']
+});
+const JOB_ERROR_FALLBACK_COPY=Object.freeze(['任务未能完成。','可以重试；反复失败时请重启应用后再试。']);
+
+function jobErrorCopy(job){
+  const status=String(job?.status||'');
+  if(status==='cancelled')return {message:'任务已取消。',hint:''};
+  if(status==='interrupted')return {message:'任务意外中断，可能是应用曾关闭或重启。',hint:'可以重试继续处理。'};
+  const error=job?.error&&typeof job.error==='object'?job.error:{};
+  const code=String(error.code||'').toLowerCase();
+  const category=String(error.category||'').toLowerCase();
+  const [message,hint]=Object.hasOwn(JOB_ERROR_CODE_COPY,code)?JOB_ERROR_CODE_COPY[code]
+    :(Object.hasOwn(JOB_ERROR_CATEGORY_COPY,category)?JOB_ERROR_CATEGORY_COPY[category]:JOB_ERROR_FALLBACK_COPY);
+  return {message,hint};
+}
+
+// Deferred dependency waits are requeued with category=dependency; they are
+// normal waiting, not a failed attempt awaiting automatic retry.
+const JOB_DEPENDENCY_WAIT_COPY=Object.freeze({
+  question_bank_building:'正在等待题库索引重建完成，完成后会自动继续。',
+  memory_delivery_pending:'正在等待 AI 记忆准备完成，完成后会自动继续。',
+  receipt_pending:'正在等待保存确认，完成后会自动继续。'
+});
+
+function jobWaitingDependency(job){
+  return job?.status==='queued'&&String(job.error?.category||'').toLowerCase()==='dependency';
+}
+
+function jobWaitingAutoRetry(job){
+  return job?.status==='queued'&&Boolean(job.error)&&!jobWaitingDependency(job);
+}
+
+// Progress text from the backend is shown only while a task is active, and
+// only when it looks like plain prose rather than a leaked internal message.
+function jobPlainStage(text){
+  const value=String(text||'').trim();
+  if(!value||value.length>80)return '';
+  if(/[�{}<>[\]`\\]|Traceback|Exception|Error\b|sqlite|\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bFROM\b|\bWHERE\b|[A-Za-z0-9_]+\.py\b|0x[0-9a-f]|[0-9a-f]{16,}/i.test(value))return '';
+  return value;
+}
+
 function jobFailure(job){
+  // The original backend error stays available on error.job.error.
   const source=job?.error;
-  const data=source&&typeof source==='object'
-    ?{...source,job_id:String(job.id||''),kind:String(job.kind||'')}
-    :{message:String(source||jobStatusLabel(job?.status)),job_id:String(job?.id||''),kind:String(job?.kind||'')};
-  const error=new Error(String(data.message||jobStatusLabel(job?.status)));
+  const copy=jobErrorCopy(job);
+  const data={
+    ...(source&&typeof source==='object'?source:{}),
+    job_id:String(job?.id||''),
+    kind:String(job?.kind||''),
+    message:copy.message,
+    hint:copy.hint
+  };
+  const error=new Error(copy.message);
   error.name='JobError';
   error.code=String(data.code||'job_failed');
   error.data=data;
@@ -154,7 +237,7 @@ function jobExamActions(job){
   if(job?.kind!=='exam-generation')return [];
   const supplied=Array.isArray(job?.error?.actions)?job.error.actions:[];
   const code=String(job?.error?.code||'').toLowerCase();
-  const source=supplied.length?supplied:(LEGACY_EXAM_ERROR_ACTIONS[code]||[]);
+  const source=supplied.length?supplied:(Object.hasOwn(LEGACY_EXAM_ERROR_ACTIONS,code)?LEGACY_EXAM_ERROR_ACTIONS[code]:[]);
   return [...new Set(source.map(value=>String(value||'').trim()))]
     .filter(action=>Object.hasOwn(JOB_EXAM_ACTIONS,action));
 }
@@ -172,29 +255,59 @@ function openJobExamAction(action,button){
   void window.Cuoti.features.load(config.page).then(feature=>{
     if(config.mode)feature.switchMode?.(config.mode);
     document.getElementById(config.target)?.focus();
-  }).catch(error=>showToast(`无法打开调整页面：${error.message}`,'error'));
+  }).catch(()=>showToast('无法打开调整页面，请手动前往对应页面修改。','error'));
+}
+
+// Visual state per job: terminal and waiting states never get a progress bar
+// or animation; only work that is actually running shows progress.
+function jobDisplayState(job){
+  if(job.status==='succeeded')return {tone:'done',icon:'circleCheck',label:'已完成',text:'任务已完成。'};
+  if(job.status==='failed')return {tone:'failed',icon:'circleX',label:'失败'};
+  if(job.status==='cancelled')return {tone:'muted',icon:'x',label:'已取消',text:'任务已取消，没有继续处理。'};
+  if(job.status==='interrupted')return {tone:'warn',icon:'circleAlert',label:'已中断'};
+  if(jobWaitingDependency(job)){
+    const code=String(job.error?.code||'').toLowerCase();
+    return {tone:'waiting',icon:'clock',label:'等待准备完成',
+      text:Object.hasOwn(JOB_DEPENDENCY_WAIT_COPY,code)?JOB_DEPENDENCY_WAIT_COPY[code]:'正在等待所需内容准备完成，完成后会自动继续。'};
+  }
+  if(jobWaitingAutoRetry(job)){
+    const used=Math.max(0,safeInteger(job.attempts_in_cycle));
+    const max=Math.max(0,safeInteger(job.max_attempts));
+    return {tone:'waiting',icon:'clock',label:'等待自动重试',
+      text:`上次尝试未成功，稍后将自动重试${used&&max?`（已尝试 ${used}/${max} 次）`:''}。`};
+  }
+  if(job.status==='queued')return {tone:'waiting',icon:'clock',label:'排队中',text:'等待开始处理。'};
+  if(job.status==='cancel_requested')return {tone:'waiting',icon:'loader',spin:true,label:'正在取消',text:'正在停止任务，请稍候。'};
+  // These states have their own trusted copy; the last stage message may be
+  // from an earlier phase (e.g. still "generating"), so it is not shown.
+  if(job.status==='checkpointed'||job.status==='published_pending_receipt'){
+    return {tone:'waiting',icon:'clock',label:jobStatusLabel(job.status),text:jobStatusHint(job.status)};
+  }
+  return {tone:'active',icon:'activity',label:jobStatusLabel(job.status),progress:true,
+    text:jobPlainStage(job.stage)||jobStatusHint(job.status)||'正在处理。'};
+}
+
+function jobProgressHTML(job){
+  const determinate=job.totalSteps>0;
+  const percent=determinate?Math.min(100,Math.round(job.completedSteps/job.totalSteps*100)):0;
+  return `<div class="task-progress${determinate?'':' indeterminate'}" role="progressbar" aria-label="任务进度" ${determinate?`aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}"`:'aria-valuetext="进行中"'}><span style="${determinate?`width:${percent}%`:''}"></span></div>`;
 }
 
 function taskItemHTML(job){
-    const determinate=job.totalSteps>0;
-    const percent=determinate?Math.min(100,Math.round(job.completedSteps/job.totalSteps*100)):0;
-    const errorMessage=typeof job.error==='string'?job.error:job.error?.message;
-    const errorHint=typeof job.error?.hint==='string'?job.error.hint.trim():'';
+    const state=jobDisplayState(job);
+    const failed=['failed','interrupted'].includes(job.status);
+    const copy=failed?jobErrorCopy(job):null;
     const examActions=jobExamActions(job);
     const errorCategory=String(job.error?.category||'');
     const manualRetryAllowed=['failed','interrupted','cancelled'].includes(job.status)
       &&!['input'].includes(errorCategory)
       &&!(job.kind==='ocr'&&job.status==='cancelled');
-    const laneLabel=job.lane==='fast'?'快速通道':(job.lane==='heavy'?'重型通道':'');
-    const attemptLabel=`尝试 ${Math.max(0,safeInteger(job.attempts))} 次`+
-      (safeInteger(job.manual_retry_count)>0?` · 手动重试 ${safeInteger(job.manual_retry_count)} 次`:``);
-    const correlation=String(job.error?.correlation_id||'');
-    return `<article class="task-item task-${escapeHTML(job.status)}" data-job-id="${escapeHTML(job.id)}">
-      <div class="task-item-head"><strong>${escapeHTML(jobLabel(job))}</strong><span>${escapeHTML(jobStatusLabel(job.status))}</span></div>
-      <div class="task-stage">${escapeHTML(errorMessage||job.stage||jobStatusHint(job.status))}</div>
-      ${errorHint&&errorHint!==errorMessage?`<div class="task-hint">${escapeHTML(errorHint)}</div>`:''}
-      <div class="task-meta">${escapeHTML([laneLabel,attemptLabel].filter(Boolean).join(' · '))}${correlation?` · 诊断编号 ${escapeHTML(correlation)}`:''}</div>
-      <div class="task-progress${determinate?'':' indeterminate'}" role="progressbar" ${determinate?`aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}"`:'aria-label="任务进行中"'}><span style="${determinate?`width:${percent}%`:''}"></span></div>
+    const hint=!copy?'':(examActions.length?'可使用下方按钮调整后重新生成。':(manualRetryAllowed||!copy.hint.includes('重试')?copy.hint:''));
+    return `<article class="task-item task-${escapeHTML(job.status)} task-tone-${state.tone}" data-job-id="${escapeHTML(job.id)}">
+      <div class="task-item-head"><strong>${escapeHTML(jobLabel(job))}</strong><span class="task-state">${icon(state.icon,state.spin?'icon-spin':'')}${escapeHTML(state.label)}</span></div>
+      <div class="task-stage">${escapeHTML(copy?copy.message:state.text)}</div>
+      ${hint?`<div class="task-hint">${escapeHTML(hint)}</div>`:''}
+      ${state.progress?jobProgressHTML(job):''}
       <div class="task-item-actions">
         ${JOB_CANCEL_ACTION_STATES.has(job.status)?`<button type="button" class="btn btn-out btn-xs js-job-cancel" data-job-id="${escapeHTML(job.id)}" ${job.status==='cancel_requested'?'disabled':''}>${job.status==='cancel_requested'?'正在取消':'取消'}</button>`:''}
         ${examActions.map(action=>`<button type="button" class="btn btn-p btn-xs js-job-adjust-exam" data-job-action="${escapeHTML(action)}">${escapeHTML(JOB_EXAM_ACTIONS[action].label)}</button>`).join('')}
@@ -224,7 +337,7 @@ function renderJobs(){
   const active=activeJobs.length;
   count.hidden=!active;
   count.textContent=String(active);
-  if(!visibleJobs.length){list.innerHTML=emptyStateHTML('当前没有后台任务',{icon:'history',description:'导入、分析和组卷任务会显示在这里。',compact:true});return}
+  if(!visibleJobs.length){list.innerHTML=emptyStateHTML('当前没有后台任务',{icon:'activity',description:'导入、分析和组卷任务会显示在这里。',compact:true});return}
   list.querySelector('.empty-state')?.remove();
   const focused=document.activeElement?.closest?.('[data-job-id]');
   const focusJobId=focused?.dataset.jobId||'';
@@ -239,7 +352,7 @@ function renderJobs(){
     const candidate=template.content.firstElementChild;
     const renderKey=JSON.stringify([
       job.status,job.completedSteps,job.totalSteps,job.stage,job.updated_at,
-      job.error,job.attempts,job.manual_retry_count
+      job.error,job.attempts,job.attempts_in_cycle,job.manual_retry_count
     ]);
     candidate.dataset.renderKey=renderKey;
     const current=existing.get(job.id);
@@ -345,17 +458,19 @@ async function pollJobs(){
           if(error.status===404)trackedJobIds.delete(id);else throw error;
         }))
       ]);
+      setTaskPanelStatus('');
     }else{
       const collectionURL=jobInitialHistoryLoaded?'/api/v2/jobs?state=active':'/api/v2/jobs?limit=50';
       const payload=await fetchJobCollection(collectionURL);
       jobInitialHistoryLoaded=true;
+      setTaskPanelStatus('');
       if(payload===null)return;
       const jobs=Array.isArray(payload)?payload:(payload?.items||payload?.jobs||[]);
       jobs.forEach(rememberJob);
     }
   }catch(error){
     if(error.status===404)jobsEndpointAvailable=false;
-    else document.getElementById('task-panel-status').textContent='任务状态暂时无法刷新：'+error.message;
+    else setTaskPanelStatus('任务状态暂时无法刷新，稍后会自动再试；请确认应用仍在运行。');
   }finally{
     jobPollInFlight=false;
   }
@@ -439,19 +554,26 @@ function subscribeJob(id,callback){
   return promise;
 }
 
+function setTaskPanelStatus(text){
+  const status=document.getElementById('task-panel-status');
+  if(status)status.textContent=text;
+}
+
 async function cancelJob(id){
   try{
+    setTaskPanelStatus('');
     rememberJob(await api('/api/v2/jobs/'+encodeURIComponent(id)+'/cancel',{method:'POST'}));
   }catch(error){
-    document.getElementById('task-panel-status').textContent='取消失败：'+error.message;
+    setTaskPanelStatus(error?.status===409?'任务状态已变化，无法取消，请查看最新状态。':'取消没有成功，请稍后再试。');
   }
 }
 
 async function retryJob(id){
   try{
+    setTaskPanelStatus('');
     rememberJob(await api('/api/v2/jobs/'+encodeURIComponent(id)+'/retry',{method:'POST'}));
   }catch(error){
-    document.getElementById('task-panel-status').textContent='重试失败：'+error.message;
+    setTaskPanelStatus(error?.status===409?'该任务当前不能重试，可能已在处理中。':'重试没有成功，请稍后再试。');
   }
 }
 

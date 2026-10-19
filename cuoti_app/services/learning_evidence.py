@@ -33,26 +33,39 @@ def remediation_status(db, now=None):
         WHERE i.status='published' AND i.evidence_version=2 AND m.deleted_at IS NULL
         AND (i.completion_result='again' OR (i.completion_result='correct' AND i.assistance='hint'))
         ORDER BY i.completed_at,i.id""").fetchall()
-    by_mistake = {}
+    by_mistake, current_fingerprints = {}, {}
     for raw in failures:
         item = dict(raw)
-        if item['content_fingerprint'] != question_content_fingerprint(item['current_content']):
+        mid = item['mistake_id']
+        if mid not in current_fingerprints:
+            current_fingerprints[mid] = question_content_fingerprint(item['current_content'])
+        if item['content_fingerprint'] != current_fingerprints[mid]:
             continue
         previous = by_mistake.get(item['mistake_id'])
         item['again_count'] = (previous['again_count'] if previous else 0) + 1
         by_mistake[item['mistake_id']] = item
+    success_days = {}
+    mistake_ids = list(by_mistake)
+    # Two IN lists stay below SQLite's historical 999-parameter limit.
+    for offset in range(0, len(mistake_ids), 400):
+        batch = mistake_ids[offset:offset + 400]
+        placeholders = ','.join('?' for _ in batch)
+        successes = db.execute(f"""SELECT mistake_id,content_fingerprint,
+            MAX(reviewed_on) AS reviewed_on FROM (
+                SELECT mistake_id,content_fingerprint,reviewed_on FROM daily_review_items
+                WHERE mistake_id IN ({placeholders}) AND evidence_version=2
+                AND status='published' AND completion_result='correct' AND assistance='none'
+                UNION ALL
+                SELECT mistake_id,content_fingerprint,reviewed_on FROM review_events
+                WHERE mistake_id IN ({placeholders}) AND evidence_version=2
+                AND event_type='pass' AND assistance='none'
+            ) GROUP BY mistake_id,content_fingerprint""", (*batch, *batch)).fetchall()
+        success_days.update({(row['mistake_id'], row['content_fingerprint']): row['reviewed_on']
+                             for row in successes})
     pending, recovered = [], []
     for item in by_mistake.values():
-        args = (item['mistake_id'], item['content_fingerprint'], item['reviewed_on'])
-        success = db.execute("""SELECT 1 FROM daily_review_items
-            WHERE mistake_id=? AND content_fingerprint=? AND reviewed_on>?
-            AND evidence_version=2 AND status='published'
-            AND completion_result='correct' AND assistance='none'
-            UNION ALL SELECT 1 FROM review_events
-            WHERE mistake_id=? AND content_fingerprint=? AND reviewed_on>?
-            AND evidence_version=2 AND event_type='pass' AND assistance='none'
-            LIMIT 1""", (*args, *args)).fetchone()
-        if success:
+        success_day = success_days.get((item['mistake_id'], item['content_fingerprint']))
+        if success_day is not None and success_day > item['reviewed_on']:
             recovered.append(item['mistake_id'])
             continue
         due_on = (date.fromisoformat(item['reviewed_on']) + timedelta(days=1)).isoformat()
@@ -77,10 +90,11 @@ def learning_actions(db, scope):
     reminder = build_reminders(db, scope)
     if reminder['due_count']:
         actions.append({'title': '今日间隔复习', 'message': f"到期 {reminder['due_count']} 道，逾期 {reminder['overdue_count']} 道", 'count': reminder['due_count'], 'href': '#/review?' + urlencode({'mode':'spaced', **filters})})
-    pending = [item for item in remediation_status(db)['items'] if item['due'] and all(item.get(key) == value for key, value in filters.items())]
+    recovery = remediation_status(db)
+    pending = [item for item in recovery['items'] if item['due'] and all(item.get(key) == value for key, value in filters.items())]
     if pending:
         actions.append({'title': '复错再练', 'message': f'{len(pending)} 道题可进行跨日验证', 'count':len(pending), 'href':'#/review?' + urlencode({'mode':'daily', 'remediation':1, **filters})})
-    summaries = type_summary(db, **filters)
+    summaries = type_summary(db, recovery=recovery, **filters)
     weak = sorted((row for row in summaries if row['primary_type_code'] and row['independent_accuracy'] is not None and row['independent_accuracy'] < 0.6), key=lambda row: (row['independent_accuracy'], row['primary_type_code']))
     for row in weak:
         code = row['primary_type_code']

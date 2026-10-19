@@ -63,6 +63,18 @@ def _active_rows(db, analysis_date: str, mistake_public_id: str | None = None):
     if mistake_public_id:
         where.append("m.public_id=?")
         params.append(mistake_public_id)
+    return _source_rows(db, where, params)
+
+
+def source_rows_by_ids(db, mistake_ids):
+    """Load the existing cache contract only for a bounded, visible selection."""
+    if not mistake_ids:
+        return []
+    return _source_rows(db, ["m.deleted_at IS NULL", "m.id IN (" +
+                            ",".join("?" for _ in mistake_ids) + ")"], mistake_ids)
+
+
+def _source_rows(db, where, params):
     return db.execute(
         "SELECT m.id,m.public_id,m.revision,m.subject_id,m.qnum,m.content,m.note,m.date_added,"
         "m.review_stage,m.correct_streak,m.lapse_count,"
@@ -334,7 +346,6 @@ def _analysis_batches(
     if budget < 1:
         raise ValueError("每日分析 Token 预算必须为正数")
     batches: list[list] = []
-    current: list = []
     for row in rows:
         singleton = [row]
         if _analysis_batch_token_cost(analysis_date, singleton) > budget:
@@ -343,14 +354,7 @@ def _analysis_batches(
                 status_code=400,
                 code="daily_analysis_input_too_large",
             )
-        candidate = [*current, row]
-        if current and _analysis_batch_token_cost(analysis_date, candidate) > budget:
-            batches.append(current)
-            current = singleton
-        else:
-            current = candidate
-    if current:
-        batches.append(current)
+        batches.append(singleton)
     return batches
 
 
@@ -468,7 +472,7 @@ def generate_daily_analysis(
     ai_call,
     remember=None,
 ) -> dict:
-    """Generate claimed cards and atomically publish each validated budget batch."""
+    """Request and commit one question before sending the next to the provider."""
 
     analysis_date = _validated_date(raw_date)
     scope = str(generation_scope or "missing")
@@ -492,9 +496,9 @@ def generate_daily_analysis(
                 classification_only.append({'public_id': row['public_id'], 'source_hash': classification.source_hash(row), 'revision': typed['revision']})
         if classification_only:
             owner = job_id or uuid.uuid4().hex
-            for offset in range(0, len(classification_only), 200):
+            for target in classification_only:
                 classification.generate_classifications(
-                    db, classification_only[offset:offset + 200], ai_call=ai_call, job_id=owner,
+                    db, [target], ai_call=ai_call, job_id=owner,
                 )
         rows = [
             row
@@ -522,6 +526,10 @@ def generate_daily_analysis(
         classification_message = {'role': 'user', 'content': classification.CLASSIFICATION_INSTRUCTION + catalog}
         classification_tokens = estimate_messages_tokens([classification_message])
         for batch in _analysis_batches(analysis_date, claimed, token_budget=DAILY_ANALYSIS_BATCH_TOKEN_BUDGET-classification_tokens):
+            # Sequential requests can outlast a lease for the whole day's work.
+            with immediate_transaction(db):
+                db.execute("UPDATE daily_analysis_leases SET claimed_at=? WHERE job_id=?",
+                           (_now().isoformat(timespec="seconds"), owner))
             raw = ai_call(
                 _analysis_messages(analysis_date, batch) + [classification_message],
                 temperature=0.5,

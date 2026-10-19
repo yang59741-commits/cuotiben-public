@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 import subprocess
 import tempfile
@@ -58,6 +59,10 @@ class TexServiceTestCase(unittest.TestCase):
             self.assertIn("-no-shell-escape", call.args[0])
             self.assertIn("-halt-on-error", call.args[0])
             self.assertEqual(call.kwargs["timeout"], 5)
+            if os.name == "nt":
+                self.assertEqual(call.kwargs["creationflags"], subprocess.CREATE_NO_WINDOW)
+            else:
+                self.assertNotIn("creationflags", call.kwargs)
             self.assertNotIn("capture_output", call.kwargs)
             self.assertTrue(hasattr(call.kwargs["stdout"], "write"))
             self.assertTrue(hasattr(call.kwargs["stderr"], "write"))
@@ -65,6 +70,25 @@ class TexServiceTestCase(unittest.TestCase):
         self.assertGreater((self.output_dir / "exam_7.pdf").stat().st_size, 0)
         self.assertTrue((self.output_dir / "exam_7.tex").is_file())
         self.assertFalse(any(path.name.startswith(".exam_7-") for path in self.output_dir.iterdir()))
+
+    @patch("cuoti_app.services.tex.shutil.which", return_value="xelatex")
+    def test_injected_compile_runner_receives_window_policy(self, _which):
+        calls = []
+
+        def runner(args, **kwargs):
+            calls.append(kwargs)
+            (Path(kwargs["cwd"]) / "exam_8.pdf").write_bytes(b"%PDF-1.7\n")
+            return subprocess.CompletedProcess(args, 0)
+
+        compile_exam(str(self.output_dir), "xelatex", 8, "test", runner=runner)
+
+        self.assertEqual(len(calls), 2)
+        for kwargs in calls:
+            if os.name == "nt":
+                self.assertEqual(kwargs["creationflags"], subprocess.CREATE_NO_WINDOW)
+            else:
+                self.assertNotIn("creationflags", kwargs)
+        self.assertTrue((self.output_dir / "exam_8.pdf").is_file())
 
     @patch("cuoti_app.services.tex.shutil.which", return_value="xelatex")
     @patch("cuoti_app.services.tex.subprocess.run")

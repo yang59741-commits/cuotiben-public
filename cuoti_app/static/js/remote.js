@@ -74,6 +74,8 @@ function restoreRemoteDraft(){
     tag.setAttribute('aria-pressed',String(active));
   });
   selectedReasons=[...reasonSet];
+  const restored=['s-problem','s-note','i-content'].some(id=>String(remoteDraft.fields[id]||'').trim());
+  if(restored)showToast('已恢复上次未提交的草稿，提交成功后会自动清除。','info');
 }
 
 function clearRemoteDraftPanel(panelId){

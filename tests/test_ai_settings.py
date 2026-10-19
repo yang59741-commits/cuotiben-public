@@ -13,6 +13,10 @@ from cuoti_app import create_app
 from cuoti_app.config import build_config
 from cuoti_app.services.ai import DeepSeekServiceError, deepseek_api_call
 from cuoti_app.services.ai_budgeting import resolve_model_context_capabilities
+from cuoti_app.services.ai_providers import (
+    MONETWL_BROWSER_USER_AGENT,
+    OpenAICompatibleProvider,
+)
 from cuoti_app.services.settings import (
     KEYRING_SERVICE,
     SettingsError,
@@ -52,6 +56,30 @@ class FakeResponse:
         if not hasattr(self, "stream"):
             self.stream = io.BytesIO(json.dumps(self.payload).encode("utf-8"))
         return self.stream.read(size)
+
+
+class SSEResponse:
+    """A minimal line-oriented streaming response for provider tests."""
+
+    headers = {"x-request-id": "request-stream"}
+
+    def __init__(self, body: str):
+        self._stream = io.BytesIO(body.encode("utf-8"))
+
+    def readline(self):
+        return self._stream.readline()
+
+    def read(self, size=-1):
+        return self._stream.read(size)
+
+
+def request_header(request, name: str):
+    """Read a request header regardless of urllib's key capitalization."""
+
+    for key, value in request.headers.items():
+        if key.casefold() == name.casefold():
+            return value
+    return None
 
 
 @unittest.skipUnless(os.name == "nt", "Windows credential backend only")
@@ -427,6 +455,200 @@ class AISettingsTests(unittest.TestCase):
         with self.app.app_context(), self.assertRaises(DeepSeekServiceError) as raised:
             deepseek_api_call([{"role": "user", "content": "test"}], max_attempts=1)
         self.assertNotIn(secret, str(raised.exception))
+
+    def test_monetwl_profile_is_builtin_without_becoming_active(self):
+        payload = self.client.get("/api/v2/settings/ai").get_json()
+        self.assertEqual(payload["active_profile"], "deepseek")
+        profile = payload["profiles"]["monetwl"]
+        self.assertEqual(profile["name"], "GPT（Monetwl）")
+        self.assertEqual(profile["connection_type"], "newapi_channel_conn")
+        self.assertEqual(profile["provider"], "openai_compatible")
+        self.assertEqual(profile["wire_api"], "chat_completions")
+        self.assertEqual(profile["base_url"], "https://gateway-two.example/v1")
+        self.assertEqual(profile["quality_model"], "gpt-6.1-sol")
+        self.assertEqual(profile["fast_model"], "gpt-6-luna")
+        self.assertEqual(profile["reasoning_effort"], "")
+        self.assertEqual(profile["dns_mode"], "proxy")
+        self.assertEqual(profile["dns_servers"], ["223.5.5.5", "119.29.29.29"])
+        self.assertEqual(
+            profile["capabilities"],
+            {
+                "json_object": False,
+                "thinking": False,
+                "reasoning_effort": False,
+                "context_window": 0,
+                "max_output_tokens": 0,
+            },
+        )
+        self.assertFalse(profile["has_api_key"])
+
+    def test_switching_to_monetwl_saves_preset_without_writing_a_key(self):
+        response = self.client.put(
+            "/api/v2/settings/ai",
+            json={
+                "active_profile": "monetwl",
+                "version": 0,
+                "api_key_action": "keep",
+            },
+        )
+        self.assertEqual(response.status_code, 200, response.get_data(as_text=True))
+        payload = response.get_json()
+        self.assertEqual(payload["active_profile"], "monetwl")
+        self.assertEqual(payload["base_url"], "https://gateway-two.example/v1")
+        self.assertEqual(payload["quality_model"], "gpt-6.1-sol")
+        self.assertEqual(payload["fast_model"], "gpt-6-luna")
+        self.assertEqual(payload["reasoning_effort"], "")
+        self.assertEqual(payload["dns_mode"], "proxy")
+        self.assertFalse(payload["has_api_key"])
+        stored = json.loads(self.settings_path.read_text(encoding="utf-8"))
+        self.assertEqual(stored["ai"]["active_profile"], "monetwl")
+        saved = stored["ai"]["profiles"]["monetwl"]
+        self.assertEqual(saved["base_url"], "https://gateway-two.example/v1")
+        self.assertNotIn("api_key", saved)
+        self.assertNotIn("deepseek_api_key", stored)
+
+    @patch("cuoti_app.services.ai_providers.direct_urlopen")
+    def test_monetwl_roles_reach_provider_with_published_limits(self, urlopen):
+        self.keyring.set_password(KEYRING_SERVICE, "monetwl", "monetwl-key")
+        self.settings_path.write_text(
+            json.dumps(
+                {"ai": {"active_profile": "monetwl", "profiles": {"monetwl": {}}}}
+            ),
+            encoding="utf-8",
+        )
+
+        # Fast role resolves to gpt-6-luna and reaches provider.complete (no
+        # "stream" key), carrying the browser User-Agent for the Monetwl host.
+        urlopen.return_value = FakeResponse(content="ok", model="gpt-6-luna")
+        with self.app.app_context():
+            deepseek_api_call(
+                [{"role": "user", "content": "x"}],
+                task="classification",
+                max_attempts=1,
+            )
+        request = urlopen.call_args.args[0]
+        body = json.loads(request.data)
+        self.assertEqual(body["model"], "gpt-6-luna")
+        self.assertNotIn("stream", body)
+        self.assertTrue(
+            request.full_url.startswith("https://gateway-two.example/v1/chat/completions")
+        )
+        self.assertEqual(
+            request_header(request, "User-Agent"), MONETWL_BROWSER_USER_AGENT
+        )
+
+        # Quality role resolves to gpt-6.1-sol.
+        urlopen.reset_mock()
+        urlopen.return_value = FakeResponse(content='{"ok": true}', model="gpt-6.1-sol")
+        with self.app.app_context():
+            deepseek_api_call(
+                [{"role": "user", "content": "x"}],
+                task="problem_analysis",
+                max_attempts=1,
+            )
+        self.assertEqual(
+            json.loads(urlopen.call_args.args[0].data)["model"], "gpt-6.1-sol"
+        )
+
+        # An explicit smaller profile limit still wins over the published value.
+        capabilities = resolve_model_context_capabilities(
+            "gpt-6-luna",
+            configured_context_window=1000,
+            configured_max_output_tokens=500,
+        )
+        self.assertEqual(
+            (capabilities.context_window_tokens, capabilities.max_output_tokens),
+            (1000, 500),
+        )
+
+
+class MonetwlBrowserUserAgentTests(unittest.TestCase):
+    """Only the exact Monetwl host receives a browser User-Agent."""
+
+    def _provider(self, base_url: str) -> OpenAICompatibleProvider:
+        return OpenAICompatibleProvider(
+            base_url,
+            "secret-key",
+            dns_mode="proxy",
+            dns_servers=["223.5.5.5", "119.29.29.29"],
+        )
+
+    @patch("cuoti_app.services.ai_providers.direct_urlopen")
+    def test_monetwl_model_list_and_stream_and_complete_send_browser_ua(self, urlopen):
+        provider = self._provider("https://gateway-two.example/v1")
+
+        models_response = FakeResponse()
+        models_response.payload = {"data": [{"id": "gpt-6-luna"}]}
+        urlopen.return_value = models_response
+        provider.list_models(timeout=5)
+        self.assertEqual(
+            request_header(urlopen.call_args.args[0], "User-Agent"),
+            MONETWL_BROWSER_USER_AGENT,
+        )
+
+        urlopen.reset_mock()
+        urlopen.return_value = SSEResponse(
+            'data: {"choices":[{"delta":{"content":"OK"},"finish_reason":null}]}\n\n'
+            'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n'
+            "data: [DONE]\n\n"
+        )
+        events = list(
+            provider.stream_complete(
+                [{"role": "user", "content": "hi"}],
+                model="gpt-6-luna",
+                max_attempts=1,
+            )
+        )
+        self.assertEqual(events[-1].kind, "completed")
+        self.assertEqual(
+            request_header(urlopen.call_args.args[0], "User-Agent"),
+            MONETWL_BROWSER_USER_AGENT,
+        )
+
+        urlopen.reset_mock()
+        urlopen.return_value = FakeResponse(content="OK", model="gpt-6-luna")
+        provider.complete(
+            [{"role": "user", "content": "hi"}],
+            model="gpt-6-luna",
+            max_attempts=1,
+        )
+        self.assertEqual(
+            request_header(urlopen.call_args.args[0], "User-Agent"),
+            MONETWL_BROWSER_USER_AGENT,
+        )
+
+    @patch("cuoti_app.services.ai_providers.direct_urlopen")
+    def test_non_monetwl_hosts_keep_requests_unchanged(self, urlopen):
+        for base_url in (
+            "https://api.deepseek.com/v1",
+            "https://notgateway-two.example/v1",
+            "https://gateway-two.example.evil.test/v1",
+            "https://api.example.test/gateway-two.example/v1",
+        ):
+            provider = self._provider(base_url)
+            response = FakeResponse()
+            response.payload = {"data": [{"id": "some-model"}]}
+            urlopen.return_value = response
+            provider.list_models(timeout=5)
+            request = urlopen.call_args.args[0]
+            self.assertIsNone(
+                request_header(request, "User-Agent"), msg=base_url
+            )
+            self.assertEqual(
+                request_header(request, "Authorization"), "Bearer secret-key"
+            )
+
+    @patch("cuoti_app.services.ai_providers.direct_urlopen")
+    def test_monetwl_host_match_ignores_case(self, urlopen):
+        provider = self._provider("https://gateway-two.example/v1")
+        response = FakeResponse()
+        response.payload = {"data": [{"id": "gpt-6-luna"}]}
+        urlopen.return_value = response
+        provider.list_models(timeout=5)
+        self.assertEqual(
+            request_header(urlopen.call_args.args[0], "User-Agent"),
+            MONETWL_BROWSER_USER_AGENT,
+        )
 
 
 if __name__ == "__main__":

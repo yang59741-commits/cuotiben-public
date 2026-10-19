@@ -20,6 +20,10 @@ def make_data_import_handler(app, *, job_error_from_response):
     def data_import_handler(context, payload):
         staged_name = str(payload.get("staged_file") or "")
         if staged_name:
+            with app.app_context():
+                replay = load_business_result(get_db(), context.job_id, "data-import")
+            if replay is not None:
+                return JobOutcome(result={**replay, "idempotency_replayed": True}, side_effect_committed=True)
             if not re.fullmatch(r"[0-9a-f]{64}\.import", staged_name):
                 raise PermanentJobError(
                     "导入暂存文件无效", code="import_file_invalid"
@@ -56,6 +60,7 @@ def make_data_import_handler(app, *, job_error_from_response):
                         recovery_dir=Path(app.config["DATABASE"]).resolve().parent
                         / "备份",
                         warn=app.logger.warning,
+                        source_job_id=context.job_id,
                     )
             except PortableImportError as exc:
                 raise job_error_from_response(
@@ -77,8 +82,6 @@ def make_data_import_handler(app, *, job_error_from_response):
                     },
                     500,
                 ) from exc
-            context.update_progress(4, 4, "导入已提交")
-            path.unlink(missing_ok=True)
             return JobOutcome(result=body, side_effect_committed=True)
 
         backup = payload.get("backup")

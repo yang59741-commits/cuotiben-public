@@ -254,13 +254,25 @@
     }
   }
 
+  const TOGGLE_RESULT_FIELDS=['status','correct_streak','review_stage','review_cycle','next_review'];
+
+  function listController(){
+    return window.Cuoti.mistakes.controller;
+  }
+
   async function toggleStatus(id){
     const item=itemById(id);
     if(!item?.public_id)return;
+    const button=document.querySelector(`#mistake-list .js-toggle-mistake[data-id="${safeInteger(id)}"]`);
+    if(button)button.disabled=true;
     try{
       const result=await apiAdapter.toggle(item.public_id,safeInteger(item.revision));
       item.revision=safeInteger(result?.revision,item.revision);
-      await window.Cuoti.mistakes.controller.load();
+      TOGGLE_RESULT_FIELDS.forEach(key=>{if(result&&key in result)item[key]=result[key]});
+      const controller=listController();
+      if(controller.updateItem&&result?.status)await controller.updateItem(id);
+      else await controller.load();
+      void window.Cuoti.reviewBadge?.refresh();
     }catch(error){
       if(error?.status===409&&error?.data?.code==='REVISION_CONFLICT'){
         showRevisionConflict(error,{onLoadLatest:data=>{
@@ -272,6 +284,8 @@
           catch(retryError){showRevisionConflict(retryError,{onRetry:async()=>toggleStatus(id)})}
         }});
       }else showModal('操作失败',error.message,'error');
+    }finally{
+      if(button?.isConnected)button.disabled=false;
     }
   }
 
@@ -331,21 +345,45 @@
   async function remove(id){
     const item=itemById(id);
     if(!item?.public_id)return;
-    showModal('移入回收站','确定要将这道错题移入回收站吗？移入回收站，可恢复。','error',
-      '<button class="btn btn-out btn-sm" onclick="hideModal()">取消</button>'+
-      '<button class="btn btn-d btn-sm" id="modal-confirm-btn">确定删除</button>');
-    document.getElementById('modal-confirm-btn').onclick=async()=>{
-      hideModal();
-      try{
-        await apiAdapter.remove(item.public_id,safeInteger(item.revision));
-        state.selectedPublicIds.delete(String(item.public_id));
-        window.Cuoti.mistakes.exports.updateBar();
-        await window.Cuoti.mistakes.controller.load();
-      }catch(error){
-        if(error?.status===409&&error?.data?.code==='REVISION_CONFLICT')showRevisionConflict(error,{onRetry:async data=>{item.revision=data.currentRevision;await remove(id)}});
-        else showModal('删除失败',error.message,'error');
-      }
-    };
+    const button=document.querySelector(`#mistake-list .js-delete-mistake[data-id="${safeInteger(id)}"]`);
+    if(button)button.disabled=true;
+    try{
+      const result=await apiAdapter.remove(item.public_id,safeInteger(item.revision));
+      item.revision=safeInteger(result?.revision,safeInteger(item.revision)+1);
+      if(button)button.disabled=false;
+      state.selectedPublicIds.delete(String(item.public_id));
+      const card=button?.closest('.mistake-card');
+      card?.classList.remove('selected');
+      const checkbox=card?.querySelector('.js-select-mistake');
+      if(checkbox)checkbox.checked=false;
+      window.Cuoti.mistakes.exports.updateBar();
+      const controller=listController();
+      const removal=controller.removeItem?controller.removeItem(id):controller.load().then(()=>null);
+      showToast('可在“回收站”中找回，或立即撤销。','success',{
+        title:'已移入回收站',actionLabel:'撤销',duration:6000,
+        onAction:()=>void removal.then(snapshot=>undoRemove(item,snapshot))
+      });
+      await removal;
+      void window.Cuoti.reviewBadge?.refresh();
+    }catch(error){
+      if(button?.isConnected)button.disabled=false;
+      if(error?.status===409&&error?.data?.code==='REVISION_CONFLICT')showRevisionConflict(error,{onRetry:async data=>{item.revision=data.currentRevision;await remove(id)}});
+      else showModal('删除失败',error.message,'error');
+    }
+  }
+
+  async function undoRemove(item,snapshot){
+    try{
+      const result=await apiAdapter.restore(item.public_id,safeInteger(item.revision));
+      item.revision=safeInteger(result?.revision,safeInteger(item.revision)+1);
+      const controller=listController();
+      if(controller.restoreItem)await controller.restoreItem(snapshot);
+      else await controller.load();
+      void window.Cuoti.reviewBadge?.refresh();
+      showToast('错题已恢复到原位置','success');
+    }catch(error){
+      showModal('撤销失败',error.message+'。错题仍在回收站中，可稍后手动恢复。','error');
+    }
   }
 
   async function toggleAttachments(id,button){

@@ -144,6 +144,7 @@ function mountExamSelectionExplanation(examId,result){
 }
 
 function hideExamPreview(){
+  examPage.issues.setPreview(null);
   examPreviewRevision+=1;
   examPage.state.currentExamPreviewId=null;
   resetExamSelectionExplanation();
@@ -154,6 +155,7 @@ function hideExamPreview(){
 }
 
 async function viewExam(id){
+  examPage.issues.setPreview(null);
   resetExamSelectionExplanation();
   examPage.state.currentExamPreviewId=null;
   const previewRevision=++examPreviewRevision;
@@ -195,6 +197,7 @@ async function viewExam(id){
     content.innerHTML='<div class="exam-preview-error">公式预览渲染失败，请稍后重新打开；PDF 文件不受影响。</div>';
   }
   examPage.state.currentExamPreviewId=id;
+  examPage.issues.setPreview({...data,id});
   mountExamSelectionExplanation(id,result);
   if(data.pdf_url){
     const pdfURL=safeLocalURL(data.pdf_url);

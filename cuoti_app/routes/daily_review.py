@@ -19,6 +19,7 @@ from ..services.daily_review import (
     history_page,
     load_daily_review_pdf_plan,
     type_summary,
+    method_summary,
 )
 from ..services.jobs import (
     JobConflict,
@@ -125,7 +126,7 @@ def daily_review_generate():
             "export_context": "daily_review",
             "layout": layout,
             "daily_review_request_id": request_id,
-            "selection": validate_selection(get_db(), {key: body[key] for key in ('practice_mode','primary_type_code','subject_id','chapter_id','count','include_mastered','practice_kind','source_item_ids','pdf_purpose') if key in body}),
+            "selection": validate_selection(get_db(), {key: body[key] for key in ('practice_mode','primary_type_code','method_code','method_role','subject_id','chapter_id','count','include_mastered','practice_kind','source_item_ids','pdf_purpose') if key in body}),
         }
         job, created = _coordinator().submit(
             "mistake-export",
@@ -176,6 +177,22 @@ def daily_review_session_pdf(round_id: int):
 @bp.get('/api/v2/daily-review/type-summary')
 def daily_review_type_summary():
     return jsonify({'items': type_summary(get_db(), session_id=request.args.get('session_id', type=int))})
+
+
+@bp.get('/api/v2/daily-review/method-summary')
+def daily_review_method_summary():
+    filters = {}
+    try:
+        for key in ('session_id', 'subject_id', 'chapter_id'):
+            raw = request.args.get(key)
+            if raw not in (None, ''):
+                value = int(raw)
+                if value <= 0:
+                    raise ValueError(key)
+                filters[key] = value
+    except ValueError:
+        return _error('批次、科目和章节必须为有效编号', 400, 'VALIDATION')
+    return jsonify(method_summary(get_db(), **filters))
 
 
 def _record(round_id: int, item_id: int | None = None, mistake_id: int | None = None):

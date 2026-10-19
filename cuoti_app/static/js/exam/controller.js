@@ -19,7 +19,7 @@ function resetGenerateUI(){
 async function generateExam(){
   const prefix=examPage.state.examMode==='mistakes'?'em-':'e-';
   const types=examPage.state.examMode==='past'?[]:[...document.querySelectorAll('#'+prefix+'types input:checked')].map(c=>c.value);
-  if(examPage.state.examMode!=='past'&&!types.length){showModal('提示', '请至少选择一种题型', 'info');return}
+  if(examPage.state.examMode!=='past'&&!types.length){showFieldError(document.getElementById(prefix+'types'),'请至少选择一种题型');return}
   const btn=document.getElementById('btn-gen');const st=document.getElementById('gen-status');
   btn.disabled=true;setGenerateButton(true);
   st.textContent=examPage.state.examMode==='past'
@@ -27,13 +27,15 @@ async function generateExam(){
     :'AI 正在出题...';
   document.getElementById('gen-progress').style.display='block';
   try{
+    // Validation stops before any request, so drop the optimistic progress text.
+    const cancelBeforeRequest=()=>{st.textContent='';resetGenerateUI()};
     let payload;
     if(examPage.state.examMode==='mistakes'){
-      if(!examPage.state.selectedExamMistakeIds.size){showModal('提示', '请勾选至少一道错题', 'info');resetGenerateUI();return}
+      if(!examPage.state.selectedExamMistakeIds.size){showFieldError(document.getElementById('exam-mistake-list'),'请勾选至少一道错题');cancelBeforeRequest();return}
       payload={
         source:'mistakes',mistake_ids:[...examPage.state.selectedExamMistakeIds],
         difficulty:document.getElementById('em-diff').value,
-        target:document.getElementById('em-target').value,
+        target:'日常练习',
         training_target:document.getElementById('em-training-target').value,
         question_count:parseInt(document.getElementById('em-count').value)||examPage.state.selectedExamMistakeIds.size,
         types,note:document.getElementById('em-note').value.trim()
@@ -52,7 +54,7 @@ async function generateExam(){
         .find(item=>item.year===referenceYear);
       if(!institution||!sid||!referenceYear||!structure){
         showModal('提示', '请选择有可用真题 TeX 的院校、科目和结构年份', 'info');
-        resetGenerateUI();return;
+        cancelBeforeRequest();return;
       }
       if(!examPage.selection.pastExamSourceUsable(source)||!structure.usable){
         showModal(
@@ -60,20 +62,20 @@ async function generateExam(){
           structure.availability_reason||examPage.selection.pastExamAvailabilityMessage(source),
           'info'
         );
-        resetGenerateUI();return;
+        cancelBeforeRequest();return;
       }
       if(!allowedCandidateSources.has(candidateSource)){
         showModal('提示', '候选题源选项无效，请重新选择', 'info');
-        resetGenerateUI();return;
+        cancelBeforeRequest();return;
       }
       if(candidateSource==='mixed'&&safeInteger(structure.question_count)<2){
         showModal('提示', '混合题源至少需要 2 题，请改选结构年份或候选题源', 'info');
-        resetGenerateUI();return;
+        cancelBeforeRequest();return;
       }
       const modeInfo=structure.source_modes?.[candidateSource];
       if(modeInfo && modeInfo.available===false){
         showModal('当前组合不可提交',String(modeInfo.reason||'该题源方式当前不可用'),'info');
-        resetGenerateUI();return;
+        cancelBeforeRequest();return;
       }
       payload={
         source:'past',
@@ -90,7 +92,8 @@ async function generateExam(){
       }
     }else{
       const sid=document.getElementById('e-subject').value;
-      if(!sid||!examPage.state.selectedExamChapters.size){showModal('提示', '请选择科目和至少一个章节', 'info');resetGenerateUI();return}
+      if(!sid){showFieldError(document.getElementById('e-subject'),'请先选择科目');cancelBeforeRequest();return}
+      if(!examPage.state.selectedExamChapters.size){showFieldError(document.getElementById('e-chapters'),'请至少选择一个章节');cancelBeforeRequest();return}
       payload={
         source:'free',subject_id:+sid,chapters:[...examPage.state.selectedExamChapters],
         difficulty:document.getElementById('e-diff').value,
@@ -140,7 +143,7 @@ async function recompileExam(id){
 
 function mount(){
   examPage.state.active=true;
-  examPage.selection.bind();examPage.history.bind();examPage.preview.bind();
+  examPage.selection.bind();examPage.history.bind();examPage.preview.bind();examPage.issues.bind();
   if(examPage.state.examMode==='past')void examPage.selection.loadPastExamSources();
   else if(examPage.state.examMode==='mistakes'){
     if(!examPage.state.selectedExamMistakeIds.size)void examPage.selection.prepareExamMistakeFilters();
@@ -153,7 +156,7 @@ function unmount(){
   examPage.state.active=false;
   examPage.state.revision+=1;
   examPage.api.cancelReads();
-  examPage.selection.unbind();examPage.history.unbind();examPage.preview.unbind();
+  examPage.selection.unbind();examPage.history.unbind();examPage.preview.unbind();examPage.issues.unbind();
   examPage.preview.hideExamPreview();
 }
 

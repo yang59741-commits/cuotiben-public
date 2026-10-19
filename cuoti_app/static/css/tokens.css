@@ -6,13 +6,23 @@
   --border:#e3d8cd;--text:#49372a;--muted:#756355;
   --gray-100:#f7f4f0;--gray-200:#e9e2d9;--gray-300:#d9cfc3;
   --gray-400:#b7ab9c;--gray-500:#8a8075;--gray-600:#6b6258;--placeholder:#a39888;
-  --fs-xs:10px;--fs-sm:12px;--fs-md:13px;--fs-lg:15px;--fs-xl:18px;
+  --fs-xs:10px;--fs-note:11px;--fs-sm:12px;--fs-md:13px;--fs-lg:15px;--fs-xl:18px;
   --radius-control:10px;--radius-card:12px;--radius-container:14px;
-  --chart-pass:var(--green);--chart-again:var(--orange);--chart-manual:var(--purple);
-  --heat-0:var(--gray-100);--heat-1:#eef4ee;--heat-2:#d3e5d6;--heat-3:#a8c9ae;--heat-4:#5e9b72;
+  --ctl-h-xs:26px;--ctl-h-sm:30px;--ctl-h-md:38px;
+  /* Chart inks are for data marks only; values passed the CVD and contrast palette checks on --card. */
+  --chart-pass:#2e7747;--chart-hint:#80ad6b;--chart-again:#a95e30;--chart-manual:#83548e;--chart-mastered:#519962;
+  --chart-grid:#efe7dd;--chart-axis:#d9cfc3;--chart-quiet:#dfd0bf;--chart-track:#e3efe0;
+  --heat-0:#efe8e1;--heat-1:#bdddbd;--heat-2:#93c499;--heat-3:#60a271;--heat-4:#357b4e;
   --focus-ring:rgba(107,78,52,.28);--dur-fast:150ms;--dur-med:200ms;
   --duration-fast:var(--dur-fast);--duration-base:var(--dur-med);
   --shadow-sm:0 1px 3px rgba(73,55,42,.08);--shadow:0 5px 18px rgba(73,55,42,.07);--shadow-lg:0 10px 30px rgba(73,55,42,.11);
   --icon-sm:16px;--icon-md:18px;--icon-lg:20px;
+  --surface-soft:#fbf7f2;
+  --success-soft:#eef5f0;--success-border:#c4dccb;
+  --danger-soft:#fbf0ee;--danger-border:#e8cbc5;
+  --warn-soft:#fbf1e3;--warn-border:#e1c7a4;--warn-strong:#a8742e;--warn-text:#74502a;
+  --info-soft:rgba(82,105,122,.10);
+  --stage-1:#d1ab83;--stage-2:#b68c61;--stage-3:#9b6e43;--stage-4:#7a5230;
+  --ease-out:cubic-bezier(.2,.7,.3,1);
   --font-code:"Cascadia Code","JetBrains Mono","Consolas","Microsoft YaHei UI",monospace;
 }

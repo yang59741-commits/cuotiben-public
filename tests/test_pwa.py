@@ -44,7 +44,7 @@ class PwaShellTests(unittest.TestCase):
         self.assertEqual(response.headers["Cache-Control"], "no-cache")
         self.assertNotIn("__CUOTI_BUILD_ID__", source)
         self.assertRegex(source, r"cuoti-shell-[0-9a-f]{20}")
-        for script in ("mistakes", "stats", "review", "data", "exam", "library", "settings", "jobs", "remote"):
+        for script in ("mistakes", "stats", "review", "classification", "data", "exam", "library", "settings", "jobs", "remote"):
             self.assertIn(f"/static/js/{script}.js", source)
         self.assertIn("request.method!=='GET'", source)
         self.assertIn("url.pathname.startsWith('/api/')", source)

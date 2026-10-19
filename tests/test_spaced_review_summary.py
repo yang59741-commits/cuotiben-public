@@ -35,7 +35,7 @@ def test_due_summary_scope_pagination_and_saved_results(tmp_path):
     scope = {"subject_id": chapter[1], "chapter_id": chapter[0], "limit": 2}
     first = client.get("/api/v2/reviews/due", query_string=scope).get_json()
     assert first["total"] == 3
-    assert first["summary"] == {"active": 4, "mastered": 1}
+    assert first["summary"] == {"active": 4, "mastered": 1, "overdue": 0}
     assert first["has_more"]
     second = client.get("/api/v2/reviews/due", query_string={**scope, "after": first["next_cursor"]}).get_json()
     assert second["total"] == 3 and second["summary"] == first["summary"]
@@ -49,9 +49,9 @@ def test_due_summary_scope_pagination_and_saved_results(tmp_path):
         assert replay.status_code == 200 and replay.get_json()["replayed"]
         page = client.get("/api/v2/reviews/due", query_string=scope).get_json()
         assert page["total"] == 2 - index
-        assert page["summary"] == {"active": 3, "mastered": 2}
+        assert page["summary"] == {"active": 3, "mastered": 2, "overdue": 0}
     empty = client.get("/api/v2/reviews/due", query_string={"subject_id": 999999}).get_json()
-    assert empty["total"] == 0 and empty["summary"] == {"active": 0, "mastered": 0}
+    assert empty["total"] == 0 and empty["summary"] == {"active": 0, "mastered": 0, "overdue": 0}
 
 
 def test_due_snapshot_count_does_not_absorb_later_insert(tmp_path):
@@ -72,4 +72,4 @@ def test_due_snapshot_count_does_not_absorb_later_insert(tmp_path):
         db.commit()
     page = client.get('/api/v2/reviews/due', query_string={"limit": 1, "after": first['next_cursor']}).get_json()
     assert page['total'] == 3
-    assert page['summary'] == {'active': 4, 'mastered': 0}
+    assert page['summary'] == {'active': 4, 'mastered': 0, 'overdue': 3}

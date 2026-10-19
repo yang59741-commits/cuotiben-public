@@ -5,6 +5,7 @@ import json
 import uuid
 import zipfile
 from pathlib import Path
+from urllib.parse import unquote
 from unittest.mock import patch
 
 import pytest
@@ -69,6 +70,32 @@ def reexport(db, pdf_dir, session_id, **kwargs):
     )
 
 
+def test_download_names_match_history_headers_and_archive_in_beijing_time(book):
+    app, _, original = book
+    with app.app_context():
+        db = get_db()
+        db.execute("UPDATE mistake_export_batches SET created_at='2026-10-15T16:30:00+00:00' WHERE id=?", (original['id'],))
+        db.execute("UPDATE mistake_exports SET created_at='2026-10-15T16:30:00+00:00' WHERE batch_id=?", (original['id'],))
+        db.commit()
+    client = app.test_client()
+    history = client.get('/api/v2/mistake-exports').get_json()['items'][0]
+    stem = f"每日自主复习_20261016_第{original['round_number']}轮_批次{original['id']}"
+    assert history['download_name'] == f'{stem}.zip'
+    with client.get(history['download_url']) as response:
+        assert response.status_code == 200
+        assert f"filename*=UTF-8''{stem}.zip" in unquote(response.headers['Content-Disposition'])
+        with zipfile.ZipFile(io.BytesIO(response.data)) as bundle:
+            for volume in history['volumes']:
+                expected = f"{stem}_第{volume['volume_index']}册.pdf"
+                assert volume['download_name'] == expected
+                assert bundle.read(expected).startswith(b'%PDF')
+            assert json.loads(bundle.read('manifest.json'))['download_name'] == history['download_name']
+    for volume in history['volumes']:
+        with client.get(volume['download_url']) as response:
+            assert response.status_code == 200
+            assert f"filename*=UTF-8''{volume['download_name']}" in unquote(response.headers['Content-Disposition'])
+
+
 @pytest.mark.parametrize("layout", ["compact", "notes", "two_column"])
 def test_expired_pdf_rebuild_uses_snapshots_and_preserves_completed_session(book, layout):
     app, pdf_dir, original = book
@@ -100,7 +127,10 @@ def test_expired_pdf_rebuild_uses_snapshots_and_preserves_completed_session(book
     with app.test_client().get(result["download_url"]) as response:
         assert response.status_code == 200
         with zipfile.ZipFile(io.BytesIO(response.data)) as bundle:
-            assert bundle.read("每日自主复习_第1册.pdf").startswith(b"%PDF")
+            assert bundle.read(result["volumes"][0]["download_name"]).startswith(b"%PDF")
+        assert result["download_name"] != original["download_name"]
+        assert f"_第{original['round_number']}轮_" in result["download_name"]
+        assert f"_批次{result['id']}.zip" in result["download_name"]
 
 
 def test_http_submission_worker_and_idempotent_replay(book):

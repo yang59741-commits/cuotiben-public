@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import tempfile
+import threading
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest import mock
 
 import launcher
 from cuoti_app.services.launcher_runtime import (
     OwnedServiceRecord,
+    SingleInstanceGuard,
     read_log_tail,
     read_service_state,
     rotate_log,
@@ -17,6 +20,61 @@ from cuoti_app.services.launcher_runtime import (
 
 
 class LauncherOwnershipTests(unittest.TestCase):
+    def test_concurrent_empty_lock_initialization_reports_contention_and_recovers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "new.lock"
+            barrier = threading.Barrier(2)
+            held = threading.Event()
+            contender_finished = threading.Event()
+            thread = threading.local()
+            original_open = Path.open
+
+            class Handle:
+                def __init__(self, handle):
+                    self.handle = handle
+
+                def __getattr__(self, name):
+                    return getattr(self.handle, name)
+
+                def tell(self):
+                    size = self.handle.tell()
+                    barrier.wait(5)
+                    return size
+
+                def write(self, data):
+                    if thread.contender:
+                        if not held.wait(5):
+                            raise AssertionError("Owner did not acquire the lock")
+                    return self.handle.write(data)
+
+            def opened(file, *args, **kwargs):
+                handle = original_open(file, *args, **kwargs)
+                return Handle(handle) if file == path and args == ("r+b",) else handle
+
+            def acquire(contender):
+                thread.contender = contender
+                guard = SingleInstanceGuard(path)
+                try:
+                    acquired = guard.acquire()
+                    if not contender:
+                        held.set()
+                        if not contender_finished.wait(5):
+                            raise AssertionError("Contender did not finish")
+                    return acquired
+                finally:
+                    if contender:
+                        contender_finished.set()
+                    guard.release()
+
+            with mock.patch.object(Path, "open", opened), ThreadPoolExecutor(max_workers=2) as pool:
+                owner = pool.submit(acquire, False)
+                contender = pool.submit(acquire, True)
+                self.assertTrue(owner.result(timeout=10))
+                self.assertFalse(contender.result(timeout=10))
+            guard = SingleInstanceGuard(path)
+            self.assertTrue(guard.acquire())
+            guard.release()
+
     def test_state_round_trip_and_all_identity_factors_are_required(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "service.json"

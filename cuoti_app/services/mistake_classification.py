@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 
 from ..transactions import immediate_transaction
 from .question_type_catalog import CATALOG_VERSION
+from . import solution_methods
 
 
 class ClassificationError(ValueError):
@@ -96,10 +97,17 @@ def validate_classification(db, row, value, *, check_chapter=True):
         raise ClassificationError("题型与科目不一致")
     if check_chapter and row['chapter'] and question_type['chapters'] and row['chapter'] not in question_type['chapters']:
         raise ClassificationError("题型与现有章节需要人工核对")
+    methods = labels(value.get('methods', []), 3)
+    try:
+        annotations = solution_methods.normalize_annotations(
+            methods, value.get('method_annotations'), subject=row['subject'])
+    except solution_methods.MethodError as exc:
+        raise ClassificationError(str(exc)) from exc
     return {
         'primary_type_code': question_type['code'],
         'knowledge_points': labels(value.get('knowledge_points', []), 5),
-        'methods': labels(value.get('methods', []), 3),
+        'methods': [item['name'] for item in annotations],
+        'method_annotations': annotations,
     }
 
 
@@ -108,12 +116,18 @@ def get_classification(db, row):
     saved = db.execute("SELECT * FROM mistake_classifications WHERE mistake_id=?", (row['id'],)).fetchone()
     suggestion = db.execute("SELECT * FROM classification_suggestions WHERE mistake_id=? AND status='pending' ORDER BY id DESC LIMIT 1", (row['id'],)).fetchone()
     result = {'status': 'unclassified', 'revision': 0, 'locked': False, 'primary_type_code': None,
-              'type_name': '', 'knowledge_points': [], 'methods': [], 'suggestion': None,
-              'subject': row.get('subject'), 'chapter': row.get('chapter')}
+              'type_name': '', 'knowledge_points': [], 'methods': [], 'method_annotations': [], 'suggestion': None,
+              'subject': row.get('subject'), 'chapter': row.get('chapter'),
+              'date_added': row.get('date_added'), 'mistake_revision': row.get('revision')}
     if saved:
         result.update(dict(saved))
         result['knowledge_points'] = json.loads(result.pop('knowledge_points_json'))
         result['methods'] = json.loads(result.pop('methods_json'))
+        annotations = result.pop('method_annotations_json')
+        result['method_annotations'] = solution_methods.normalize_annotations(
+            result['methods'], json.loads(annotations) if annotations is not None else None,
+            subject=row['subject'] if annotations is None else None)
+        result['methods'] = [item['name'] for item in result['method_annotations']]
         result['status'] = 'stale' if saved['source_hash'] != source_hash(row) else ('manual' if saved['locked'] else 'auto')
         question_type = db.execute("SELECT name,active FROM question_types WHERE code=?", (saved['primary_type_code'],)).fetchone()
         result['type_name'] = question_type['name'] if question_type else ''
@@ -122,6 +136,7 @@ def get_classification(db, row):
     if suggestion:
         result['suggestion'] = {**dict(suggestion), 'payload': json.loads(suggestion['payload_json'])}
         result['suggestion'].pop('payload_json')
+        result['suggestion']['is_current'] = suggestion['source_hash'] == source_hash(row)
         if not saved:
             result['status'] = 'needs_review'
     return result
@@ -129,13 +144,14 @@ def get_classification(db, row):
 
 def _save(db, row, value, *, revision, locked, source):
     db.execute("""INSERT INTO mistake_classifications(mistake_id,primary_type_code,
-        knowledge_points_json,methods_json,source_hash,source,locked,revision,catalog_version,updated_at)
-        VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(mistake_id) DO UPDATE SET
+        knowledge_points_json,methods_json,source_hash,source,locked,revision,catalog_version,updated_at,method_annotations_json)
+        VALUES(?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(mistake_id) DO UPDATE SET
         primary_type_code=excluded.primary_type_code,knowledge_points_json=excluded.knowledge_points_json,
         methods_json=excluded.methods_json,source_hash=excluded.source_hash,source=excluded.source,
-        locked=excluded.locked,revision=excluded.revision,catalog_version=excluded.catalog_version,updated_at=excluded.updated_at""",
+        locked=excluded.locked,revision=excluded.revision,catalog_version=excluded.catalog_version,updated_at=excluded.updated_at,
+        method_annotations_json=excluded.method_annotations_json""",
         (row['id'], value['primary_type_code'], dumps(value['knowledge_points']), dumps(value['methods']),
-         source_hash(row), source, int(locked), revision + 1, CATALOG_VERSION, now()))
+         source_hash(row), source, int(locked), revision + 1, CATALOG_VERSION, now(), dumps(value['method_annotations'])))
 
 
 def publish_prediction(db, row, value, *, job_id, base_revision):
@@ -171,6 +187,8 @@ def update_classification(db, public_id, body):
         current = get_classification(db, row)
         if body.get('revision') != current['revision']:
             raise ClassificationError("分类已更新，请重新载入", 409)
+        if 'mistake_revision' in body and body['mistake_revision'] != row['revision']:
+            raise ClassificationError("题目已更新，请重新载入", 409)
         if body.get('action') == 'unlock':
             if not current['revision']:
                 raise ClassificationError("尚无可解锁的分类")
@@ -230,11 +248,16 @@ def resolve_suggestion(db, suggestion_id, body):
             raise ClassificationError("建议已处理或不存在", 409)
         row = mistake_row(db, suggestion['public_id'])
         current = get_classification(db, row)
-        if suggestion['source_hash'] != source_hash(row) or body.get('revision') != current['revision']:
+        if body.get('revision') != current['revision']:
             raise ClassificationError("题目或分类已变化，请重新载入", 409)
         if body.get('action') != 'reject':
+            if suggestion['source_hash'] != source_hash(row) or (
+                    'mistake_revision' in body and body['mistake_revision'] != row['revision']):
+                raise ClassificationError("题目或分类已变化，请重新载入", 409)
             payload = json.loads(suggestion['payload_json'])
-            payload.update({key: body[key] for key in ('primary_type_code', 'knowledge_points', 'methods') if key in body})
+            if 'methods' in body and 'method_annotations' not in body:
+                payload.pop('method_annotations', None)
+            payload.update({key: body[key] for key in ('primary_type_code', 'knowledge_points', 'methods', 'method_annotations') if key in body})
             if body.get('new_type'):
                 payload['primary_type_code'] = update_type(db, None, body['new_type'])
             value = validate_classification(db, row, payload, check_chapter=False)
@@ -245,18 +268,28 @@ def resolve_suggestion(db, suggestion_id, body):
 
 def catalog_prompt(db, rows):
     subjects = {row['subject'] for row in rows}
-    return dumps([{key: item[key] for key in ('code', 'subject', 'name', 'definition', 'chapters')}
-                  for item in list_types(db) if item['subject'] in subjects])
+    return dumps({'question_types': [
+        {key: item[key] for key in ('code', 'subject', 'name', 'definition', 'chapters')}
+        for item in list_types(db) if item['subject'] in subjects],
+        'solution_methods': solution_methods.catalog_prompt(subjects)})
 
 
 CLASSIFICATION_INSTRUCTION = """
 同时逐题返回 classification 对象：
-{"primary_type_code":"目录代码或空字符串","knowledge_points":[],"methods":[],
+{"primary_type_code":"题型目录代码或空字符串","knowledge_points":[],
+"method_annotations":[{"code":"方法目录代码","role":"primary"}],
 "confidence":0.0,"proposed_type":null}。
 按题干的主要作答任务选择一个主类，而不是按学生备注中的错误方法分类。
-知识点最多5项、方法最多3项，每项1至40字；confidence是0至1的分类把握程度。
+知识点是概念或性质，最多5项，每项1至40字。方法是完成本题的一条可行路径上的具体操作，不是知识点复述。
+方法最多3项：primary为主要方法（最多1项），auxiliary为同一路径的辅助方法（最多2项）。
+先核对题设与方法适用条件；不要按关键词机械贴标，也不要把不同备选解法当作辅助步骤。
+先判断题目是否要求判否或讨论分支，不能看到“若成立请构造”就假定成立；未给出的可导、可交换极限、可对角化等条件不得擅自补充。
+在classification内另用method_basis给出1至2句选法依据，点明关键条件与操作路径，避免仅重复方法名。
+把握不足时仍可提出最可能的一条可行路径及其主要、辅助方法建议，并将confidence设为低于0.85留待用户确认；不得把猜测当作已确定事实，也不要遗漏这条路径中有依据的辅助步骤。
+不能确定主辅时用unspecified；没有合适目录项时用{"code":null,"name":"短名称","role":"unspecified"}，不得编造方法代码。
+confidence是0至1的整组分类把握程度，须包含方法适用性和主辅判断的不确定性。
 不适合目录时不要强行选择：proposed_type返回{name,definition,chapters}并留空代码。
-不得输出答案或完整解析。题型目录：
+不得输出答案或完整解析。题型和方法目录：
 """
 
 
@@ -264,6 +297,9 @@ def backfill_preview(db, scope):
     from ..validation import date_value, positive_int
     if not isinstance(scope, dict):
         raise ClassificationError('补标范围必须是对象')
+    refresh_auto = scope.get('refresh_auto', False)
+    if not isinstance(refresh_auto, bool):
+        raise ClassificationError('更新自动分类选项须为布尔值')
     where, args = ["m.deleted_at IS NULL", "m.content!=''"], []
     if not scope.get('subject_id') and not scope.get('date_from') and not scope.get('date_to'):
         raise ClassificationError("请先选择科目或录入日期范围")
@@ -283,9 +319,11 @@ def backfill_preview(db, scope):
     for row in rows:
         current = get_classification(db, row)
         locked += bool(current['locked'])
-        pending += current['status'] == 'needs_review'
-        if current['status'] in {'unclassified', 'stale'} and not current['locked']:
-            targets.append({'public_id': row['public_id'], 'source_hash': source_hash(row), 'revision': current['revision']})
+        pending += bool(current['suggestion'])
+        if (current['status'] in {'unclassified', 'stale'} or
+                refresh_auto and current['status'] == 'auto') and not current['locked']:
+            targets.append({'public_id': row['public_id'], 'source_hash': source_hash(row),
+                            'revision': current['revision'], 'refresh_auto': refresh_auto})
     if len(targets) > 200:
         raise ClassificationError("符合条件的错题超过 200 道，请缩小日期或科目范围")
     from .ai_budgeting import estimate_messages_tokens
@@ -317,7 +355,7 @@ def generate_classifications(db, targets, *, ai_call, job_id, progress=None, can
             continue
         current = get_classification(db, row)
         processed = db.execute("SELECT 1 FROM classification_suggestions WHERE mistake_id=? AND source_job_id=?", (row['id'], job_id)).fetchone()
-        if current['locked'] or current['status'] in {'auto', 'manual'} or processed or source_hash(row) != target['source_hash'] or current['revision'] != target['revision']:
+        if current['locked'] or current['status'] == 'manual' or (current['status'] == 'auto' and not target.get('refresh_auto')) or processed or source_hash(row) != target['source_hash'] or current['revision'] != target['revision']:
             skipped += 1
             continue
         row['_classification_revision'] = current['revision']

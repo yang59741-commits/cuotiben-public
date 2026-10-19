@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import json
 import random
 import sqlite3
 import tempfile
@@ -9,7 +10,7 @@ import unittest
 import uuid
 import zipfile
 from contextlib import closing
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
@@ -122,7 +123,8 @@ class DailyReviewTests(unittest.TestCase):
                 (
                     uuid.uuid4().hex,
                     "2026-09-14T00:00:00+00:00",
-                    "2026-10-14T00:00:00+00:00",
+                    # Keep the fixture unexpired regardless of the run date.
+                    (datetime.now(timezone.utc) + timedelta(days=30)).isoformat(),
                 ),
             ).lastrowid
         )
@@ -309,7 +311,12 @@ class DailyReviewTests(unittest.TestCase):
         archive = self.client.get(payload["download_url"])
         self.assertEqual(archive.status_code, 200)
         with zipfile.ZipFile(io.BytesIO(archive.data)) as bundle:
-            self.assertIn("每日自主复习_第1册.pdf", bundle.namelist())
+            self.assertIn(payload["volumes"][0]["download_name"], bundle.namelist())
+            self.assertEqual(json.loads(bundle.read("manifest.json"))["download_name"], payload["download_name"])
+        day = datetime.fromisoformat(payload["created_at"]).astimezone(timezone(timedelta(hours=8))).strftime("%Y%m%d")
+        stem = f"每日自主复习_{day}_第1轮_批次{payload['id']}"
+        self.assertEqual(payload["download_name"], f"{stem}.zip")
+        self.assertEqual(payload["volumes"][0]["download_name"], f"{stem}_第1册.pdf")
         with self.app.app_context():
             statuses = {
                 row[0]
@@ -501,7 +508,7 @@ class DailyReviewTests(unittest.TestCase):
         suggested = self.client.get("/api/v2/daily-review/recommendations").get_json()
         self.assertEqual(suggested["items"][0]["id"], item["mistake_id"])
 
-    def test_recommendations_sort_by_again_count_then_recency_and_filter(self):
+    def test_recommendations_sort_by_consolidation_due_date_and_filter(self):
         mistake_ids = self.seed(5)
         with self.app.app_context():
             db = get_db()
@@ -549,7 +556,7 @@ class DailyReviewTests(unittest.TestCase):
             ranked = recommendations(db)["items"]
             self.assertEqual(
                 [item["id"] for item in ranked[:3]],
-                [mistake_ids[1], mistake_ids[0], mistake_ids[2]],
+                [mistake_ids[0], mistake_ids[1], mistake_ids[2]],
             )
             self.assertEqual([item["again_count"] for item in ranked[:3]], [2, 2, 1])
             db.execute("UPDATE mistakes SET status='已掌握' WHERE id=?", (mistake_ids[1],))

@@ -1,10 +1,11 @@
 """Capture a deterministic, privacy-bounded source provenance receipt.
 
-The receipt contains only first-party, Git-visible files. Runtime data, ignored
+The receipt contains only current, Git-visible source files. Runtime data, ignored
 artifacts, test/diagnostic scratch trees, and frozen completed plans are
 deliberately outside the snapshot.
 Dirty tracked content is also emitted as a binary Git patch, while the source
-archive preserves untracked first-party file bodies needed for reconstruction.
+archive preserves untracked file bodies needed for reconstruction. Committed
+source is referenced by Git commit, rather than copied into each candidate ZIP.
 """
 
 from __future__ import annotations
@@ -24,10 +25,14 @@ from pathlib import Path, PurePosixPath
 from typing import Iterable, Sequence
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 CHUNK_SIZE = 1024 * 1024
 FROZEN_PLAN_PREFIX = "internal-archive/"
-POLICY_EXCLUDED_PREFIXES = (FROZEN_PLAN_PREFIX,)
+POLICY_EXCLUDED_PREFIXES = (
+    FROZEN_PLAN_PREFIX, "internal-archive/completed/", "internal-archive/backups/", "archive/",
+    "备份/", "build/", "dist/", "output/", "temp/", "tmp/", "data/", "instance/",
+    "Claude outputs/",
+)
 POLICY_EXCLUDED_UNTRACKED_TOP_LEVEL_PREFIXES = (
     ".pytest-",
     ".pytest_",
@@ -290,7 +295,10 @@ def build_manifest(
     versions: dict[str, object],
     archive_output: Path,
     excluded_paths: Sequence[str] = (),
+    archive_mode: str = "full",
 ) -> dict[str, object]:
+    if archive_mode not in {"full", "git-delta"}:
+        raise ValueError("archive_mode must be full or git-delta")
     root = root.resolve(strict=True)
     existing_paths = [
         relative
@@ -301,7 +309,12 @@ def build_manifest(
         set(tracked_paths) - set(existing_paths), key=str.casefold
     )
     entries, tree_hash, total_bytes = collect_file_entries(root, existing_paths)
-    archive = write_source_archive(root, entries, archive_output)
+    untracked = set(untracked_paths)
+    archive_entries = entries if archive_mode == "full" else [
+        entry for entry in entries if entry["path"] in untracked
+    ]
+    archive = write_source_archive(root, archive_entries, archive_output)
+    archive.update(mode=archive_mode, paths=[entry["path"] for entry in archive_entries])
     return {
         "schema_version": SCHEMA_VERSION,
         "algorithm": "SHA-256",
@@ -331,7 +344,8 @@ def build_manifest(
     }
 
 
-def capture(root: Path, *, patch_output: Path, archive_output: Path) -> dict[str, object]:
+def capture(root: Path, *, patch_output: Path, archive_output: Path,
+            archive_mode: str = "git-delta") -> dict[str, object]:
     root = root.resolve(strict=True)
     source_paths, tracked_paths, untracked_paths, excluded_paths = discover_git_paths(root)
     patch = _git_output(
@@ -343,7 +357,7 @@ def capture(root: Path, *, patch_output: Path, archive_output: Path) -> dict[str
         "HEAD",
         "--",
         ".",
-        ":(exclude)internal-archive/**",
+        *(f":(exclude){prefix}**" for prefix in POLICY_EXCLUDED_PREFIXES),
     )
     status = _git_output(root, "status", "--porcelain=v1", "-z")
     head = _git_output(root, "rev-parse", "HEAD").decode("ascii").strip()
@@ -361,12 +375,38 @@ def capture(root: Path, *, patch_output: Path, archive_output: Path) -> dict[str
         versions=collect_versions(root),
         archive_output=archive_output,
         excluded_paths=excluded_paths,
+        archive_mode=archive_mode,
     )
 
 
 def write_manifest(path: Path, manifest: dict[str, object]) -> None:
     payload = (_canonical_json(manifest) + "\n").encode("utf-8")
     _atomic_write_bytes(path, payload)
+
+
+def validate_source_reference(root: Path, manifest: dict, archive: Path) -> None:
+    """Validate the Git dependency of a delta receipt without changing checkout."""
+    version = manifest.get("schema_version")
+    mode = manifest["source_tree"]["archive"].get("mode", "full")
+    if version not in {1, SCHEMA_VERSION} or mode not in {"full", "git-delta"}:
+        raise ValueError("unsupported source provenance format")
+    if mode == "full":
+        return
+    if version != SCHEMA_VERSION:
+        raise ValueError("git-delta requires source provenance schema 2")
+    head = manifest["git"].get("head", "")
+    if len(head) not in {40, 64} or any(ch not in "0123456789abcdefABCDEF" for ch in head):
+        raise ValueError("git-delta requires a full Git commit ID")
+    if _git_output(root, "cat-file", "-t", head).strip() != b"commit":
+        raise ValueError("git-delta base is not a retained Git commit")
+    expected = set(manifest["source_tree"]["untracked_paths"])
+    declared = manifest["source_tree"]["archive"].get("paths")
+    with zipfile.ZipFile(archive) as zipped:
+        members = zipped.namelist()
+    if declared is None or set(declared) != expected or set(members) != expected or len(members) != len(expected):
+        raise ValueError("git-delta ZIP must contain exactly the declared untracked files")
+    for name in members:
+        _normalized_relative(name)
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -377,6 +417,8 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--patch-output", type=Path, required=True)
     parser.add_argument("--archive-output", type=Path, required=True)
+    parser.add_argument("--archive-mode", choices=("git-delta", "full"), default="git-delta",
+                        help="git-delta requires the recorded Git commit plus patch and untracked ZIP; full is a standalone source export")
     return parser
 
 
@@ -386,6 +428,7 @@ def main() -> int:
         args.root,
         patch_output=args.patch_output,
         archive_output=args.archive_output,
+        archive_mode=args.archive_mode,
     )
     write_manifest(args.manifest, manifest)
     manifest_hash = _sha256_bytes(args.manifest.resolve().read_bytes())

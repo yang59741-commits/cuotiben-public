@@ -26,6 +26,9 @@ def test_exam_blueprint_preserves_urls_methods_and_endpoints():
         '/api/v2/exams/<int:eid>': ('api_v2_exam_detail', {'GET', 'DELETE'}),
         '/api/v2/exams/<int:eid>/selection-explanation': ('api_v2_exam_selection_explanation', {'GET'}),
         '/pdfs/<path:filename>': ('serve_pdf', {'GET'}),
+        '/api/v2/exams/<int:eid>/question-issues': ('api_create_exam_issue', {'POST'}),
+        '/api/v2/question-issues': ('api_list_exam_issues', {'GET'}),
+        '/api/v2/question-issues/<public_id>': ('api_update_exam_issue', {'PATCH'}),
     }
     actual = {
         rule.rule: (rule.endpoint.removeprefix('exams.'), rule.methods - {'HEAD', 'OPTIONS'})

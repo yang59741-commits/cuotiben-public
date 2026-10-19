@@ -112,6 +112,8 @@ from .v60_mistake_classification import migrate_v59_to_v60, schema_issues as v60
 from .v61_review_practice import migrate_v60_to_v61, schema_issues as v61_schema_issues
 from .v62_learning_evidence import migrate_v61_to_v62, schema_issues as v62_schema_issues
 from .v63_daily_review_history import migrate_v62_to_v63, schema_issues as v63_schema_issues
+from .v64_solution_methods import migrate_v63_to_v64, schema_issues as v64_schema_issues
+from .v65_exam_question_issues import migrate_v64_to_v65, schema_issues as v65_schema_issues
 
 
 MIGRATIONS = dict(LEGACY_MIGRATIONS)
@@ -149,9 +151,15 @@ MIGRATIONS[59] = (60, migrate_v59_to_v60)
 MIGRATIONS[60] = (61, migrate_v60_to_v61)
 MIGRATIONS[61] = (62, migrate_v61_to_v62)
 MIGRATIONS[62] = (63, migrate_v62_to_v63)
+MIGRATIONS[63] = (64, migrate_v63_to_v64)
+MIGRATIONS[64] = (65, migrate_v64_to_v65)
 
 
 def migration_schema_issues(db, target):
+    if target == 65:
+        return migration_schema_issues(db, 64) + v65_schema_issues(db)
+    if target == 64:
+        return v60_schema_issues(db) + v61_schema_issues(db) + v62_schema_issues(db) + v63_schema_issues(db) + v64_schema_issues(db)
     if target == 63:
         return v60_schema_issues(db) + v61_schema_issues(db) + v62_schema_issues(db) + v63_schema_issues(db)
     if target == 62:

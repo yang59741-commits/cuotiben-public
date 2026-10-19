@@ -45,6 +45,7 @@ KEYRING_SERVICE = "cuoti-app.ai"
 DEFAULT_PROFILE_ID = "deepseek"
 SOUL_ECHO_PROFILE_ID = "soulecho"
 CLAUDE_PROFILE_ID = "claude"
+MONETWL_PROFILE_ID = "monetwl"
 CUSTOM_PROFILE_ID = "custom"
 PROFILE_DEFINITIONS = {
     DEFAULT_PROFILE_ID: {
@@ -58,10 +59,24 @@ PROFILE_DEFINITIONS = {
         "preset": {
             "provider": "openai_compatible",
             "wire_api": "responses",
-            "base_url": "https://ai.soulecho.cc/v1",
+            "base_url": "https://gateway-one.example/v1",
             "quality_model": "gpt-5.6-sol",
             "fast_model": "gpt-5.6-sol",
             "reasoning_effort": "high",
+            "dns_mode": "proxy",
+            "dns_servers": ["223.5.5.5", "119.29.29.29"],
+        },
+    },
+    MONETWL_PROFILE_ID: {
+        "name": "GPT（Monetwl）",
+        "connection_type": "newapi_channel_conn",
+        "preset": {
+            "provider": "openai_compatible",
+            "wire_api": "chat_completions",
+            "base_url": "https://gateway-two.example/v1",
+            "quality_model": "gpt-6.1-sol",
+            "fast_model": "gpt-6-luna",
+            "reasoning_effort": "",
             "dns_mode": "proxy",
             "dns_servers": ["223.5.5.5", "119.29.29.29"],
         },
@@ -123,6 +138,13 @@ PROFILE_CAPABILITY_DEFAULTS = {
         "json_object": False,
         "thinking": True,
         "reasoning_effort": True,
+        "context_window": 0,
+        "max_output_tokens": 0,
+    },
+    MONETWL_PROFILE_ID: {
+        "json_object": False,
+        "thinking": False,
+        "reasoning_effort": False,
         "context_window": 0,
         "max_output_tokens": 0,
     },

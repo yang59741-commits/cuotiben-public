@@ -77,7 +77,7 @@ def test_review_controllers_cancel_reads_without_cancelling_pdf_jobs():
 
 def test_statistics_links_scoped_card_but_keeps_global_badge():
     core = read(JS / "core.js")
-    stats = read(JS / "stats.js")
+    stats = "\n".join(read(path) for path in [JS / "stats.js", *sorted((JS / "stats").glob("*.js"))])
     index = read(ROOT / "cuoti_app" / "templates" / "index.html")
     assert "api('/api/v2/stats/reminders')" in core
     assert "window.Cuoti.reviewBadge" in core

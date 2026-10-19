@@ -867,8 +867,8 @@ def _insights(
     insights.append({
         "rule": "weak_chapters",
         "status": "triggered" if weak else ("insufficient" if not any(row["total"] >= RULE_THRESHOLDS["weak_chapter_min_samples"] for row in chapters) else "ok"),
-        "title": "连续薄弱章节",
-        "message": (f"{len(weak)} 个章节掌握率低于 {RULE_THRESHOLDS['weak_chapter_rate']:.0%}" if weak else "当前样本未显示持续薄弱章节"),
+        "title": "当前低掌握率章节",
+        "message": (f"{len(weak)} 个章节掌握率低于 {RULE_THRESHOLDS['weak_chapter_rate']:.0%}" if weak else "当前样本未显示低掌握率章节"),
         "metric": {"chapter_count": len(weak), "threshold": RULE_THRESHOLDS["weak_chapter_rate"]},
         "range": {"as_of": today}, "sample_size": sum(row["total"] for row in chapters),
     })
@@ -924,8 +924,8 @@ def _insights(
     insights.append({
         "rule": "stale_subjects",
         "status": "triggered" if stale else ("ok" if eligible else "insufficient"),
-        "title": "长期未复习科目",
-        "message": (f"{len(stale)} 个科目超过 {RULE_THRESHOLDS['stale_subject_days']} 天未复习" if stale else ("活跃题目样本不足以判断" if not eligible else "各科近期均有学习记录")),
+        "title": "长期未做间隔复习的科目",
+        "message": (f"{len(stale)} 个科目超过 {RULE_THRESHOLDS['stale_subject_days']} 天未做间隔复习" if stale else ("活跃题目样本不足以判断" if not eligible else "各科均有近期录入或间隔复习记录")),
         "metric": {"subject_count": len(stale), "days": RULE_THRESHOLDS["stale_subject_days"]},
         "range": {"as_of": today, "stale_before": stale_cutoff},
         "sample_size": sum(int(row["active_count"] or 0) for row in stale_rows),

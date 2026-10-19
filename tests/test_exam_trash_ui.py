@@ -101,7 +101,7 @@ def test_history_dates_are_compact_with_full_timestamp_and_no_horizontal_scroll(
     assert "function formatExamHistoryDate(value)" in source
     assert 'class="exam-history-time" title="${escapeHTML(exam.created_at||\'\')}"' in source
     assert 'class="exam-history-time" title="${escapeHTML(exam.deleted_at||\'\')}"' in source
-    assert "emptyStateHTML('回收站为空',{icon:'archive',compact:true})" in source
+    assert "emptyStateHTML('回收站为空',{icon:'trash',compact:true})" in source
     assert "移入回收站的试卷会显示在这里" not in source
     assert "#exam-history{min-width:0;max-width:100%;overflow-x:hidden}" in styles
     assert ".exam-history-time{line-height:1.35;overflow-wrap:anywhere;white-space:normal}" in styles

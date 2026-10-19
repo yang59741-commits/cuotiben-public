@@ -3,6 +3,11 @@
 
   const review=window.Cuoti.review;
   const state=review.state;
+  const UNDO_DELAY=4000;
+  let queued=null;
+  let undoTimer=null;
+  let undoToast=null;
+  let sessionDone=0;
 
   function setStatus(message){
     const status=document.getElementById('spaced-review-status');
@@ -64,7 +69,7 @@
         const old=previous.get(item.id);
         // A stable revision retains formula nodes, hint state and keyboard focus.
         if(!node||!old||old.publicId!==item.publicId||old.revision!==item.revision||
-          old.subject!==item.subject||old.chapter!==item.chapter){
+          old.subject!==item.subject||old.chapter!==item.chapter||old.dueStatus!==item.dueStatus||old.overdueDays!==item.overdueDays){
           const source=document.createElement(tag);
           source.innerHTML=render(item);
           const replacement=source.firstElementChild;
@@ -100,6 +105,7 @@
     if(stats)stats.innerHTML=review.render.stats(totalCount,summary);
     if(more)more.hidden=!state.pager.hasMore;
     if(total)total.textContent=totalCount?`已显示 ${visibleCount} / ${totalCount} 道`:'';
+    renderProgress(totalCount);
     if(exportButton)exportButton.disabled=state.exportInFlight||totalCount===0;
     if(!list)return;
     window.Cuoti.reviewEvidence?.bind(list);
@@ -116,6 +122,7 @@
       void renderMath(list);
     }
     if(!options.reconcile)window.Cuoti.daily.render();
+    if(queued)markQueued(queued.id,true);
     setStatus(totalCount?`已加载 ${visibleCount} 道间隔复习题目`:'今天没有到期题目');
   }
 
@@ -156,6 +163,66 @@
     }
   }
 
+  function renderProgress(remaining){
+    const root=document.getElementById('spaced-review-progress');
+    if(!root)return;
+    const total=sessionDone+Math.max(0,safeInteger(remaining));
+    root.hidden=total===0;
+    if(!total)return;
+    const percent=Math.round(sessionDone/total*100);
+    root.innerHTML=`<div class="spaced-review-progress-text"><span>本次已复习 <b>${sessionDone}</b> / ${total} 道</span><span>${percent}%</span></div><div class="spaced-review-progress-track" role="progressbar" aria-label="本次间隔复习进度" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${sessionDone}"><span style="width:${percent}%"></span></div>`;
+  }
+
+  function toggleQueuedClass(id,on){
+    const root=document.getElementById('spaced-review-list');
+    root?.querySelectorAll?.(`[data-review-id="${safeInteger(id)}"]`).forEach(node=>{
+      node.classList?.toggle('is-queued',on);
+    });
+  }
+
+  function markQueued(id,on){
+    toggleQueuedClass(id,on);
+    setButtonsPending(id,on);
+  }
+
+  function flushQueued(){
+    const current=queued;
+    if(!current)return Promise.resolve();
+    queued=null;
+    clearTimeout(undoTimer);undoTimer=null;
+    if(undoToast?.isConnected)undoToast.querySelector('.toast-close')?.click();
+    undoToast=null;
+    setButtonsPending(current.id,false);
+    // A failed save keeps the card; drop the faded state so it can be retried.
+    return submit(current.id,current.result).then(()=>{
+      if(queued?.id!==current.id)toggleQueuedClass(current.id,false);
+    });
+  }
+
+  function undoQueued(){
+    const current=queued;
+    if(!current)return;
+    queued=null;
+    clearTimeout(undoTimer);undoTimer=null;undoToast=null;
+    markQueued(current.id,false);
+    setStatus('已撤销，这道题仍待复习');
+  }
+
+  function queueSubmit(id,result){
+    const normalizedId=safeInteger(id);
+    const item=state.items.find(candidate=>candidate.id===normalizedId);
+    if(!item?.publicId||state.pendingIds.has(normalizedId)||queued?.id===normalizedId||!['pass','again'].includes(result))return;
+    void flushQueued();
+    queued={id:normalizedId,result};
+    markQueued(normalizedId,true);
+    const label=result==='pass'?'独立答对':'需要再练';
+    setStatus(`已选择“${label}”，${UNDO_DELAY/1000} 秒后保存`);
+    undoTimer=setTimeout(()=>{void flushQueued()},UNDO_DELAY);
+    undoToast=showToast(`${item.qnum} · ${label}，${UNDO_DELAY/1000} 秒后保存。`,'info',{
+      title:'复习结果待保存',actionLabel:'撤销',duration:UNDO_DELAY,onAction:undoQueued
+    });
+  }
+
   async function submit(id,result){
     const normalizedId=safeInteger(id);
     const item=state.items.find(candidate=>candidate.id===normalizedId);
@@ -163,9 +230,10 @@
     state.pendingIds.add(normalizedId);
     const mountRevision=state.mountRevision;
     setButtonsPending(normalizedId,true);
-    setStatus(result==='pass'?'正在记录本次掌握':'正在记录需要再练');
+    setStatus(result==='pass'?'正在记录本次答对':'正在记录需要再练');
     try{
       await review.api.submitReview(item,result);
+      sessionDone+=1;
       if(mountRevision===state.mountRevision)await loadPage({reconcile:true});
     }catch(error){
       if(error?.status===409&&error?.data?.code==='REVISION_CONFLICT'){
@@ -191,7 +259,7 @@
     const button=event.target.closest('.js-review');
     const root=document.getElementById('spaced-review-list');
     if(!button||!root?.contains(button)||button.disabled)return;
-    void submit(button.dataset.id,button.dataset.result);
+    queueSubmit(button.dataset.id,button.dataset.result);
   }
 
   function triggerDownload(result){
@@ -357,6 +425,7 @@
     if(root&&root.dataset.reviewControllerBound!=='true'){
       root.dataset.reviewControllerBound='true';
       root.addEventListener('click',handleReviewClick);
+      window.addEventListener('pagehide',()=>{void flushQueued()});
     }
     const more=document.getElementById('spaced-review-load-more');
     if(more&&more.dataset.reviewControllerBound!=='true'){
@@ -372,6 +441,7 @@
 
   async function mount(params=new URLSearchParams()){
     const revision=++state.mountRevision;
+    sessionDone=0;
     bind();
     await applyRouteFilters(params);
     if(revision!==state.mountRevision)return;
@@ -379,6 +449,7 @@
   }
 
   function deactivate(){
+    void flushQueued();
     state.mountRevision+=1;
     state.requestRevision+=1;
     state.requestController?.abort();
@@ -387,6 +458,6 @@
   }
 
   review.controller=Object.freeze({
-    loadPage,submit,bind,mount,deactivate,exportReview,chooseExportLayout
+    loadPage,submit,queueSubmit,undoQueued,flushQueued,bind,mount,deactivate,exportReview,chooseExportLayout
   });
 })();

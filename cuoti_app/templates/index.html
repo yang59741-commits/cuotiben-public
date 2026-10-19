@@ -18,27 +18,27 @@
   </div>
   <nav aria-label="主导航">
     <div class="sec-label">学习</div>
-    <button type="button" class="nav-btn ac" data-page="add" data-action="navigate" aria-label="标记错题"><span class="ico" data-icon="plus"></span><span>标记错题</span></button>
-    <button type="button" class="nav-btn" data-page="list" data-action="navigate" aria-label="错题列表"><span class="ico" data-icon="listChecks"></span><span>错题列表</span></button>
-	    <button type="button" class="nav-btn" data-page="input" data-action="navigate" aria-label="录入题目"><span class="ico" data-icon="filePlus"></span><span>录入题目</span></button>
-    <button type="button" class="nav-btn" data-page="review" data-action="navigate" aria-label="复习"><span class="ico" data-icon="refresh"></span><span>复习</span><span class="ml-auto" id="nav-review-count" hidden>0</span></button>
+    <button type="button" class="nav-btn ac" data-page="add" data-action="navigate" aria-label="标记错题" title="标记错题"><span class="ico" data-icon="bookmarkPlus"></span><span>标记错题</span></button>
+    <button type="button" class="nav-btn" data-page="list" data-action="navigate" aria-label="错题列表" title="错题列表"><span class="ico" data-icon="notebook"></span><span>错题列表</span></button>
+    <button type="button" class="nav-btn" data-page="input" data-action="navigate" aria-label="录入题目" title="录入题目"><span class="ico" data-icon="filePlus"></span><span>录入题目</span></button>
+    <button type="button" class="nav-btn" data-page="review" data-action="navigate" aria-label="复习" title="复习"><span class="ico" data-icon="repeat"></span><span>复习</span><span class="nav-count" id="nav-review-count" hidden>0</span></button>
     <div class="sec-label">考试</div>
-    <button type="button" class="nav-btn" data-page="exam" data-action="navigate" aria-label="组卷"><span class="ico" data-icon="fileText"></span><span>组卷</span></button>
+    <button type="button" class="nav-btn" data-page="exam" data-action="navigate" aria-label="组卷" title="组卷"><span class="ico" data-icon="examPaper"></span><span>组卷</span></button>
     <div class="sec-label">数据</div>
-    <button type="button" class="nav-btn" data-page="stats" data-action="navigate" aria-label="统计分析"><span class="ico" data-icon="chart"></span><span>统计分析</span></button>
-    <button type="button" class="nav-btn" data-action="export-data" aria-label="导出备份"><span class="ico" data-icon="download"></span><span>导出备份</span></button>
-    <button type="button" class="nav-btn" data-action="pick-import" aria-label="导入备份"><span class="ico" data-icon="upload"></span><span>导入备份</span></button>
+    <button type="button" class="nav-btn" data-page="stats" data-action="navigate" aria-label="统计分析" title="统计分析"><span class="ico" data-icon="chart"></span><span>统计分析</span></button>
+    <button type="button" class="nav-btn nav-btn-secondary" data-action="export-data" aria-label="导出备份" title="导出备份"><span class="ico" data-icon="download"></span><span>导出备份</span></button>
+    <button type="button" class="nav-btn nav-btn-secondary" data-action="pick-import" aria-label="导入备份" title="导入备份"><span class="ico" data-icon="upload"></span><span>导入备份</span></button>
   </nav>
   <div class="footer">SQLite · Flask · XeLaTeX</div>
 </div>
 <input type="file" id="imp" accept=".json,.zip,application/json,application/zip" style="display:none" onchange="importData(event)">
 <main id="main-content" class="main" tabindex="-1">
   <div class="topbar">
-    <h1 id="page-title"><span data-icon="plus"></span><span>标记错题</span></h1>
+    <h1 id="page-title"><span data-icon="bookmarkPlus"></span><span>标记错题</span></h1>
     <div class="topbar-actions">
       <span class="top-date" id="top-date"></span>
-      <button type="button" class="icon-btn" id="task-panel-toggle" aria-label="后台任务" aria-expanded="false" aria-controls="task-panel" title="后台任务"><span data-icon="history"></span><span class="task-count" id="task-count" hidden>0</span></button>
-      <button type="button" class="icon-btn" id="settings-open" data-action="navigate" data-page="settings" aria-label="AI 设置" title="AI 设置"><span data-icon="settings"></span></button>
+      <button type="button" class="icon-btn" id="task-panel-toggle" aria-label="后台任务" aria-expanded="false" aria-controls="task-panel" title="后台任务"><span data-icon="activity"></span><span class="task-count" id="task-count" hidden>0</span></button>
+      <button type="button" class="icon-btn" id="settings-open" data-action="navigate" data-page="settings" aria-label="设置" title="设置"><span data-icon="settings"></span></button>
     </div>
   </div>
   <div class="app-status math-status" id="math-status" role="status" hidden>本地公式组件未加载，公式将以原始文本显示。</div>
@@ -58,7 +58,7 @@
 <div class="modal-overlay hidden" id="modal">
   <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-body" tabindex="-1">
     <div class="modal-header info" id="modal-header">
-      <div class="modal-heading"><span class="modal-type-icon" id="modal-type-icon" data-icon="circleHelp"></span><h4 id="modal-title">提示</h4></div>
+      <div class="modal-heading"><span class="modal-type-icon" id="modal-type-icon" data-icon="info"></span><h4 id="modal-title">提示</h4></div>
       <button type="button" class="btn btn-txt btn-xs modal-close" data-action="hide-modal" aria-label="关闭" title="关闭"><span data-icon="x"></span></button>
     </div>
     <div class="modal-body" id="modal-body"></div>
@@ -70,7 +70,7 @@
 <script src="{{ url_for('static', filename='js/ui/render.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/ui/selects.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/ui/editor.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/feature-loader.js', bundle='exam-modules-v1') }}" defer></script>
+<script src="{{ url_for('static', filename='js/feature-loader.js', bundle='practice-feedback-v1') }}" defer></script>
 <script src="{{ url_for('static', filename='js/core.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/daily.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/jobs.js') }}" defer></script>

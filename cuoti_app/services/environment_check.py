@@ -8,10 +8,11 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..config import ConfigError, INSTANCE_DIR, build_config
+from ..config import ConfigError, build_config
+from ..paths import DATA_DIR
 
 
-SETTINGS_PATH = INSTANCE_DIR / "settings.json"
+SETTINGS_PATH = DATA_DIR / "data" / "runtime" / "settings.json"
 SOURCE_DEPENDENCIES = (
     ("flask", "Flask"),
     ("keyring", "keyring"),
@@ -78,9 +79,9 @@ def collect_checks() -> EnvironmentReport:
     if SETTINGS_PATH.exists():
         add("ok", "已发现本地配置文件")
     else:
-        add("warning", "尚未创建 instance/settings.json；也可以完全通过环境变量配置")
+        add("warning", "尚未创建 data/runtime/settings.json；也可以完全通过环境变量配置")
     try:
-        config = build_config()
+        config = build_config({"SETTINGS_PATH": str(SETTINGS_PATH)})
     except ConfigError as exc:
         add("error", f"运行配置无效：{exc}")
         return EnvironmentReport(tuple(checks))

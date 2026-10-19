@@ -4,6 +4,8 @@ import io
 import hashlib
 import json
 import sqlite3
+import subprocess
+import sys
 import tempfile
 import threading
 import unittest
@@ -113,6 +115,12 @@ class JobBusinessIntegrationTests(unittest.TestCase):
         try:
             self.assertEqual(
                 connection.execute("SELECT COUNT(*) FROM mistakes").fetchone()[0], 1
+            )
+            self.assertEqual(
+                connection.execute(
+                    "SELECT date_added,next_review FROM mistakes"
+                ).fetchall(),
+                [("2026-07-27", "2026-07-30")],
             )
         finally:
             connection.close()
@@ -469,6 +477,8 @@ class JobBusinessIntegrationTests(unittest.TestCase):
                 process_terminated.set()
 
         def start_compiler(*_args, **_kwargs):
+            if sys.platform == "win32":
+                self.assertTrue(_kwargs["creationflags"] & subprocess.CREATE_NO_WINDOW)
             process_started.set()
             return BlockingCompiler()
 

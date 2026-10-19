@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify, request
 
 from ..database import get_db
 from ..services import mistake_classification as service
+from ..services import solution_methods
 from ..validation import ValidationError, json_object
 from .daily_review import _coordinator, _job_response
 
@@ -29,6 +30,12 @@ def question_types():
     return jsonify({'items': items})
 
 
+@bp.get('/api/v2/solution-methods')
+def method_catalog():
+    return jsonify({'version': solution_methods.CATALOG_VERSION,
+                    'items': solution_methods.list_methods(request.args.get('subject'))})
+
+
 @bp.post('/api/v2/question-types')
 @bp.put('/api/v2/question-types/<code>')
 def save_question_type(code=None):
@@ -39,7 +46,8 @@ def save_question_type(code=None):
 @bp.get('/api/v2/mistakes/<public_id>/classification')
 def get_classification(public_id):
     db = get_db()
-    return jsonify(service.get_classification(db, service.mistake_row(db, public_id)))
+    row = service.mistake_row(db, public_id)
+    return jsonify({**service.get_classification(db, row), 'question': row['content'], 'qnum': row['qnum']})
 
 
 @bp.put('/api/v2/mistakes/<public_id>/classification')

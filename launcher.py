@@ -9,7 +9,6 @@ import os
 import socket
 import subprocess
 import sys
-import tempfile
 import threading
 import time
 import traceback
@@ -19,6 +18,12 @@ import uuid
 import webbrowser
 from dataclasses import dataclass
 from pathlib import Path
+
+# The observer is another process of the one-file EXE, without a GUI or service.
+if __name__ == "__main__" and sys.argv[1:2] == ["--native-monitor"]:
+    from cuoti_app.services.native_crash_monitor import main as monitor_main
+    raise SystemExit(monitor_main(sys.argv[2:]))
+
 import tkinter as tk
 from tkinter import messagebox
 
@@ -51,7 +56,13 @@ from cuoti_app.services.launcher_runtime import (
     write_launcher_preferences,
     write_service_state,
 )
-from tools.check_environment import CheckResult, EnvironmentReport, collect_checks
+from cuoti_app.services.environment_check import CheckResult, EnvironmentReport, collect_checks
+from cuoti_app.services.process_temp import configure_process_temp
+from cuoti_app.services.runtime_diagnostics import (
+    diagnostic_event, diagnostic_notice, diagnostic_notice_requires_attention,
+    diagnostic_session, mark_expected_stop,
+    exception_details, timestamp,
+)
 
 
 APP_URL = "http://127.0.0.1:8080"
@@ -63,7 +74,7 @@ WINDOW_HEIGHT = 625
 ROOT = DATA_DIR
 LOGO_PATH = RESOURCE_DIR / "cuoti_app" / "static" / "img" / "logo.png"
 BACKGROUND_PATH = RESOURCE_DIR / "launcher_assets" / "night_desk.png"
-LAUNCH_LOG = Path(tempfile.gettempdir()) / "cuoti-notebook-launcher.log"
+LAUNCH_LOG = ROOT / "data" / "runtime" / "temp" / "cuoti-notebook-launcher.log"
 
 INK = "#0B1116"
 PANEL = "#111A20"
@@ -286,6 +297,7 @@ class ServiceController:
         if not self.owns_running_service:
             self.process = None
             return False
+        mark_expected_stop(self.root / "data/runtime/diagnostics")
         if self.process is not None:
             process = self.process
             process.terminate()
@@ -742,7 +754,7 @@ class LauncherWindow:
         )
         self.log_label = ctk.CTkLabel(
             self.details_panel,
-            text=r"%TEMP%\cuoti-notebook-launcher.log",
+            text="data/runtime/diagnostics",
             text_color="#83928F",
             font=ctk.CTkFont("Microsoft YaHei UI", 9),
             anchor="e",
@@ -913,7 +925,10 @@ class LauncherWindow:
         service_state: ServiceState | None = None,
     ) -> None:
         self.recheck_button.configure(state="normal")
-        self._write_report(report.checks)
+        notice = diagnostic_notice(ROOT / "data/runtime/diagnostics")
+        self._write_report(report.checks + ((CheckResult("warning", notice),) if notice else ()))
+        if diagnostic_notice_requires_attention(notice):
+            self.toggle_details(force_open=True)
         if not report.ok:
             self._set_status("环境检查失败", "展开运行状态查看原因", "error")
             self._set_primary("无法启动", enabled=False)
@@ -959,6 +974,7 @@ class LauncherWindow:
         self._start_service()
 
     def _start_service(self) -> None:
+        diagnostic_event("launcher_action", action="start_service")
         try:
             result = self.controller.start()
         except OSError as exc:
@@ -1032,12 +1048,19 @@ class LauncherWindow:
         webbrowser.open(APP_URL)
 
     def open_log(self) -> None:
-        if not self.controller.log_path.exists():
+        diagnostics = self.controller.root / "data/runtime/diagnostics"
+        target = diagnostics if diagnostics.is_dir() else self.controller.log_path
+        if not target.exists():
             messagebox.showinfo(
                 "启动日志",
                 f"当前还没有启动日志。\n\n日志位置：\n{self.controller.log_path}",
                 parent=self.root,
             )
+            return
+        try:
+            os.startfile(target)  # type: ignore[attr-defined]
+        except OSError as exc:
+            messagebox.showerror("无法打开日志", str(exc), parent=self.root)
 
     def _append_log_tail(self) -> None:
         tail = read_log_tail(self.controller.log_path, max_lines=20, max_bytes=8192)
@@ -1054,6 +1077,7 @@ class LauncherWindow:
             )
 
     def stop_service(self) -> None:
+        diagnostic_event("launcher_action", action="stop_service")
         if self.controller.stop():
             self._set_status("服务已停止", "可以重新启动", "warning")
             self._set_primary("▶   启动错题本", enabled=self.environment_ready)
@@ -1061,6 +1085,7 @@ class LauncherWindow:
             self.stop_button.configure(state="disabled")
 
     def on_close(self) -> None:
+        diagnostic_event("launcher_action", action="close_window_requested")
         if self.controller.owns_running_service:
             choice = messagebox.askyesnocancel(
                 "退出启动中心",
@@ -1073,24 +1098,28 @@ class LauncherWindow:
             if choice:
                 self.controller.stop()
         self.tray.stop()
+        diagnostic_event("launcher_action", action="destroy_window")
         self.root.destroy()
 
     def exit_from_tray(self) -> None:
+        diagnostic_event("launcher_action", action="exit_from_tray")
         if self.controller.owns_running_service and messagebox.askyesno(
             "退出启动中心", "是否同时停止错题本服务？", parent=self.root
         ):
             self.controller.stop()
         self.tray.stop()
+        diagnostic_event("launcher_action", action="destroy_window")
         self.root.destroy()
 
 
 def build_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="错题本桌面启动器")
     parser.add_argument("--server", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--port", type=int, help="--server 模式的本机端口，默认 8080")
     return parser
 
 
-def run_server_mode(log_path: Path = LAUNCH_LOG) -> int:
+def run_server_mode(log_path: Path = LAUNCH_LOG, *, port: int = APP_PORT) -> int:
     """Run Flask inside the frozen GUI executable without requiring a console."""
 
     log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1098,12 +1127,19 @@ def run_server_mode(log_path: Path = LAUNCH_LOG) -> int:
         previous_stdout, previous_stderr = sys.stdout, sys.stderr
         sys.stdout = log_handle
         sys.stderr = log_handle
+        context = {"pid": os.getpid(), "role": "service", "executable": sys.executable,
+                   "data_root": str(ROOT), "database": str(ROOT / "data/cuoti.db"),
+                   "diagnostics": str(ROOT / "data/runtime/diagnostics"), "port": port,
+                   "service_instance_id": os.environ.get("CUOTI_SERVICE_INSTANCE_ID")}
+        print(json.dumps({"time": timestamp(), "event": "server_launch", **context}, ensure_ascii=False))
         try:
             from app import run
 
-            run(open_browser=False)
+            run(open_browser=False, port=port)
             return 0
-        except BaseException:
+        except BaseException as exc:
+            print(json.dumps({"time": timestamp(), "event": "server_failed", **context,
+                              **exception_details(exc)}, ensure_ascii=False))
             traceback.print_exc()
             return 1
         finally:
@@ -1143,9 +1179,18 @@ def _enable_windows_dpi_awareness() -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    arguments = build_argument_parser().parse_args(argv)
+    parser = build_argument_parser()
+    arguments = parser.parse_args(argv)
+    if arguments.port is not None and (not arguments.server or not 1 <= arguments.port <= 65535):
+        parser.error("--port 仅用于 --server，且必须在 1 到 65535 之间")
+    configure_process_temp(ROOT / "data" / "runtime")
     if arguments.server:
-        return run_server_mode()
+        return run_server_mode(port=arguments.port if arguments.port is not None else APP_PORT)
+    with diagnostic_session(ROOT / "data/runtime/diagnostics", "desktop-gui", role="launcher"):
+        return run_launcher_ui()
+
+
+def run_launcher_ui() -> int:
     if ctk is None or Image is None or ImageTk is None:
         _show_missing_gui_dependency()
         return 1
@@ -1160,10 +1205,13 @@ def main(argv: list[str] | None = None) -> int:
     # physical pixel grid on Windows systems using 125%/150% display scaling.
     ctk.set_window_scaling(1.0)
     ctk.set_widget_scaling(1.0)
+    diagnostic_event("launcher_action", action="create_window")
     root = ctk.CTk()
     root.tk.call("tk", "scaling", 96 / 72)
     LauncherWindow(root)
+    diagnostic_event("launcher_action", action="mainloop_enter")
     root.mainloop()
+    diagnostic_event("launcher_action", action="mainloop_exit")
     return 0
 
 

@@ -64,13 +64,14 @@ def _validated_classification(value):
     if value is None:
         return None
     from .mistake_classification import labels, ClassificationError
+    from . import solution_methods
     try:
         if not isinstance(value, dict) or not isinstance(value.get('question_type'), dict):
             raise ClassificationError('分类备份格式无效')
         kind = value['question_type']
         if not isinstance(value.get('locked'), (bool, int)) or value.get('locked') not in (True, False, 0, 1):
             raise ClassificationError('分类锁定标记无效')
-        return {
+        result = {
             'primary_type_code': text_value(value.get('primary_type_code'), '题型代码', maximum=120, required=True),
             'source_hash': text_value(value.get('source_hash'), '分类输入指纹', maximum=64, required=True),
             'knowledge_points': labels(value.get('knowledge_points', []), 5),
@@ -84,7 +85,11 @@ def _validated_classification(value):
                 'active': bool(kind.get('active', True)),
             },
         }
-    except ClassificationError as exc:
+        if value.get('method_annotations') is not None:
+            result['method_annotations'] = solution_methods.normalize_annotations(
+                result['methods'], value['method_annotations'], subject=result['question_type']['subject'])
+        return result
+    except (ClassificationError, solution_methods.MethodError) as exc:
         raise ValidationError(str(exc)) from exc
 
 
@@ -228,8 +233,6 @@ def validate_import_mistake(item, index, subjects, chapters):
         f"第 {index} 道题的连续正确次数",
         default=3 if status == '已掌握' else 0,
     )
-    if status == '已掌握':
-        correct_streak = max(correct_streak, 3)
     lapse_count = nonnegative_int(
         item.get('lapse_count'), f"第 {index} 道题的遗忘次数"
     )

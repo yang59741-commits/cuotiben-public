@@ -10,6 +10,7 @@ from ..services.question_bank import (
     ensure_question_bank_index,
     open_last_good_question_bank_index,
     question_bank_status,
+    submit_question_bank_rebuild_job,
 )
 from ..services.jobs import JobCoordinator
 
@@ -25,12 +26,10 @@ def _index_path():
 
 def _rebuild_job(status: dict, *, force: bool = False):
     coordinator = JobCoordinator(current_app.config["DATABASE"])
-    key = f"question-bank:{status['source_snapshot']}"
-    if force:
-        key += f":manual:{request.headers.get('Idempotency-Key') or 'default'}"
-    job, _created = coordinator.submit(
-        "question-bank-rebuild",
-        {"requested_source_snapshot": status["source_snapshot"]},
+    header_key = request.headers.get('Idempotency-Key') if force else None
+    key = f"question-bank:{status['source_snapshot']}:manual:{header_key}" if header_key else None
+    job, _created = submit_question_bank_rebuild_job(
+        coordinator, status["source_snapshot"], force=force,
         idempotency_key=key,
         max_attempts=2,
     )

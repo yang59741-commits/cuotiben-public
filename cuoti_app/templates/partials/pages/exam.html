@@ -2,18 +2,18 @@
       <div class="grid2">
         <div>
           <div class="card">
-            <h3><span data-icon="clipboard"></span>组卷设置</h3>
+            <h3><span data-icon="sliders"></span>组卷设置</h3>
             <div class="tabs" role="tablist" aria-label="组卷模式">
               <button type="button" class="tab on" role="tab" aria-label="自由组卷" aria-selected="true" aria-controls="exam-free" tabindex="0" data-exam-mode="free" data-action="switch-exam-mode" id="tab-free">
                 <span class="tb-icon" data-icon="layoutGrid"></span>
                 自由组卷
               </button>
               <button type="button" class="tab" role="tab" aria-label="错题组卷" aria-selected="false" aria-controls="exam-mistakes" tabindex="-1" data-exam-mode="mistakes" data-action="switch-exam-mode" id="tab-mistakes">
-                <span class="tb-icon" data-icon="listChecks"></span>
+                <span class="tb-icon" data-icon="notebook"></span>
                 错题组卷
               </button>
               <button type="button" class="tab" role="tab" aria-label="真题组卷" aria-selected="false" aria-controls="exam-past" tabindex="-1" data-exam-mode="past" data-action="switch-exam-mode" id="tab-past">
-                <span class="tb-icon" data-icon="archive"></span>
+                <span class="tb-icon" data-icon="files"></span>
                 真题组卷
               </button>
             </div>
@@ -29,8 +29,8 @@
             </details>
             <div class="row"><label for="e-diff">难度</label><select id="e-diff" title="控制题目需要的知识组合与推理深度"><option value="基础">基础巩固</option><option value="中等" selected>标准练习</option><option value="困难">综合提高</option></select><span class="difficulty-stars" id="e-diff-stars" aria-live="polite"></span></div>
             <div class="row"><label for="e-target">场景</label><select id="e-target"><option value="日常练习" selected>日常练习</option><option value="考研训练">考研训练</option></select></div>
-            <div class="row"><label for="e-count">题量</label><input type="number" id="e-count" value="5" min="1" max="20" style="width:60px"></div>
-            <div class="row"><span class="field-label">题型</span><div id="e-types" style="display:flex;gap:8px;flex-wrap:wrap">
+            <div class="row"><label for="e-count">题量</label><input type="number" id="e-count" value="5" min="1" max="20" class="input-count"></div>
+            <div class="row"><span class="field-label">题型</span><div id="e-types" class="type-chip-row">
               <label class="type-chip"><input type="checkbox" value="选择题" checked><span>选择题</span></label>
               <label class="type-chip"><input type="checkbox" value="填空题" checked><span>填空题</span></label>
               <label class="type-chip"><input type="checkbox" value="计算题" checked><span>计算题</span></label>
@@ -42,34 +42,28 @@
             <div id="exam-mistakes" role="tabpanel" aria-labelledby="tab-mistakes" hidden>
             <div class="row"><label for="em-subject">科目</label><select id="em-subject"><option value="">请选择科目</option></select></div>
             <div class="row"><label for="em-chapter">章节</label><select id="em-chapter"><option value="">请先选择科目</option></select></div>
-            <section class="exam-daily-recommendations" aria-labelledby="exam-daily-recommendations-title">
-              <div class="exam-daily-recommendations-head">
-                <div><strong id="exam-daily-recommendations-title">每日自主复习推荐</strong><span>按再次答错次数和最近时间排序</span></div>
-                <button type="button" class="btn btn-txt btn-xs" id="exam-daily-recommendations-refresh" aria-label="刷新每日自主复习推荐" title="刷新推荐"><span data-icon="refresh"></span>刷新</button>
-              </div>
-              <div id="exam-daily-recommendations" class="exam-daily-recommendations-list" aria-live="polite"></div>
-            </section>
             <div class="exam-mistake-toolbar">
               <div class="exam-mistake-heading">
                 <span data-icon="listChecks"></span>
                 <strong>选择参考错题</strong>
-                <span class="exam-selected-count" id="exam-selected-count">已选 0 / 共 0 道（最多 20 道）</span>
+                <span class="exam-selected-count" id="exam-selected-count">已选 0 道（最多 20 道）</span>
               </div>
               <div class="exam-mistake-actions">
+                <button type="button" class="btn btn-txt btn-xs" id="exam-daily-recommendations-refresh" aria-label="刷新待巩固推荐"><span data-icon="refresh"></span>刷新推荐</button>
                 <button type="button" class="btn btn-txt btn-xs" data-action="select-exam-mistakes">全选已加载</button>
                 <button type="button" class="btn btn-txt btn-xs" data-action="clear-exam-mistakes">清空</button>
               </div>
             </div>
+            <p id="exam-recommendation-status" role="status">选择科目后，待巩固推荐会排在列表前面。</p>
             <div class="exam-selection-summary" id="exam-selection-summary" aria-live="polite">
-              <span class="exam-selection-summary-icon" data-icon="circleHelp"></span>
+              <span class="exam-selection-summary-icon" data-icon="info"></span>
               <span>勾选错题后，这里会显示所选题目的日期和题号。</span>
             </div>
             <div id="exam-mistake-list" class="exam-mistake-list"></div>
-            <div class="row" style="margin-top:8px"><label for="em-diff">难度</label><select id="em-diff" title="控制题目需要的知识组合与推理深度"><option value="基础">基础巩固</option><option value="中等" selected>标准练习</option><option value="困难">综合提高</option></select><span class="difficulty-stars" id="em-diff-stars" aria-live="polite"></span></div>
-            <div class="row"><label for="em-target">场景</label><select id="em-target"><option value="日常练习" selected>日常练习</option><option value="考研训练">考研训练</option></select></div>
+            <div class="row row-spaced"><label for="em-diff">难度</label><select id="em-diff" title="控制题目需要的知识组合与推理深度"><option value="基础">基础巩固</option><option value="中等" selected>标准练习</option><option value="困难">综合提高</option></select><span class="difficulty-stars" id="em-diff-stars" aria-live="polite"></span></div>
             <div class="row"><label for="em-training-target">训练目标</label><select id="em-training-target"><option value="general" selected>综合巩固</option><option value="concept">概念辨析</option><option value="method_selection">方法选择</option><option value="condition_check">条件核对</option><option value="transfer">迁移应用</option></select></div>
-            <div class="row"><label for="em-count">题量</label><input type="number" id="em-count" value="5" min="1" max="20" style="width:60px"></div>
-            <div class="row"><span class="field-label">题型</span><div id="em-types" style="display:flex;gap:8px;flex-wrap:wrap">
+            <div class="row"><label for="em-count">题量</label><input type="number" id="em-count" value="5" min="1" max="20" class="input-count"></div>
+            <div class="row"><span class="field-label">题型</span><div id="em-types" class="type-chip-row">
               <label class="type-chip"><input type="checkbox" value="选择题" checked><span>选择题</span></label>
               <label class="type-chip"><input type="checkbox" value="填空题" checked><span>填空题</span></label>
               <label class="type-chip"><input type="checkbox" value="计算题" checked><span>计算题</span></label>
@@ -80,7 +74,7 @@
             <!-- 真题结构智能组卷 -->
             <div id="exam-past" role="tabpanel" aria-labelledby="tab-past" hidden>
               <div class="past-exam-callout">
-                <span class="past-exam-callout-icon" data-icon="archive"></span>
+                <span class="past-exam-callout-icon" data-icon="files"></span>
                 <div>
                   <strong>真题用于学习结构与命题风格</strong>
                   <p>AI 固定学习所选结构年及此前最多两个有效年份，再从你指定的候选题源筛选；不会凭空生成新题。</p>
@@ -144,17 +138,51 @@
                 <input id="ep-note" placeholder="如：优先覆盖薄弱章节，但保持真题结构不变">
               </div>
             </div>
-            <button type="button" class="btn btn-g" data-action="generate-exam" id="btn-gen" aria-label="生成试卷" style="width:100%;margin-top:4px"><span data-icon="sparkles"></span>生成试卷</button>
+            <button type="button" class="btn btn-p btn-spaced-sm" data-action="generate-exam" id="btn-gen" aria-label="生成试卷"><span data-icon="sparkles"></span>生成试卷</button>
             <div class="ai-progress" id="gen-progress"><div class="ai-bar"></div></div>
-<span role="status" aria-live="polite" style="font-size:11px;color:var(--muted)" id="gen-status"></span>
+<span role="status" aria-live="polite" class="status-note" id="gen-status"></span>
           </div>
-          <div class="card compact" style="margin-top:12px">
-            <div class="exam-history-heading"><h3><span data-icon="history"></span>试卷记录</h3><div class="exam-history-tabs" role="tablist" aria-label="试卷记录范围"><button type="button" class="js-exam-history-tab on" data-history-mode="active" role="tab" aria-selected="true">历史试卷</button><button type="button" class="js-exam-history-tab" data-history-mode="trash" role="tab" aria-selected="false" tabindex="-1">回收站</button></div></div><div id="exam-history" style="font-size:12px;max-height:200px;overflow-y:auto" role="tabpanel" aria-live="polite"></div><div class="load-more-row"><button type="button" class="btn btn-out btn-sm" id="exam-history-load-more" hidden>加载更多</button><span id="exam-history-total" class="list-total"></span></div>
+          <div class="card compact card-gap-md">
+            <div class="exam-history-heading"><h3><span data-icon="history"></span>试卷记录</h3><div class="exam-history-tools"><button type="button" class="btn btn-out btn-xs" id="exam-issues-history-open" aria-haspopup="dialog" aria-controls="exam-issues-drawer"><span data-icon="message"></span>问题记录</button><div class="exam-history-tabs" role="tablist" aria-label="试卷记录范围"><button type="button" class="js-exam-history-tab on" data-history-mode="active" role="tab" aria-selected="true">历史试卷</button><button type="button" class="js-exam-history-tab" data-history-mode="trash" role="tab" aria-selected="false" tabindex="-1">回收站</button></div></div></div><div id="exam-history" style="font-size:12px;max-height:200px;overflow-y:auto" role="tabpanel" aria-live="polite"></div><div class="load-more-row"><button type="button" class="btn btn-out btn-sm" id="exam-history-load-more" hidden>加载更多</button><span id="exam-history-total" class="list-total"></span></div>
           </div>
         </div>
         <div class="card" id="exam-result" style="min-height:200px;display:none;margin-top:14px">
+          <div class="exam-issues-toolbar" id="exam-issues-toolbar" hidden>
+            <p class="exam-issues-toolbar-hint">题目显示或内容有问题？记下来集中处理。</p>
+            <button type="button" class="btn btn-out btn-sm" id="exam-issue-report-open" aria-haspopup="dialog" aria-controls="exam-issues-drawer"><span data-icon="message"></span>记录题目问题</button>
+            <button type="button" class="btn btn-txt btn-sm" id="exam-issue-list-open" aria-haspopup="dialog" aria-controls="exam-issues-drawer"><span data-icon="listChecks"></span>问题记录</button>
+          </div>
           <div class="empty" id="exam-empty">选择参数后点击「生成试卷」</div>
           <div id="exam-content" class="prose max-w-none" style="display:none;font-size:13px;white-space:pre-wrap;word-wrap:break-word"></div>
         </div>
       </div>
+      <aside class="task-panel exam-issues-drawer" id="exam-issues-drawer" role="dialog" aria-modal="true" aria-labelledby="exam-issues-title" aria-describedby="exam-issues-subtitle" tabindex="-1" hidden>
+        <div class="task-panel-header exam-issues-header"><div><h2 id="exam-issues-title">记录题目问题</h2><p class="exam-issues-subtitle" id="exam-issues-subtitle"></p></div><button type="button" class="icon-btn" id="exam-issues-close" aria-label="关闭问题面板"><span data-icon="x"></span></button></div>
+        <div class="exam-issues-body">
+          <section class="exam-issues-view" data-issue-view="report">
+            <p class="exam-issue-guarantee"><span data-icon="shieldCheck"></span><span>只记录问题，不会修改题库原题、已生成的 PDF、选题或判分。</span></p>
+            <form id="exam-issue-form" class="exam-issue-form">
+              <div class="exam-issue-row">
+                <div class="exam-issue-field"><label for="exam-issue-question">题目</label><select id="exam-issue-question" class="sel-sm" required><option value="">请选择题目</option></select></div>
+                <div class="exam-issue-field"><label for="exam-issue-category">问题类型</label><select id="exam-issue-category" class="sel-sm" required><option value="">请选择</option><option value="formula">公式显示</option><option value="condition">条件缺失</option><option value="merged">题目粘连</option><option value="classification">分类不准</option><option value="other">其他</option></select></div>
+              </div>
+              <div class="exam-issue-field"><span class="exam-issue-field-label" id="exam-issue-excerpt-label">题目摘录</span><div class="exam-issue-excerpt" id="exam-issue-excerpt" role="region" aria-labelledby="exam-issue-excerpt-label" tabindex="0"></div><p class="exam-issue-excerpt-note">记录会保存所选题目及来源，后续修改试卷不影响这条记录。</p></div>
+              <div class="exam-issue-field"><label for="exam-issue-description">问题描述<span class="exam-issue-required">必填</span></label><textarea id="exam-issue-description" name="description" rows="5" maxlength="2000" required aria-describedby="exam-issue-count" placeholder="写下看到的现象，例如：积分上限显示成乱码，应为 π/2。"></textarea><span class="exam-issue-count" id="exam-issue-count">0 / 2000</span></div>
+            </form>
+          </section>
+          <section class="exam-issues-view" data-issue-view="list" hidden>
+            <div class="exam-issues-filters">
+              <div class="exam-issue-field"><label for="exam-issues-scope">范围</label><select id="exam-issues-scope" class="sel-sm"><option value="current">当前试卷</option><option value="all">全部试卷</option></select></div>
+              <div class="exam-issue-field"><label for="exam-issues-status">状态</label><select id="exam-issues-status" class="sel-sm"><option value="">全部状态</option><option value="open">待处理</option><option value="resolved">已处理</option><option value="dismissed">无需处理</option></select></div>
+            </div>
+            <div class="exam-issue-list" id="exam-issue-list"></div>
+            <button type="button" class="btn btn-out btn-sm" id="exam-issues-retry" hidden><span data-icon="refresh"></span>重试</button>
+            <div class="load-more-row"><button type="button" class="btn btn-out btn-sm" id="exam-issues-more" hidden>加载更多</button><span class="list-total" id="exam-issues-total"></span></div>
+          </section>
+        </div>
+        <p class="exam-issues-message" id="exam-issues-message" role="status" aria-live="polite"></p>
+        <div class="exam-issues-footer" data-issue-view="report"><button type="button" class="btn btn-txt btn-sm exam-issues-switch" data-issue-switch="list">查看问题记录</button><button type="button" class="btn btn-out btn-sm" data-issues-close>取消</button><button type="submit" class="btn btn-p btn-sm" id="exam-issue-submit" form="exam-issue-form">保存问题</button></div>
+        <div class="exam-issues-footer" data-issue-view="list" hidden><button type="button" class="btn btn-txt btn-sm exam-issues-switch" data-issue-switch="report">记录新问题</button><button type="button" class="btn btn-out btn-sm" id="exam-issues-done">关闭</button></div>
+      </aside>
+      <button type="button" class="task-panel-scrim" id="exam-issues-scrim" aria-label="关闭问题面板" tabindex="-1" hidden></button>
     </div>

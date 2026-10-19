@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
+import json
 import sys
 import tempfile
 import threading
@@ -9,6 +10,8 @@ import unittest
 from contextlib import closing, contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from flask import Flask
 
@@ -20,6 +23,7 @@ from cuoti_app.services.jobs import (
     JobConflict,
     JobCoordinator,
     JobOutcome,
+    PermanentJobError,
     RetryableJobError,
     register_job_handler,
     unregister_job_handler,
@@ -237,6 +241,31 @@ class DatabaseMigrationTests(JobTestCase):
 
 
 class JobCoordinatorTests(JobTestCase):
+    def test_recovery_diagnostics_keep_operation_context_without_job_payload(self):
+        from cuoti_app.services import runtime_diagnostics as diagnostics
+        from cuoti_app.services.diagnostic_evidence import Journal
+
+        clock = MutableClock()
+        first = JobCoordinator(self.database, worker_id="first", lease_seconds=5, clock=clock)
+        second = JobCoordinator(self.database, worker_id="second", lease_seconds=5, clock=clock)
+        journal = Journal(self.root / "operations.jsonl", context={"run_id": "fixture"})
+        with patch.object(diagnostics, "_active", SimpleNamespace(operations=journal)):
+            job, _created = first.submit("analysis", {"problem": "private-problem-do-not-log"})
+            self.assertEqual(first.claim_next()["id"], job["id"])
+            clock.advance(6)
+            self.assertEqual(second.recover_stale_jobs(), 1)
+            claimed = second.claim_next()
+        self.assertEqual(claimed["id"], job["id"])
+        self.assertEqual(claimed["attempts"], 2)
+        text = journal.path.read_text(encoding="utf-8")
+        events = [json.loads(line) for line in text.splitlines()]
+        self.assertNotIn("private-problem-do-not-log", text)
+        self.assertTrue(any(row["phase"] == "recover_job" and row["job_id"] == job["id"] for row in events))
+        opened = [row["connection_id"] for row in events if row["phase"] == "connection_ready"]
+        closed = [row["connection_id"] for row in events if row["phase"] == "connection_closed"]
+        self.assertEqual(opened, closed)
+        self.assertTrue(all(row["thread_id"] and row["run_id"] == "fixture" for row in events))
+
     def test_supported_kinds_can_register_without_business_imports(self):
         coordinator = JobCoordinator(self.database)
         for kind in SUPPORTED_JOB_KINDS:
@@ -449,6 +478,36 @@ class JobCoordinatorTests(JobTestCase):
         self.assertIn(correlation_id, "\n".join(captured.output))
         self.assertIn("private-stack-detail", "\n".join(captured.output))
 
+    def test_expected_failures_keep_original_error_and_chained_traceback_in_backend(self):
+        for error_class in (PermanentJobError, RetryableJobError):
+            with self.subTest(error_class=error_class.__name__):
+                def broken(_context, _payload):
+                    try:
+                        raise RuntimeError("private-database-cause")
+                    except RuntimeError as exc:
+                        raise error_class(
+                            "malformed database schema: 原始错误�",
+                            code="fixture_failure",
+                            details={"hint": "internal hint", "details": {"stage": "fixture"}},
+                        ) from exc
+
+                coordinator = JobCoordinator(self.database, handlers={"analysis": broken})
+                job, _created = coordinator.submit("analysis", {}, max_attempts=1)
+                with self.assertLogs("cuoti_app.services.jobs", level="WARNING") as captured:
+                    failed = coordinator.run_once()
+                self.assertEqual(failed["status"], "failed")
+                with self.connection() as connection:
+                    row = connection.execute(
+                        "SELECT error_message,error_details_json FROM background_jobs WHERE id=?",
+                        (job["id"],),
+                    ).fetchone()
+                self.assertEqual(row["error_message"], "malformed database schema: 原始错误�")
+                self.assertIn("internal hint", row["error_details_json"])
+                log = "\n".join(captured.output)
+                for detail in (job["id"], "attempt=1", "fixture_failure",
+                               "private-database-cause", "Traceback", "原始错误�"):
+                    self.assertIn(detail, log)
+
     def test_cancel_race_keeps_committed_business_result_successful(self):
         def committed(context, _payload):
             context.coordinator.request_cancel(context.job_id)
@@ -586,6 +645,53 @@ class JobCoordinatorTests(JobTestCase):
         worker.join(3)
         self.assertFalse(worker.is_alive())
         self.assertEqual(first.get_job(job["id"])["status"], "succeeded")
+
+    def test_worker_lifetime_includes_a_heartbeat_still_finishing(self):
+        from cuoti_app.services.job_handlers import WorkerShutdownTimeout, stop_job_worker
+
+        heartbeat_entered = threading.Event()
+        release_heartbeat = threading.Event()
+        handler_returned = threading.Event()
+        lane_finished = threading.Event()
+        results = []
+
+        def heartbeat(*_args, **_kwargs):
+            heartbeat_entered.set()
+            release_heartbeat.wait()
+            return True
+
+        def handler(_context, _payload):
+            if not heartbeat_entered.wait(3):
+                raise AssertionError("heartbeat did not start")
+            handler_returned.set()
+            return {"ok": True}
+
+        coordinator = JobCoordinator(self.database, lease_seconds=.75, handlers={"analysis": handler})
+        job, _created = coordinator.submit("analysis", {})
+
+        def run_lane():
+            try:
+                results.append(coordinator.run_once())
+            finally:
+                lane_finished.set()
+
+        with patch.object(coordinator, "heartbeat", side_effect=heartbeat):
+            lane = threading.Thread(target=run_lane, name="heartbeat-owner")
+            lane.start()
+            try:
+                self.assertTrue(handler_returned.wait(3))
+                self.assertFalse(lane_finished.wait(1.2))
+                application = SimpleNamespace(extensions={"job_worker": {
+                    "threads": [lane], "stop_event": threading.Event(),
+                }})
+                with self.assertRaises(WorkerShutdownTimeout):
+                    stop_job_worker(application, timeout=.02)
+            finally:
+                release_heartbeat.set()
+                lane.join(timeout=3)
+        self.assertFalse(lane.is_alive())
+        self.assertEqual(results[0]["id"], job["id"])
+        self.assertEqual(results[0]["status"], "succeeded")
 
     def test_retention_purges_ocr_result_before_terminal_metadata(self):
         clock = MutableClock()

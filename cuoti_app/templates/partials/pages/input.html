@@ -1,7 +1,7 @@
         <div class="panel" id="p-input">
       <div class="card compact">
-        <div class="card-header"><h3 style="border:none;margin:0;padding:0;font-size:15px"><span data-icon="filePlus"></span>录入题目到试题库</h3></div>
-        <div class="card-body" style="padding-top:4px">
+        <div class="card-header"><h3 class="card-title-flat"><span data-icon="filePlus"></span>录入题目到试题库</h3></div>
+        <div class="card-body card-body-tight">
         <div class="fld-row">
           <div class="fld-inline"><label for="i-subject">科目</label><select id="i-subject"></select></div>
           <div class="fld-inline"><label for="i-chapter">章节</label><select id="i-chapter" disabled><option value="">请先选择科目</option></select></div>
@@ -14,21 +14,22 @@
             </div>
             <div class="tb-divider"></div>
             <div class="tb-group">
-              <button type="button" data-latex-command="display-math" title="独立公式" aria-label="独立公式"><span data-icon="alignLeft"></span></button>
-              <button type="button" data-latex-command="inline-math" title="行内公式" aria-label="行内公式"><span data-icon="brackets"></span></button>
-              <button type="button" data-latex-command="proof" title="证明环境" aria-label="证明环境"><span data-icon="code"></span></button>
+              <button type="button" data-latex-command="display-math" title="独立公式" aria-label="独立公式"><span data-icon="squareSigma"></span></button>
+              <button type="button" data-latex-command="inline-math" title="行内公式" aria-label="行内公式"><span data-icon="variable"></span></button>
+              <button type="button" data-latex-command="proof" title="证明环境" aria-label="证明环境"><span data-icon="proof"></span></button>
             </div>
             <div class="tb-divider"></div>
             <div class="tb-group">
               <button type="button" data-latex-command="enumerate" title="枚举列表" aria-label="枚举列表"><span data-icon="listOrdered"></span></button>
-              <button type="button" data-latex-command="aligned" title="对齐公式" aria-label="对齐公式"><span data-icon="alignLeft"></span></button>
+              <button type="button" data-latex-command="aligned" title="对齐公式" aria-label="对齐公式"><span data-icon="alignEquals"></span></button>
             </div>
-            <button type="button" data-action="pick-problem-file" title="上传文件" aria-label="上传文件" style="margin-left:auto"><span data-icon="upload"></span></button>
+            <button type="button" data-action="pick-problem-file" title="上传文件" aria-label="上传文件" class="toolbar-push-end"><span data-icon="upload"></span></button>
           </div>
           <div class="editor-body">
             <label class="sr-only" for="i-content">LaTeX 题目内容</label><textarea id="i-content" placeholder="在此编写 LaTeX 题目内容..." rows="10"></textarea>
           </div>
         </div>
+        <details class="math-live-preview" data-preview-for="i-content" data-preview-mode="problem"><summary><span class="math-live-preview-bear" aria-hidden="true"></span><span>公式预览</span><small>停止输入后自动刷新</small><span class="math-live-preview-chevron" data-icon="chevronDown"></span></summary><div class="math-live-preview-body" aria-live="off"></div></details>
         <input type="file" id="i-file" accept=".pdf,.docx,.tex,.txt" style="display:none" onchange="handleFileInput(event)">
         <button type="button" class="drop-zone" id="drop-zone">
           <span class="drop-icon" data-icon="cloudUpload"></span>
@@ -37,10 +38,10 @@
         </button>
         <p class="remote-capability-note" role="note">PDF 会先在电脑上逐页转成图片，再发送给 DeepSeek 视觉模型识别；不会上传原始 PDF，也不会调用 Mathpix。DOCX、TeX、TXT 仍只在电脑本地提取。</p>
         </div>
-        <div class="card-footer" style="padding-top:0">
-          <div style="display:flex;gap:8px">
-            <button type="button" class="btn btn-p" data-action="submit-problem"><span data-icon="archive"></span>保存到试题库</button>
-            <span id="i-status" role="status" aria-live="polite" style="font-size:11px;color:var(--muted);align-self:center"></span>
+        <div class="card-footer">
+          <div class="form-action-row">
+            <button type="button" class="btn btn-p" data-action="submit-problem"><span data-icon="database"></span>保存到试题库</button>
+            <span id="i-status" role="status" aria-live="polite" class="status-note status-note-center"></span>
           </div>
         </div>
       </div>
@@ -56,8 +57,8 @@
           <div class="editor-wrap daily-tip-editor">
             <div class="editor-toolbar" aria-label="每日提示公式工具栏">
               <div class="tb-group">
-                <button type="button" data-daily-latex="inline-math" title="行内公式" aria-label="插入行内公式"><span data-icon="brackets"></span></button>
-                <button type="button" data-daily-latex="display-math" title="独立公式" aria-label="插入独立公式"><span data-icon="alignLeft"></span></button>
+                <button type="button" data-daily-latex="inline-math" title="行内公式" aria-label="插入行内公式"><span data-icon="variable"></span></button>
+                <button type="button" data-daily-latex="display-math" title="独立公式" aria-label="插入独立公式"><span data-icon="squareSigma"></span></button>
               </div>
               <span class="daily-tip-editor-hint">支持文本与 LaTeX 公式</span>
             </div>
@@ -66,6 +67,7 @@
               <textarea id="daily-tip-content" data-remote-draft-ignore rows="5" maxlength="2000" placeholder="例如：可逆矩阵的行列式不为 0；或输入 $A^{-1}A=I$"></textarea>
             </div>
           </div>
+          <details class="math-live-preview" data-preview-for="daily-tip-content" data-preview-mode="plain"><summary><span class="math-live-preview-bear" aria-hidden="true"></span><span>提示预览</span><small>停止输入后自动刷新</small><span class="math-live-preview-chevron" data-icon="chevronDown"></span></summary><div class="math-live-preview-body" aria-live="off"></div></details>
           <div class="daily-tip-form-actions">
             <button type="button" class="btn btn-p btn-sm" id="daily-tip-save"><span data-icon="plus"></span><span>保存提示</span></button>
             <button type="button" class="btn btn-out btn-sm" id="daily-tip-cancel" hidden>取消修改</button>

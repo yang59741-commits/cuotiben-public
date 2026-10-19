@@ -37,6 +37,7 @@ function readTextProblemFile(file,textarea,status){
   const reader=new FileReader();
   reader.onload=event=>{
     textarea.value=String(event.target.result??'');
+    window.Cuoti.ui.editor?.refreshPreview?.(textarea.id);
     status.textContent='已加载: '+file.name;
   };
   reader.onerror=()=>{
@@ -65,6 +66,7 @@ async function loadProblemFile(file){
     const data=await runJobRequest('ocr',fd);
     if(data?.error)throw new Error(data.error);
     ta.value=String(data.text??'');
+    window.Cuoti.ui.editor?.refreshPreview?.('i-content');
     const methods={deepseek_vision:'DeepSeek 视觉',docx:'本地 DOCX',direct:'本地读取'};
     st.textContent='已识别 ('+(methods[data.method]||String(data.method??'未知方式'))+'): '+file.name;
   }catch(error){
@@ -94,7 +96,7 @@ function initDropZone(){
 
 async function submitProblem(){
   const text=document.getElementById('i-content').value.trim();
-  if(!text){showModal('提示','请输入题目内容','info');return}
+  if(!text){showFieldError(document.getElementById('i-content'),'请先输入题目内容');return}
   const st=document.getElementById('i-status');st.textContent='AI自动识别并保存中...';
   const btn=document.querySelector('#p-input .btn-p');btn.disabled=true;btn.textContent='处理中...';
   try{
@@ -104,6 +106,7 @@ async function submitProblem(){
     showToast('共识别并保存 '+r.count+' 道题','success');
     st.textContent='已保存 '+r.count+' 道题';
     document.getElementById('i-content').value='';
+    window.Cuoti.ui.editor?.refreshPreview?.('i-content');
     window.clearRemoteDraftPanel?.('p-input');
   }catch(e){showModal('错误','保存失败: '+e.message,'error');st.textContent='';}
   btn.disabled=false;btn.textContent='保存到试题库';

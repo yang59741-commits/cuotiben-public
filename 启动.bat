@@ -8,19 +8,24 @@ if exist "错题本.exe" (
   exit /b 0
 )
 
-for /f "usebackq delims=" %%P in (`python -c "import sys; print(sys.executable)" 2^>nul`) do set "PYTHON_EXE=%%P"
-if not defined PYTHON_EXE goto missing_python
+set "CUOTI_PYTHON_EXE="
+if exist "%CD%\.venv-stability\Scripts\python.exe" (
+  set "CUOTI_PYTHON_EXE=%CD%\.venv-stability\Scripts\python.exe"
+) else (
+  for /f "usebackq delims=" %%P in (`python -c "import sys; print(sys.executable)" 2^>nul`) do set "CUOTI_PYTHON_EXE=%%P"
+)
+if not defined CUOTI_PYTHON_EXE goto missing_python
 
-"%PYTHON_EXE%" -c "import flask, customtkinter, PIL" >nul 2>nul
+"%CUOTI_PYTHON_EXE%" -c "import flask, customtkinter, PIL" >nul 2>nul
 if errorlevel 1 goto missing_dependencies
 
-set "PYTHONW_EXE=%PYTHON_EXE:python.exe=pythonw.exe%"
-if exist "%PYTHONW_EXE%" (
-  start "" "%PYTHONW_EXE%" launcher.py
+set "CUOTI_PYTHONW_EXE=%CUOTI_PYTHON_EXE:python.exe=pythonw.exe%"
+if exist "%CUOTI_PYTHONW_EXE%" (
+  start "" "%CUOTI_PYTHONW_EXE%" launcher.py
   exit /b 0
 )
 
-start "" "%PYTHON_EXE%" launcher.py
+start "" "%CUOTI_PYTHON_EXE%" launcher.py
 exit /b 0
 
 :missing_python

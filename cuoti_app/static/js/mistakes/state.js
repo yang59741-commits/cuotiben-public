@@ -9,6 +9,9 @@
       '计算错误','概念不清','方法不会','卡在技巧','审题失误','时间不够'
     ]),
     subjectFilter:'',
+    attentionFilter:'',
+    attentionRevision:0,
+    analysisDates:{},
     view:'current',
     items:[],
     pager:createCursorPager(30),

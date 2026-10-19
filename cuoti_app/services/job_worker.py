@@ -14,6 +14,7 @@ import time
 import uuid
 from dataclasses import replace
 from typing import Any, Callable, Protocol
+from .runtime_diagnostics import diagnostic_event
 
 from .job_contracts import (
     TERMINAL_STATUSES,
@@ -73,6 +74,7 @@ def execute_next(
     if job is None:
         return None
     job_id = job["id"]
+    diagnostic_event("job_start", job_id=job_id, kind=job["kind"], attempt=job["attempts"])
     lease_attempt = int(job["attempts"])
     handler = coordinator.handlers.get(job["kind"])
     if handler is None:
@@ -186,6 +188,10 @@ def execute_next(
                 lease_attempt,
             )
     except RetryableJobError as exc:
+        logger.warning(
+            "Background job attempt failed job_id=%s kind=%s attempt=%s code=%s category=temporary",
+            job_id, job["kind"], lease_attempt, exc.code, exc_info=True,
+        )
         try:
             coordinator._finish_failure(
                 job_id,
@@ -205,6 +211,10 @@ def execute_next(
                 lease_attempt,
             )
     except PermanentJobError as exc:
+        logger.warning(
+            "Background job attempt failed job_id=%s kind=%s attempt=%s code=%s category=%s",
+            job_id, job["kind"], lease_attempt, exc.code, exc.category, exc_info=True,
+        )
         if (
             isinstance(exc, ExamDeadlineExceeded)
             and outcome is not None
@@ -259,7 +269,10 @@ def execute_next(
             )
     finally:
         heartbeat_stop.set()
-        heartbeat_thread.join(timeout=1)
+        # The lane owns its heartbeat's lifetime, including any SQLite call.
+        # An unresponsive lane is handled by the server's shutdown deadline.
+        heartbeat_thread.join()
+        diagnostic_event("job_handler_end", job_id=job_id)
     finished = coordinator.get_job(job_id)
     if finished["status"] in TERMINAL_STATUSES:
         coordinator._notify_terminal(finished)

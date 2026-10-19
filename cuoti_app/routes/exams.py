@@ -3,6 +3,7 @@
 from flask import Blueprint
 
 from . import exams_candidates, exams_history, exams_access, exams_legacy
+from . import exam_question_issues
 
 bp = Blueprint("exams", __name__)
 
@@ -17,3 +18,6 @@ bp.add_url_rule('/api/v2/trash/exams/<int:eid>/restore', view_func=exams_history
 bp.add_url_rule('/api/v2/exams/<int:eid>', view_func=exams_history.api_v2_exam_detail, methods=['GET', 'DELETE'])
 bp.add_url_rule('/api/v2/exams/<int:eid>/selection-explanation', view_func=exams_access.api_v2_exam_selection_explanation, methods=['GET'])
 bp.add_url_rule('/pdfs/<path:filename>', view_func=exams_access.serve_pdf, methods=['GET'])
+bp.add_url_rule('/api/v2/exams/<int:eid>/question-issues', view_func=exam_question_issues.api_create_exam_issue, methods=['POST'])
+bp.add_url_rule('/api/v2/question-issues', view_func=exam_question_issues.api_list_exam_issues, methods=['GET'])
+bp.add_url_rule('/api/v2/question-issues/<public_id>', view_func=exam_question_issues.api_update_exam_issue, methods=['PATCH'])

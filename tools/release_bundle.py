@@ -1,9 +1,10 @@
 """Prepare, verify, and atomically publish one approved release bundle.
 
 The module never builds a candidate and never starts the application.  It binds
-an already accepted candidate to provenance, a restore-capable rollback snapshot,
-the previous formal executable, and an acceptance receipt before any formal file
-can be replaced.
+an already accepted candidate to provenance, a rollback plan, the previous formal
+executable, and an acceptance receipt before any formal file can be replaced.
+Data-changing releases retain the full-snapshot contract. Executable-only
+rollback requires explicit acceptance of data and old-executable compatibility.
 """
 
 from __future__ import annotations
@@ -13,6 +14,7 @@ import hashlib
 import json
 import os
 import shutil
+import sqlite3
 import stat
 import tempfile
 from datetime import datetime
@@ -255,7 +257,7 @@ def _validate_acceptance_contract(
 
 
 def _validate_provenance_contract(
-    provenance: Path, archive: Path, patch: Path
+    provenance: Path, archive: Path, patch: Path, *, root: Path | None = None
 ) -> tuple[dict[str, Any], str, str]:
     payload = _read_json(provenance)
     source_tree = payload.get("source_tree")
@@ -272,6 +274,17 @@ def _validate_provenance_contract(
         raise ReleaseBundleError("source snapshot 与 provenance 不一致")
     if str(git.get("tracked_patch_sha256") or "").upper() != patch_hash:
         raise ReleaseBundleError("tracked patch 与 provenance 不一致")
+    if source_tree["archive"].get("mode", "full") != "full" or payload.get("schema_version") == 2:
+        try:
+            from tools.capture_source_provenance import validate_source_reference
+        except ModuleNotFoundError:
+            from capture_source_provenance import validate_source_reference
+        if root is None:
+            raise ReleaseBundleError("源码差异证明需要项目 Git 仓库")
+        try:
+            validate_source_reference(root, payload, archive)
+        except (ValueError, RuntimeError) as exc:
+            raise ReleaseBundleError(str(exc)) from exc
     return payload, archive_hash, patch_hash
 
 
@@ -341,6 +354,57 @@ def _snapshot_metadata(snapshot: Path) -> dict[str, Any]:
     }
 
 
+def _validate_executable_only_rollback(before: int, after: int, acceptance: dict) -> None:
+    if before != after:
+        raise ReleaseBundleError("仅 EXE 回退不允许数据库 schema 变化")
+    proof = acceptance.get("executable_only_rollback")
+    if not isinstance(proof, dict) or any(proof.get(key) is not True for key in (
+        "no_persistent_data_changes", "previous_executable_compatible",
+    )):
+        raise ReleaseBundleError("仅 EXE 回退需要验收证明无持久化数据变更且旧程序兼容")
+
+
+def _validate_catalog_guard(before: int, after: int, acceptance: dict) -> dict:
+    proof = acceptance.get('catalog_guarded_rollback')
+    if before != after or not isinstance(proof, dict) or any(proof.get(key) is not True for key in (
+            'no_release_data_migration', 'previous_compatible_without_new_codes', 'guard_rehearsal_passed')):
+        raise ReleaseBundleError('目录受限回退需要同 schema、无发布迁移及已演练的兼容证明')
+    codes = proof.get('new_method_codes')
+    if not isinstance(codes, list) or not codes or any(
+            not isinstance(code, str) or not code or any(ch not in 'abcdefghijklmnopqrstuvwxyz_0123456789' for ch in code)
+            for code in codes) or len(set(codes)) != len(codes):
+        raise ReleaseBundleError('目录受限回退缺少明确的新增方法代码')
+    return proof
+
+
+def check_catalog_rollback(database: Path, codes: list[str], schema: int) -> dict:
+    """Check only on release/rollback; never transform or discard newer annotations."""
+    database = database.resolve(strict=True)
+    columns = (
+        ('mistake_classifications', 'method_annotations_json'),
+        ('classification_suggestions', 'payload_json'),
+        ('daily_review_items', 'snapshot_json'),
+        ('daily_review_rounds', 'selection_json'),
+        ('job_inputs', 'payload_json'),
+        ('background_jobs', 'result_json'),
+        ('job_business_results', 'result_json'),
+    )
+    placeholders = ','.join('?' for _ in codes)
+    references = []
+    with sqlite3.connect(database.as_uri() + '?mode=ro', uri=True) as db:
+        db.execute('PRAGMA query_only=ON')
+        db.execute('BEGIN')
+        if db.execute('PRAGMA user_version').fetchone()[0] != schema:
+            raise ReleaseBundleError('回退检查的数据库 schema 与发布证明不符')
+        for table, column in columns:
+            if db.execute(f"SELECT 1 FROM {table} r,json_tree(COALESCE(r.{column},'null')) j "
+                          f"WHERE j.key IN ('code','method_code') AND j.value IN ({placeholders}) LIMIT 1", codes).fetchone():
+                references.append(table)
+    if references:
+        raise ReleaseBundleError('已有新增方法引用，禁止仅替换旧 EXE；保留数据并向前修复：' + '、'.join(references))
+    return {'safe_before_new_method_use': True, 'schema': schema}
+
+
 def _require_release_scoped_target(
     root: Path, path: Path, *, build_id: str, label: str
 ) -> None:
@@ -355,7 +419,7 @@ def prepare_release_bundle(
     candidate: Path,
     provenance: Path,
     acceptance: Path,
-    rollback_snapshot: Path,
+    rollback_snapshot: Path | None,
     formal_executable: Path,
     previous_executable: Path,
     output: Path,
@@ -368,14 +432,22 @@ def prepare_release_bundle(
     previous_max_schema: int,
     candidate_min_schema: int,
     candidate_max_schema: int,
+    rollback_mode: str = "full-snapshot",
 ) -> dict[str, Any]:
     root = root.resolve(strict=True)
     candidate = _project_path(root, candidate, label="candidate", must_exist=True)
     provenance = _project_path(root, provenance, label="provenance", must_exist=True)
     acceptance = _project_path(root, acceptance, label="acceptance", must_exist=True)
-    rollback_snapshot = _project_path(
-        root, rollback_snapshot, label="rollback snapshot", must_exist=True
-    )
+    if rollback_mode not in {"full-snapshot", "executable-only", "catalog-guarded"}:
+        raise ReleaseBundleError("不支持的回退方式")
+    if rollback_mode == "full-snapshot":
+        if rollback_snapshot is None:
+            raise ReleaseBundleError("完整回退需要 --rollback-snapshot；无数据变更的发布可显式选择 executable-only")
+        rollback_snapshot = _project_path(
+            root, rollback_snapshot, label="rollback snapshot", must_exist=True
+        )
+    elif rollback_snapshot is not None:
+        raise ReleaseBundleError("仅 EXE 回退不接受完整快照路径")
     formal_executable = _project_path(
         root, formal_executable, label="formal executable", must_exist=True
     )
@@ -455,7 +527,7 @@ def prepare_release_bundle(
     if not patch.is_file():
         raise ReleaseBundleError("provenance 缺少 tracked-changes.patch")
     provenance_payload, archive_hash, patch_hash = _validate_provenance_contract(
-        provenance, archive, patch
+        provenance, archive, patch, root=root
     )
     git = provenance_payload["git"]
     provenance_hash = file_sha256(provenance)
@@ -466,15 +538,19 @@ def prepare_release_bundle(
         provenance_hash=provenance_hash,
     )
 
-    snapshot = _snapshot_metadata(rollback_snapshot)
-    snapshot_schema = (
-        snapshot.get("verification", {})
-        .get("sqlite", {})
-        .get("database", {})
-        .get("user_version")
-    )
-    if snapshot_schema != schema_before:
-        raise ReleaseBundleError("回退快照数据库 schema 与 formal_before 不一致")
+    rollback_metadata: dict[str, Any] = {"mode": rollback_mode}
+    if rollback_mode == "executable-only":
+        _validate_executable_only_rollback(schema_before, schema_after, acceptance_payload)
+    elif rollback_mode == 'catalog-guarded':
+        proof = _validate_catalog_guard(schema_before, schema_after, acceptance_payload)
+        check_catalog_rollback(root / 'data' / 'cuoti.db', proof['new_method_codes'], schema_before)
+        rollback_metadata['restriction'] = 'Check new method references with check-rollback before any old EXE restoration; otherwise forward-fix only.'
+    else:
+        snapshot = _snapshot_metadata(rollback_snapshot)
+        snapshot_schema = snapshot.get("verification", {}).get("sqlite", {}).get("database", {}).get("user_version")
+        if snapshot_schema != schema_before:
+            raise ReleaseBundleError("回退快照数据库 schema 与 formal_before 不一致")
+        rollback_metadata.update(snapshot_path=_relative(root, rollback_snapshot), **snapshot)
     previous_hash = file_sha256(formal_executable)
     bundle = {
         "schema_version": SCHEMA_VERSION,
@@ -503,8 +579,7 @@ def prepare_release_bundle(
             "status": _acceptance_status(acceptance_payload),
         },
         "rollback": {
-            "snapshot_path": _relative(root, rollback_snapshot),
-            **snapshot,
+            **rollback_metadata,
             "previous_executable": {
                 "path": _relative(root, formal_executable),
                 "length": formal_executable.stat().st_size,
@@ -580,10 +655,14 @@ def verify_release_bundle(
         root, provenance_info.get("tracked_patch_path"), label="tracked patch"
     )
     acceptance = _declared_path(root, acceptance_info.get("path"), label="acceptance")
-    snapshot = _declared_path(root, rollback_info.get("snapshot_path"), label="rollback snapshot")
+    rollback_mode = rollback_info.get("mode", "full-snapshot")
+    if rollback_mode not in {"full-snapshot", "executable-only", "catalog-guarded"}:
+        raise ReleaseBundleError("不支持的回退方式")
+    snapshot = (_declared_path(root, rollback_info.get("snapshot_path"), label="rollback snapshot")
+                if rollback_mode == "full-snapshot" else None)
     formal = _declared_path(root, formal_info.get("path"), label="formal executable")
     required_files = (candidate, provenance, archive, patch, acceptance)
-    if not all(path.is_file() for path in required_files) or not snapshot.is_dir():
+    if not all(path.is_file() for path in required_files) or (snapshot is not None and not snapshot.is_dir()):
         raise ReleaseBundleError("release bundle 资产缺失")
     expected_hashes = (
         (candidate, candidate_info.get("sha256"), "candidate"),
@@ -598,7 +677,7 @@ def verify_release_bundle(
     if candidate.stat().st_size != candidate_info.get("length"):
         raise ReleaseBundleError("candidate 长度与 release bundle 不一致")
     provenance_payload, archive_hash, patch_hash = _validate_provenance_contract(
-        provenance, archive, patch
+        provenance, archive, patch, root=root
     )
     if (
         archive_hash != str(provenance_info.get("source_snapshot_sha256") or "").upper()
@@ -618,26 +697,26 @@ def verify_release_bundle(
         product_version=product_version,
         provenance_hash=file_sha256(provenance),
     )
-    snapshot_metadata = _snapshot_metadata(snapshot)
-    if snapshot_metadata["snapshot_descriptor_sha256"] != str(
-        rollback_info.get("snapshot_descriptor_sha256") or ""
-    ).upper():
-        raise ReleaseBundleError("rollback snapshot descriptor 已变化")
-    if snapshot_metadata["manifest_sha256"] != str(
-        rollback_info.get("manifest_sha256") or ""
-    ).upper():
-        raise ReleaseBundleError("rollback snapshot manifest 已变化")
-    if snapshot_metadata["snapshot_kind"] != rollback_info.get("snapshot_kind"):
-        raise ReleaseBundleError("rollback snapshot kind 已变化")
     schema = _validate_schema_contract(bundle.get("schema_compatibility"))
-    snapshot_schema = (
-        snapshot_metadata.get("verification", {})
-        .get("sqlite", {})
-        .get("database", {})
-        .get("user_version")
-    )
-    if snapshot_schema != schema["formal_before"]:
-        raise ReleaseBundleError("回退快照数据库 schema 与 formal_before 不一致")
+    if rollback_mode == "executable-only":
+        _validate_executable_only_rollback(schema["formal_before"], schema["after_candidate_start"], acceptance_payload)
+    elif rollback_mode == 'catalog-guarded':
+        _validate_catalog_guard(schema['formal_before'], schema['after_candidate_start'], acceptance_payload)
+    else:
+        snapshot_metadata = _snapshot_metadata(snapshot)
+        if snapshot_metadata["snapshot_descriptor_sha256"] != str(
+            rollback_info.get("snapshot_descriptor_sha256") or ""
+        ).upper():
+            raise ReleaseBundleError("rollback snapshot descriptor 已变化")
+        if snapshot_metadata["manifest_sha256"] != str(
+            rollback_info.get("manifest_sha256") or ""
+        ).upper():
+            raise ReleaseBundleError("rollback snapshot manifest 已变化")
+        if snapshot_metadata["snapshot_kind"] != rollback_info.get("snapshot_kind"):
+            raise ReleaseBundleError("rollback snapshot kind 已变化")
+        snapshot_schema = snapshot_metadata.get("verification", {}).get("sqlite", {}).get("database", {}).get("user_version")
+        if snapshot_schema != schema["formal_before"]:
+            raise ReleaseBundleError("回退快照数据库 schema 与 formal_before 不一致")
     previous_info = rollback_info.get("previous_executable") or {}
     if verify_current_formal:
         if not formal.is_file() or file_sha256(formal) != str(
@@ -841,6 +920,10 @@ def publish_release_bundle(
     bundle = verified["bundle"]
     candidate = verified["candidate"]
     formal = verified["formal"]
+    if bundle['rollback'].get('mode') == 'catalog-guarded':
+        acceptance = _read_json(_declared_path(root, bundle['acceptance']['path'], label='acceptance'))
+        proof = acceptance['catalog_guarded_rollback']
+        check_catalog_rollback(root / 'data' / 'cuoti.db', proof['new_method_codes'], bundle['schema_compatibility']['formal_before'])
     rollback_info = bundle["rollback"]["previous_executable"]
     previous = _declared_path(root, rollback_info["archive_path"], label="previous executable")
     receipt = _declared_path(root, bundle["formal"]["receipt_path"], label="release receipt")
@@ -1037,7 +1120,8 @@ def _parser() -> argparse.ArgumentParser:
     prepare.add_argument("--candidate", type=Path, required=True)
     prepare.add_argument("--provenance", type=Path, required=True)
     prepare.add_argument("--acceptance", type=Path, required=True)
-    prepare.add_argument("--rollback-snapshot", type=Path, required=True)
+    prepare.add_argument("--rollback-snapshot", type=Path)
+    prepare.add_argument("--rollback-mode", choices=("full-snapshot", "executable-only", "catalog-guarded"), default="full-snapshot")
     prepare.add_argument("--formal-executable", type=Path, required=True)
     prepare.add_argument("--previous-executable", type=Path, required=True)
     prepare.add_argument("--output", type=Path, required=True)
@@ -1064,6 +1148,10 @@ def _parser() -> argparse.ArgumentParser:
     publish.add_argument("--expected-candidate", type=Path, required=True)
     publish.add_argument("--expected-provenance", type=Path, required=True)
     publish.add_argument("--expected-product-version", required=True)
+    rollback = subparsers.add_parser('check-rollback')
+    rollback.add_argument('--root', type=Path, required=True)
+    rollback.add_argument('--bundle', type=Path, required=True)
+    rollback.add_argument('--expected-sha256', required=True)
     return parser
 
 
@@ -1076,6 +1164,7 @@ def main() -> int:
             provenance=args.provenance,
             acceptance=args.acceptance,
             rollback_snapshot=args.rollback_snapshot,
+            rollback_mode=args.rollback_mode,
             formal_executable=args.formal_executable,
             previous_executable=args.previous_executable,
             output=args.output,
@@ -1090,6 +1179,16 @@ def main() -> int:
             candidate_max_schema=args.candidate_max_schema,
         )
         print(json.dumps(bundle, ensure_ascii=False, sort_keys=True))
+    elif args.command == 'check-rollback':
+        verified = verify_release_bundle(args.root, args.bundle, expected_bundle_sha256=args.expected_sha256)
+        bundle = verified['bundle']
+        if bundle['rollback'].get('mode') != 'catalog-guarded':
+            raise ReleaseBundleError('此入口仅检查目录受限回退')
+        acceptance = _read_json(_declared_path(args.root, bundle['acceptance']['path'], label='acceptance'))
+        result = check_catalog_rollback(args.root / 'data' / 'cuoti.db',
+                                        acceptance['catalog_guarded_rollback']['new_method_codes'],
+                                        bundle['schema_compatibility']['formal_before'])
+        print(json.dumps(result, ensure_ascii=False))
     elif args.command == "verify":
         result = verify_release_bundle(
             args.root,
